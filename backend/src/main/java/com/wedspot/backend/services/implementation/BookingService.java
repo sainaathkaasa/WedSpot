@@ -202,4 +202,29 @@ public class BookingService implements IBookingService {
         dto.setServices(services);
         return dto;
     }
+
+    @Override
+    public APIResponse<Void> cancelBooking(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        if (BookingStatus.CANCELLED.equals(booking.getStatus())) {
+            APIResponse<Void> apiResponse = new APIResponse<>();
+            apiResponse.setMessage("Booking is already cancelled");
+            return apiResponse;
+        }
+
+        if (BookingStatus.COMPLETED.equals(booking.getStatus())) {
+            APIResponse<Void> apiResponse = new APIResponse<>();
+            apiResponse.setMessage("Cannot cancel a completed booking");
+            return apiResponse;
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        bookingRepository.save(booking);
+
+        APIResponse<Void> apiResponse = new APIResponse<>();
+        apiResponse.setMessage("Booking cancelled successfully");
+        return apiResponse;
+    }
 }

@@ -18,4 +18,6 @@ public interface IBookingService {
     APIResponse<BookingDTO> getBooking(Long id);
 
     APIResponse<Void> updateBookingStatus(Long id, BookingStatus status);
+
+    APIResponse<Void> cancelBooking(Long id);
 }
