@@ -23,12 +23,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { VENDOR_SERVICE } from '@/features/VendorService/api/vendor.api';
+import { VENDOR_SERVICE } from '@/features/VendorService/api';
+import type { VendorFormData } from '../types';
 import { useSnackbar } from '@/contexts/snackbarContextValue';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 import { InputField } from '@/components/UI/Form';
 import { FormButton } from '@/components/UI/Button';
-import type { VendorService } from '@/features/vendors/types/vendor';
+import type { VendorService } from '@/entities/vendor-service';
 import { useState } from 'react';
 import type { APIResponse } from '@/api/types';
 import type { AxiosError } from 'axios';
@@ -42,8 +43,6 @@ const SECTOR_OPTIONS = [
     { label: 'Invitations', value: 'invitations' },
     { label: 'Catering', value: 'catering' },
 ] as const;
-
-export type VendorFormData = Omit<VendorService, 'id' | 'rating' | 'ratingCount' | 'reviews' | 'quantity' | 'vendor'>;
 
 const schema: yup.ObjectSchema<VendorFormData> = yup.object().shape({
     name: yup.string().required('Service name is required'),

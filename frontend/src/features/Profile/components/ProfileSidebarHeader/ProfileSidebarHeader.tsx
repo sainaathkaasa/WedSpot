@@ -15,7 +15,7 @@ import {
     Logout as LogoutIcon
 } from "@mui/icons-material";
 import { getInitials } from "@/utils/userUtils";
-import DashboardCard from "@/features/dashboard/components/DashboardCard/DashboardCard";
+import { DashboardCard } from '@/features/dashboard';
 import { useAuth } from "@/features/auth";
 import type { InfoItemProps, ProfileSidebarHeaderProps } from "../../types/ProfileSidebarHeader.types";
 import { ProfileAvatar, LogoutButton, InfoIconWrapper } from "./ProfileSidebarHeader.styles";

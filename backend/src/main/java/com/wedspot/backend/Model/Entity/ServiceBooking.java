@@ -30,19 +30,12 @@ public class ServiceBooking {
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.PENDING;
+    private BookingStatus status = BookingStatus.PENDING;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    public enum Status {
-        PENDING,
-        CONFIRMED,
-        CANCELLED,
-        COMPLETED
-    }
 
 }

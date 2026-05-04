@@ -27,7 +27,7 @@ import {
     Badge as BadgeIcon
 } from '@mui/icons-material';
 import DashboardHeader from '@/features/dashboard/components/DashboardHeader/DashboardHeader';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 
 import { useQuery } from '@tanstack/react-query';
 import { USER_SERVICE } from '@/features/Users/api/user.api';

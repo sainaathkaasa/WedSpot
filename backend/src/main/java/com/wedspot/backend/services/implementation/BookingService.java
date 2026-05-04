@@ -3,12 +3,13 @@ package com.wedspot.backend.services.implementation;
 import com.wedspot.backend.Model.APIResponse;
 import com.wedspot.backend.Model.BookingDTO;
 import com.wedspot.backend.Model.BookingRequest;
-import com.wedspot.backend.Model.Entity.Booking;
-import com.wedspot.backend.Model.Entity.ServiceBooking;
-import com.wedspot.backend.Model.Entity.User;
-import com.wedspot.backend.Model.Entity.VendorService;
+import com.wedspot.backend.Model.Entity.*;
+import com.wedspot.backend.Model.VendorServiceDTO;
+import com.wedspot.backend.exception.ResourceNotFoundException;
 import com.wedspot.backend.mappers.IBookingMapper;
+import com.wedspot.backend.mappers.IVendorServiceMapper;
 import com.wedspot.backend.repository.IBookingRepository;
+import com.wedspot.backend.repository.IServiceBookingRepository;
 import com.wedspot.backend.repository.IUserRepository;
 import com.wedspot.backend.repository.IVendorServiceRepository;
 import com.wedspot.backend.services.IBookingService;
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -30,9 +32,13 @@ import java.util.List;
 public class BookingService implements IBookingService {
 
     private final IBookingRepository bookingRepository;
-    private final IBookingMapper bookingMapper;
     private final IUserRepository userRepository;
     private final IVendorServiceRepository vendorServiceRepository;
+
+    private final IServiceBookingRepository serviceBookingRepository;
+
+    private final IBookingMapper bookingMapper;
+    private final IVendorServiceMapper vendorServiceMapper;
 
     @Override
     public APIResponse<List<BookingDTO>> getAllBookings() {
@@ -43,8 +49,9 @@ public class BookingService implements IBookingService {
             apiResponse.setData(Collections.emptyList());
             return apiResponse;
         }
-        List<BookingDTO> allBookingDTOs = allBookings.stream().map(bookingMapper::toDTO).toList();
-
+        List<BookingDTO> allBookingDTOs = allBookings.stream()
+                .map(this::enrichBookingDTO)
+                .toList();
         APIResponse<List<BookingDTO>> apiResponse = new APIResponse<>();
         apiResponse.setMessage("All bookings fetched successfully");
         apiResponse.setData(allBookingDTOs);
@@ -60,7 +67,10 @@ public class BookingService implements IBookingService {
             apiResponse.setData(Collections.emptyList());
             return apiResponse;
         }
-        List<BookingDTO> allBookingDTOs = allBookings.stream().map(bookingMapper::toDTO).toList();
+
+        List<BookingDTO> allBookingDTOs = allBookings.stream()
+                .map(this::enrichBookingDTO)
+                .toList();
 
         APIResponse<List<BookingDTO>> apiResponse = new APIResponse<>();
         apiResponse.setMessage("All bookings fetched successfully");
@@ -78,12 +88,57 @@ public class BookingService implements IBookingService {
             apiResponse.setData(Collections.emptyList());
             return apiResponse;
         }
-        List<BookingDTO> allBookingDTOs = allBookings.stream().map(bookingMapper::toDTO).toList();
+        List<BookingDTO> allBookingDTOs = allBookings.stream()
+                .map(this::enrichBookingDTO)
+                .toList();
 
         APIResponse<List<BookingDTO>> apiResponse = new APIResponse<>();
         apiResponse.setMessage("All bookings fetched successfully");
         apiResponse.setData(allBookingDTOs);
         return apiResponse;
+    }
+
+    @Override
+    public APIResponse<BookingDTO> getBooking(Long id){
+
+        Booking booking = bookingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        BookingDTO bookingDTO = bookingMapper.toDTO(booking);
+
+        List<ServiceBooking> serviceBookingList = booking.getServiceBookings();
+
+        List<VendorServiceDTO> vendorServiceList = serviceBookingList.stream()
+                .map(ServiceBooking::getService)
+                .filter(Objects::nonNull) // Skips any null services
+                .map(vendorServiceMapper::toDTO)
+                .toList();
+
+        bookingDTO.setServices(vendorServiceList);
+
+        APIResponse<BookingDTO> apiResponse = new  APIResponse<>();
+        apiResponse.setMessage("Booking retrieved successfully");
+        apiResponse.setData(bookingDTO);
+
+        return apiResponse;
+
+    }
+
+    @Override
+    public APIResponse<Void> updateBookingStatus(Long id, BookingStatus status) {
+        Booking fetchedBooking = bookingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        fetchedBooking.setStatus(status);
+
+        bookingRepository.save(fetchedBooking);
+
+        APIResponse<Void> apiResponse = new APIResponse<>();
+        if (BookingStatus.CONFIRMED.equals(status)) {
+            apiResponse.setMessage("Booking has been confirmed.");
+        } else {
+            apiResponse.setMessage("Booking has been updated to " + status + " successfully");
+        }
+        return apiResponse;
+
     }
 
     @Override
@@ -98,7 +153,7 @@ public class BookingService implements IBookingService {
         booking.setEventLocation(request.getEventLocation());
         booking.setGuestCount(request.getGuestCount());
         booking.setNotes(request.getNotes());
-        booking.setStatus(Booking.BookingStatus.PENDING);
+        booking.setStatus(BookingStatus.PENDING);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<ServiceBooking> bookingServices = new ArrayList<>();
@@ -115,7 +170,7 @@ public class BookingService implements IBookingService {
                 bs.setService(vendorService);
                 bs.setPrice(vendorService.getPrice());
                 bs.setQuantity(1); // Default quantity
-                bs.setStatus(ServiceBooking.Status.PENDING);
+                bs.setStatus(BookingStatus.PENDING);
 
                 bookingServices.add(bs);
                 totalAmount = totalAmount.add(bs.getPrice());
@@ -133,5 +188,18 @@ public class BookingService implements IBookingService {
         apiResponse.setData(bookingMapper.toDTO(savedBooking));
         apiResponse.setOk(true);
         return apiResponse;
+    }
+
+    private BookingDTO enrichBookingDTO(Booking booking) {
+        BookingDTO dto = bookingMapper.toDTO(booking);
+
+        List<VendorServiceDTO> services = booking.getServiceBookings().stream()
+                .map(ServiceBooking::getService)
+                .filter(Objects::nonNull)
+                .map(vendorServiceMapper::toDTO)
+                .toList();
+
+        dto.setServices(services);
+        return dto;
     }
 }

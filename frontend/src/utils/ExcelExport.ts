@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { utils, writeFile } from 'xlsx';
 
-type ReplaceNaming = Record<string, string>;
+type ColumnHeaderMapping = Record<string, string>;
 
 const camelCaseToTitleCase = (str: string): string => {
   return str
@@ -9,47 +9,47 @@ const camelCaseToTitleCase = (str: string): string => {
     .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase());
 };
 
-export function handleDownloadExcel(
+export function handleExportExcel(
   data: readonly object[] | undefined,
   fileName: string,
   userDateFormat: string,
-  ignoreValues?: string[],
-  keepTheSameNamingCase?: string[],
-  replaceNaming?: ReplaceNaming,
+  excludeColumns?: string[],
+  preserveOriginalCase?: string[],
+  columnHeaderMapping?: ColumnHeaderMapping,
 ) {
   if (!Array.isArray(data) || data.length === 0) {
     return;
   }
 
   const firstItem = data[0];
-  const titleCaseHeaders: string[] = [];
-  const ignoreColumns: number[] = [];
+  const formattedHeaders: string[] = [];
+  const excludedColumnIndexes: number[] = [];
 
-  Object.keys(firstItem).forEach((item, index) => {
-    const keyToPush = replaceNaming && Object.hasOwn(replaceNaming, item)
-      ? replaceNaming[item]
-      : item;
+  Object.keys(firstItem).forEach((columnKey, index) => {
+    const headerText = columnHeaderMapping && Object.hasOwn(columnHeaderMapping, columnKey)
+      ? columnHeaderMapping[columnKey]
+      : columnKey;
 
-    if (ignoreValues?.includes(item)) {
-      ignoreColumns.push(index);
+    if (excludeColumns?.includes(columnKey)) {
+      excludedColumnIndexes.push(index);
       return;
     }
 
-    if (keepTheSameNamingCase?.length) {
-      const matchingItem = keepTheSameNamingCase.find((value) =>
-        value.replace(/\s/g, '').toLowerCase().includes(keyToPush.replace(/\s/g, '').toLowerCase()),
+    if (preserveOriginalCase?.length) {
+      const matchingColumn = preserveOriginalCase.find((value) =>
+        value.replace(/\s/g, '').toLowerCase().includes(headerText.replace(/\s/g, '').toLowerCase()),
       );
 
-      titleCaseHeaders.push(matchingItem ?? camelCaseToTitleCase(keyToPush));
+      formattedHeaders.push(matchingColumn ?? camelCaseToTitleCase(headerText));
       return;
     }
 
-    titleCaseHeaders.push(camelCaseToTitleCase(keyToPush));
+    formattedHeaders.push(camelCaseToTitleCase(headerText));
   });
 
   const tableData = [
-    titleCaseHeaders,
-    ...data.map((item) => Object.values(item).filter((_, index) => !ignoreColumns.includes(index))),
+    formattedHeaders,
+    ...data.map((item) => Object.values(item).filter((_, index) => !excludedColumnIndexes.includes(index))),
   ];
 
   const worksheet = utils.aoa_to_sheet(tableData);

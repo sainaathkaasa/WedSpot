@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { CartContextType } from '@/features/commerce/types/cart.types';
+import type { CartContextType } from '@/entities/cart';
 
 export const CartContext = createContext<CartContextType | undefined>(undefined);
 

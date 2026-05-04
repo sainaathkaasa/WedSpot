@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { InputField, PasswordField } from "@/components/UI/Form";
 import { FormButton } from "@/components/UI/Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/features/auth";
 import { isValidEmail } from "@/utils/validation";
 
@@ -25,7 +25,12 @@ const Login: React.FC = (): JSX.Element => {
   const [apiError, setApiError] = useState("");
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
+
+  if (searchParams.get('session') === 'expired' && !apiError) {
+    setApiError("Your session has expired. Please log in again.");
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +59,8 @@ const Login: React.FC = (): JSX.Element => {
       const response = await login(email, password);
       if (response.ok) {
         console.log("Login Success:", response);
-        navigate("/dashboard");
+        const redirect = searchParams.get('redirect');
+        navigate(redirect || "/dashboard");
       } else {
         setApiError(response.message || "Invalid email or password");
       }

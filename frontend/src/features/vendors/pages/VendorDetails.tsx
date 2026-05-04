@@ -31,8 +31,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/contexts/cartContextValue';
 import CateringDialog from '@/features/vendors/components/CateringDialog';
-import { useQuery } from '@tanstack/react-query';
-import { VENDOR_SERVICE } from '@/features/VendorService/api/vendor.api';
+import { useVendorDetails } from '../hooks';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -61,11 +60,7 @@ const VendorDetails: React.FC = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const { data: response, isLoading, isError } = useQuery({
-        queryKey: ['vendor-service', id],
-        queryFn: () => VENDOR_SERVICE.getById(Number(id)),
-        enabled: !!id
-    });
+    const { data: response, isLoading, isError } = useVendorDetails(id as string);
 
     const vendor = response?.data;
 

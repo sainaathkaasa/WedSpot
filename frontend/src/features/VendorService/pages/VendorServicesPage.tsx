@@ -34,15 +34,14 @@ import {
     FilterList as FilterIcon,
     Search as SearchIcon,
 } from '@mui/icons-material';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import type { AxiosError } from 'axios';
 import ServiceManageCard from '@/features/VendorService/components/ServiceManageCard';
-import CategoryNavigation from '@/features/vendors/components/CategoryNavigation';
-import type { VendorCategory, VendorService } from '@/features/vendors/types/vendor';
+import { CategoryNavigation } from '@/features/vendors/components';
+import type { VendorCategory, VendorService } from '@/entities/vendor-service';
 import { useSnackbar } from '@/contexts/snackbarContextValue';
 import { useUser } from '@/features/user';
-import { VENDOR_SERVICE } from '../api/vendor.api';
+import { useVendorServices, useDeleteVendorService } from '../hooks';
 
 const CATEGORIES: VendorCategory[] = [
     { id: 'floral', name: 'Floral Decoration', icon: '\u{1F338}', description: 'Artisanal floral designs for every theme' },
@@ -56,10 +55,7 @@ const CATEGORIES: VendorCategory[] = [
 const ITEMS_PER_PAGE = 6;
 const MAX_PRICE = 500000;
 const PRICE_STEP = 5000;
-const VENDOR_SERVICES_QUERY_KEY = 'vendor-services';
-
 type SortOption = 'price_asc' | 'price_desc' | 'rating_desc' | 'newest' | 'most_reviews';
-type ServiceQueryKey = [typeof VENDOR_SERVICES_QUERY_KEY, number | undefined];
 
 interface FilterState {
     sort: SortOption;
@@ -252,8 +248,6 @@ const deleteButtonSx: SxProps<Theme> = {
     ...dialogButtonSx,
     minWidth: 80,
 };
-
-const getServiceQueryKey = (userId?: number): ServiceQueryKey => [VENDOR_SERVICES_QUERY_KEY, userId];
 
 const getErrorMessage = (err: unknown): string => {
     const axiosError = err as AxiosError<ApiErrorResponse>;
@@ -457,7 +451,6 @@ const VendorServicesPage = () => {
     const navigate = useNavigate();
     const { user } = useUser();
     const { success, error } = useSnackbar();
-    const queryClient = useQueryClient();
     const userId = user?.id ? Number(user.id) : undefined;
 
     const [activeCategory, setActiveCategory] = useState('all');
@@ -471,12 +464,8 @@ const VendorServicesPage = () => {
         setPage(1);
     }, [activeCategory, searchQuery, filters]);
 
-    const { data: allServices = [], isLoading } = useQuery({
-        queryKey: getServiceQueryKey(userId),
-        queryFn: () => VENDOR_SERVICE.getVendorServices(userId as number),
-        enabled: userId !== undefined,
-        select: (response) => response.data ?? [],
-    });
+    const { data: response, isLoading } = useVendorServices(userId as number);
+    const allServices = (response?.data ?? []) as VendorService[];
 
     const normalizedSearchQuery = searchQuery.trim().toLowerCase();
     const normalizedLocationFilter = filters.location.trim().toLowerCase();
@@ -620,17 +609,16 @@ const VendorServicesPage = () => {
         navigate(`/vendor/services/edit/${service.id}`);
     }, [navigate]);
 
-    const { mutate: deleteService, isPending: isDeleting } = useMutation({
-        mutationFn: (serviceId: number) => VENDOR_SERVICE.delete(serviceId),
-        onSuccess: (response) => {
+    const { mutate: deleteService, isPending: isDeleting } = useDeleteVendorService();
+
+    const handleDeleteResult = (response: { message?: string }, err: unknown) => {
+        if (response) {
             success(response.message ?? 'Service deleted successfully');
-            queryClient.invalidateQueries({ queryKey: getServiceQueryKey(userId) });
-            setDeleteTarget(null);
-        },
-        onError: (err: unknown) => {
+        } else {
             error(getErrorMessage(err));
-        },
-    });
+        }
+        setDeleteTarget(null);
+    };
 
     const handleDeleteClick = useCallback((serviceId: number) => {
         setDeleteTarget(serviceId);
@@ -638,7 +626,10 @@ const VendorServicesPage = () => {
 
     const handleDeleteConfirm = useCallback(() => {
         if (deleteTarget !== null) {
-            deleteService(deleteTarget);
+            deleteService(deleteTarget, {
+                onSuccess: (response) => handleDeleteResult(response, null),
+                onError: (err) => handleDeleteResult(null as never, err),
+            });
         }
     }, [deleteService, deleteTarget]);
 

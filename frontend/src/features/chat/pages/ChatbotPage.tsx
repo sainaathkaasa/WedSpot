@@ -1,8 +1,9 @@
 import { useEffect, type JSX } from "react";
 import { Box } from "@mui/material";
-import { CHAT_SERVICE } from "@/features/chat/api/chat.api";
+import { CHAT_SERVICE } from "@/features/chat/api";
 import { authStore } from "@/features/auth/utils/authSingleton";
-import { useChatStore, type ChatMessage } from "@/features/chat/store/chatStore";
+import { useChatStore } from "@/features/chat/store";
+import type { ChatMessage } from "@/features/chat/types";
 import ChatContainer from "@/features/chat/components/ChatContainer";
 
 const ChatbotPage = (): JSX.Element => {

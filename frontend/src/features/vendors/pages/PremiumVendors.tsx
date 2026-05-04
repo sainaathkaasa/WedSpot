@@ -19,9 +19,8 @@ import {
 } from '@mui/icons-material';
 import VendorCard from '../components/VendorCard';
 import SectorNavigation from '../components/CategoryNavigation';
-import type { VendorCategory, VendorService } from '../types/vendor';
-import { useQuery } from '@tanstack/react-query';
-import { VENDOR_SERVICE } from '@/features/VendorService/api/vendor.api';
+import type { VendorCategory, VendorService } from '../types';
+import { useVendors } from '../hooks';
 
 const SECTORS: VendorCategory[] = [
     { id: 'all', name: 'All Services', icon: '📋', description: 'View all' }, // Added explicit All
@@ -40,11 +39,7 @@ const PremiumVendors: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [page, setPage] = useState(1);
 
-    const { data: response, isLoading, isError } = useQuery({
-        queryKey: ['premium-services'],
-        queryFn: () => VENDOR_SERVICE.getAllServices(),
-        staleTime: 1000 * 60 * 5, // Cache for 5 mins for business efficiency
-    });
+    const { data: response, isLoading, isError } = useVendors();
 
     const allServices = response?.data || [];
 

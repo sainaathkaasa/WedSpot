@@ -14,14 +14,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const isAuthenticated = !!accessToken;
 
-    // Heartbeat to keep Render backend active
     useEffect(() => {
         let interval: ReturnType<typeof setInterval> | undefined;
         if (isAuthenticated) {
             HEALTH_SERVICE.check().catch(() => { });
             interval = setInterval(() => {
                 HEALTH_SERVICE.check().catch(() => { });
-            }, 300000); // 5 minutes
+            }, 300000);
         }
         return () => clearInterval(interval);
     }, [isAuthenticated]);
@@ -37,6 +36,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
     }, []);
 
+    const setRefreshToken = useCallback((t: string | null) => {
+        authStore.setRefreshToken(t);
+        if (t) {
+            localStorage.setItem("refreshToken", t);
+        } else {
+            localStorage.removeItem("refreshToken");
+        }
+    }, []);
+
     useEffect(() => {
         authStore.setAccessToken(accessToken);
     }, [accessToken]);
@@ -47,13 +55,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             if (response.ok) {
                 const authData = response.data;
                 const token = authData?.accessToken ?? null;
+                const refresh = authData?.refreshToken ?? null;
                 const user: User | undefined = authData?.user;
                 setAccessToken(token);
+                setRefreshToken(refresh);
                 if (user) setUser(user);
             }
             return response;
         },
-        [setAccessToken, setUser]
+        [setAccessToken, setRefreshToken, setUser]
     );
 
     const logout = useCallback(async (id: number) => {
@@ -63,8 +73,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             console.error("Logout failed:", error);
         }
         setAccessToken(null);
+        setRefreshToken(null);
+        authStore.clearAll();
         clearUser();
-    }, [setAccessToken, clearUser]);
+    }, [setAccessToken, setRefreshToken, clearUser]);
 
     const register = useCallback(
         async (user: User) => {
@@ -72,15 +84,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             if (response.ok) {
                 const authData = response.data;
                 const token = authData?.accessToken ?? null;
+                const refresh = authData?.refreshToken ?? null;
 
                 setAccessToken(token);
+                setRefreshToken(refresh);
                 if (authData?.user) {
                     setUser(authData.user);
                 }
             }
             return response;
         },
-        [setAccessToken, setUser]
+        [setAccessToken, setRefreshToken, setUser]
     );
 
     return (

@@ -2,6 +2,7 @@ package com.wedspot.backend.controller;
 
 import com.wedspot.backend.Model.APIResponse;
 import com.wedspot.backend.Model.BookingDTO;
+import com.wedspot.backend.Model.Entity.BookingStatus;
 import com.wedspot.backend.services.implementation.BookingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,9 +40,21 @@ public class BookingController {
         return ResponseEntity.ok().body(apiResponse);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<APIResponse<BookingDTO>> getBooking(@PathVariable Long id) {
+        APIResponse<BookingDTO> apiResponse = bookingService.getBooking(id);
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
     @PostMapping
     public ResponseEntity<APIResponse<BookingDTO>> createBooking(@RequestBody com.wedspot.backend.Model.BookingRequest request) {
         APIResponse<BookingDTO> apiResponse = bookingService.createBooking(request);
         return ResponseEntity.status(201).body(apiResponse);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<APIResponse<Void>> updateBookingStatus(@PathVariable Long id, @RequestParam BookingStatus status) {
+        APIResponse<Void> apiResponse = bookingService.updateBookingStatus(id, status);
+        return ResponseEntity.ok().body(apiResponse);
     }
 }

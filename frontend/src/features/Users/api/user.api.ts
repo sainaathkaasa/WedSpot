@@ -1,5 +1,5 @@
 import api from "@/api/axios";
-import endpoints from "@/api/GlobalEndpoints";
+import endpoints from "@/api/ApiEndpoints";
 import type { APIResponse } from "@/api/types";
 import type { User } from "@/features/auth";
 

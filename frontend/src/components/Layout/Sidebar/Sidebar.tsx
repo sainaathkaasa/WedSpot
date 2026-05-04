@@ -28,12 +28,7 @@ const Sidebar = (): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const currentRole = role?.toLowerCase() ||
-    (window.location.pathname.includes('/admin') ? 'admin' :
-      window.location.pathname.includes('/manager') ? 'manager' :
-        window.location.pathname.includes('/vendor') ? 'vendor' :
-          window.location.pathname.includes('/staff') ? 'staff' :
-            'client');
+  const currentRole = role?.toLowerCase();
 
   const sidebarWidth = 260;
   const collapsedWidth = 72;
@@ -45,12 +40,12 @@ const Sidebar = (): JSX.Element => {
   };
 
   const getMenuItems = () => {
+    if (!currentRole) return [{ text: "Dashboard", icon: icons.Dashboard, path: "/dashboard" }];
 
     const items: MenuItem[] = [
       { text: "Dashboard", icon: icons.Dashboard, path: "/dashboard" }
     ];
 
-    // Role-specific menu items from config
     const roleItems = MENU_CONFIG[currentRole] || [];
     items.push(...roleItems);
 

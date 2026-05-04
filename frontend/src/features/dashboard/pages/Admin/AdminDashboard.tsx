@@ -12,7 +12,7 @@ import {
 } from "@mui/icons-material";
 import { Box, Grid, Typography, Button, Avatar, useTheme, alpha } from "@mui/material";
 import DashboardStats from "@/features/dashboard/components/DashboardStats/DashboardStats";
-import DashboardCard from "@/features/dashboard/components/DashboardCard/DashboardCard";
+import { DashboardCard } from '@/features/dashboard';
 import Chart from "react-apexcharts";
 
 

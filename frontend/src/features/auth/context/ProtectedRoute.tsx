@@ -1,9 +1,7 @@
-import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useSearchParams } from "react-router-dom";
 import { useAuth } from "./useAuth";
 import { useUser } from "@/features/user";
-import { UserRole } from "@/features/auth/types/auth.types";
-import { Box, CircularProgress } from "@mui/material";
+import { UserRole } from '@/entities/user';
 
 interface ProtectedRouteProps {
     allowedRoles?: UserRole[];
@@ -13,35 +11,13 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children }) => {
     const { isAuthenticated } = useAuth();
     const { user } = useUser();
+    const [searchParams] = useSearchParams();
 
-
-    // console.log("Protected Route", user, isAuthenticated)
     const role = user?.role;
-    const [isChecking, setIsChecking] = React.useState(true);
-
-    React.useEffect(() => {
-        const timer = setTimeout(() => setIsChecking(false), 100);
-        return () => clearTimeout(timer);
-    }, []);
-
-    if (isChecking) {
-        return (
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: "100vh",
-                    bgcolor: "#f8fafc",
-                }}
-            >
-                <CircularProgress size={48} sx={{ color: "#7c3aed" }} />
-            </Box>
-        );
-    }
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        const redirectPath = window.location.pathname;
+        return <Navigate to={`/login${redirectPath !== '/' ? `?redirect=${encodeURIComponent(redirectPath)}` : ''}`} replace />;
     }
 
     if (allowedRoles && allowedRoles.length > 0) {
@@ -51,8 +27,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
         );
 
         if (!hasAccess) {
-            return <Navigate to={"/dashboard"} replace />;
+            return <Navigate to="/dashboard" state={{ message: "You do not have permission to access this page." }} replace />;
         }
+    }
+
+    if (searchParams.get('session') === 'expired') {
+        return <Navigate to="/login?session=expired" replace />;
     }
 
     return children ? <>{children}</> : <Outlet />;

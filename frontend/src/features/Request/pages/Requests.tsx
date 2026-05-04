@@ -14,8 +14,9 @@ import {
 import { useMaterialReactTable } from 'material-react-table';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/features/user/context/useUser';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 import { TableComponent, TableBottomToolbar, TableHeaderToolbar } from '@/components/UI/Table';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 
 // Mock data for requests
 const mockRequests = [
@@ -34,16 +35,6 @@ const RequestsPage = () => {
     const role = user?.role;
 
     const currentRole = role?.toLowerCase() || 'client';
-
-    const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'pending': return 'warning';
-            case 'in discussion': return 'info';
-            case 'accepted': return 'success';
-            case 'rejected': return 'error';
-            default: return 'default';
-        }
-    };
 
     const columns = useMemo(
         () => [
@@ -104,17 +95,7 @@ const RequestsPage = () => {
                 accessorKey: 'status',
                 header: 'Status',
                 Cell: ({ cell }: any) => (
-                    <Typography
-                        sx={{
-                            fontWeight: 900,
-                            color: `${theme.palette[getStatusColor(cell.getValue() as string) as 'success' | 'warning' | 'error' | 'info'].main}`,
-                            fontSize: '10px',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em'
-                        }}
-                    >
-                        {cell.getValue() as string}
-                    </Typography>
+                    <StatusBadge status={cell.getValue() as string} variant="request" />
                 )
             },
             {

@@ -3,7 +3,7 @@ import { Box, Grid, Fade } from "@mui/material";
 import { useUser } from "@/features/user";
 import { USER_SERVICE } from "@/features/Users/api/user.api";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import DashboardCard from "@/features/dashboard/components/DashboardCard/DashboardCard";
+import { DashboardCard } from '@/features/dashboard';
 import ProfileSidebarHeader from "../components/ProfileSidebarHeader";
 import ProfileTopNav from "../../user/pages/Profile/ProfileTopNav";
 import GeneralSection from "../components/GeneralSection";

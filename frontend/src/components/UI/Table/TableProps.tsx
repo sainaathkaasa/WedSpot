@@ -6,7 +6,7 @@ import {
   type MRT_TableInstance,
 } from 'material-react-table';
 import CustomPagination from './CustomPagination';
-import { handleDownloadExcel } from '@/utils/ExcelUploads';
+import { handleExportExcel } from '@/utils/ExcelExport';
 import ExcelImage from '@/assets/icons/excel.svg';
 import { useAppSelector } from '@/store';
 
@@ -177,7 +177,7 @@ export const TableHeaderToolbar = <TData extends MRT_RowData = MRT_RowData>({
           <Tooltip title="Excel Download">
             <Button
               onClick={() =>
-                handleDownloadExcel(
+                handleExportExcel(
                   ExcelData.data,
                   ExcelData.fileName,
                   userDateFormat || 'DD-MM-YYYY',

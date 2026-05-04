@@ -11,8 +11,9 @@ import {
     ReceiptLong as BillIcon
 } from '@mui/icons-material';
 import { useMaterialReactTable } from 'material-react-table';
-import DashboardCard from '../../dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 import { TableComponent, TableBottomToolbar, TableHeaderToolbar } from '@/components/UI/Table';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 
 interface Bill {
     id: string;
@@ -41,15 +42,6 @@ const mockBills: Bill[] = [
 const BillsPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-    const getStatusColor = (status: Bill['status']) => {
-        switch (status) {
-            case 'paid': return 'success';
-            case 'pending': return 'warning';
-            case 'overdue': return 'error';
-            default: return 'default';
-        }
-    };
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -98,17 +90,7 @@ const BillsPage = () => {
                 accessorKey: 'status',
                 header: 'Status',
                 Cell: ({ cell }: any) => (
-                    <Typography
-                        sx={{
-                            fontWeight: 900,
-                            color: `${theme.palette[getStatusColor(cell.getValue() as Bill['status']) as 'success' | 'warning' | 'error' | 'info'].main}`,
-                            textTransform: 'uppercase',
-                            fontSize: '10px',
-                            letterSpacing: '0.05em'
-                        }}
-                    >
-                        {cell.getValue() as string}
-                    </Typography>
+                    <StatusBadge status={cell.getValue() as string} variant="bill" />
                 ),
             },
             {

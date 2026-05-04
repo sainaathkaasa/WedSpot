@@ -1,44 +1,51 @@
+import { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
-import Login from "@/features/auth/pages/Login/Login";
-import ForgotPassword from "@/features/auth/pages/ForgotPassword/ForgotPassword";
-import RegisterPage from "@/features/auth/pages/SignUp/RegisterPage";
-import ChatbotPage from "@/features/chat/pages/ChatbotPage";
-import Home from "@/features/home/pages/Home";
-import PrivacyPolicy from "@/pages/PrivacyPolicy/PrivacyPolicy";
-import TermsOfService from "@/pages/TermsOfService/TermsOfService";
-import NotFound from "@/pages/NotFound/NotFound";
-import Users from "@/features/Users/pages/Users";
-import Vendors from "@/features/Manager/pages/Vendors/Vendors";
-import Requests from "@/features/Request/pages/Requests";
-import Bookings from "@/features/Booking/pages/BookingsPage";
-import Analytics from "@/features/Analytics/pages/Analytics";
-import Earnings from "@/features/Earnings/pages/Earnings";
-import SavedVendors from "@/features/vendors/pages/SavedVendors";
-import Revenue from "@/features/Revenue/pages/Revenue";
-import Staff from "@/features/Manager/pages/Staff/Staff";
-import Reports from "@/features/Reports/pages/Reports";
-import Tasks from "@/features/Tasks/pages/Tasks";
-import AddUser from "@/features/Users/pages/AddUser";
-import Products from "@/features/commerce/pages/Products/Products";
-import AddVendor from "@/features/Manager/pages/Vendors/AddVendor";
-import AddStaff from "@/features/Manager/pages/Staff/AddStaff";
-import AddRequest from "@/features/Request/pages/AddRequest";
-import Profile from "@/features/Profile/pages/Profile";
-import CartPage from "@/features/commerce/pages/Cart/CartPage";
+import { UserRole } from '@/entities/user';
 import MainLayout from "@/layouts/MainLayout";
 import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { DashboardProvider } from "@/features/dashboard/context/DashboardContext";
 import ProtectedRoute from "@/features/auth/context/ProtectedRoute";
 import PublicRoute from "@/features/auth/context/PublicRoute";
-import { UserRole } from "@/features/auth/types/auth.types";
-import BillsPage from "@/features/Bills/pages/Bills";
-import PremiumVendors from "@/features/vendors/pages/PremiumVendors";
-import VendorDetails from "@/features/vendors/pages/VendorDetails";
-import DashboardPage from "@/features/dashboard/pages/Dashboard/DashboardPage";
-import UpdateUser from "./features/Users/pages/UpdateUser";
-import VendorServicesPage from "./features/VendorService/pages/VendorServicesPage";
-import VendorManageDetails from "./features/VendorService/components/VendorManageDetails";
+import PrivacyPolicy from "@/pages/PrivacyPolicy/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService/TermsOfService";
+import NotFound from "@/pages/NotFound/NotFound";
+
+const Login = lazy(() => import("@/features/auth/pages/Login/Login"));
+const ForgotPassword = lazy(() => import("@/features/auth/pages/ForgotPassword/ForgotPassword"));
+const RegisterPage = lazy(() => import("@/features/auth/pages/SignUp/RegisterPage"));
+const ChatbotPage = lazy(() => import("@/features/chat/pages/ChatbotPage"));
+const Home = lazy(() => import("@/features/home/pages/Home"));
+const Users = lazy(() => import("@/features/Users/pages/Users"));
+const Vendors = lazy(() => import("@/features/Manager/pages/Vendors/Vendors"));
+const Requests = lazy(() => import("@/features/Request/pages/Requests"));
+const Bookings = lazy(() => import("@/features/Booking/pages/BookingsPage"));
+const BookingDetails = lazy(() => import("@/features/Booking/pages/BookingDetailsPage"));
+const Analytics = lazy(() => import("@/features/Analytics/pages/Analytics"));
+const Earnings = lazy(() => import("@/features/Earnings/pages/Earnings"));
+const SavedVendors = lazy(() => import("@/features/vendors/pages/SavedVendors"));
+const Revenue = lazy(() => import("@/features/Revenue/pages/Revenue"));
+const Staff = lazy(() => import("@/features/Manager/pages/Staff/Staff"));
+const Reports = lazy(() => import("@/features/Reports/pages/Reports"));
+const Tasks = lazy(() => import("@/features/Tasks/pages/Tasks"));
+const AddUser = lazy(() => import("@/features/Users/pages/AddUser"));
+const Products = lazy(() => import("@/features/commerce/pages/Products/Products"));
+const AddVendor = lazy(() => import("@/features/Manager/pages/Vendors/AddVendor"));
+const AddStaff = lazy(() => import("@/features/Manager/pages/Staff/AddStaff"));
+const AddRequest = lazy(() => import("@/features/Request/pages/AddRequest"));
+const Profile = lazy(() => import("@/features/Profile/pages/Profile"));
+const CartPage = lazy(() => import("@/features/commerce/pages/Cart/CartPage"));
+const BillsPage = lazy(() => import("@/features/Bills/pages/Bills"));
+const PremiumVendors = lazy(() => import("@/features/vendors/pages/PremiumVendors"));
+const VendorDetails = lazy(() => import("@/features/vendors/pages/VendorDetails"));
+const DashboardPage = lazy(() => import("@/features/dashboard/pages/Dashboard/DashboardPage"));
+const UpdateUser = lazy(() => import("./features/Users/pages/UpdateUser"));
+const VendorServicesPage = lazy(() => import("./features/VendorService/pages/VendorServicesPage"));
+const VendorManageDetails = lazy(() => import("./features/VendorService/components/VendorManageDetails"));
+
+const withSuspense = (component: React.ReactNode) => (
+    <Suspense fallback={<div />}>{component}</Suspense>
+);
 
 export const router = createBrowserRouter([
     {
@@ -59,9 +66,9 @@ export const router = createBrowserRouter([
             </PublicRoute>
         ),
         children: [
-            { path: "/login", element: <Login /> },
-            { path: "/forgot-password", element: <ForgotPassword /> },
-            { path: "/register", element: <RegisterPage /> },
+            { path: "/login", element: withSuspense(<Login />) },
+            { path: "/forgot-password", element: withSuspense(<ForgotPassword />) },
+            { path: "/register", element: withSuspense(<RegisterPage />) },
         ],
     },
     {
@@ -76,86 +83,91 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: "dashboard",
-                element: <DashboardPage />
+                element: withSuspense(<DashboardPage />)
             },
             {
                 path: "admin",
                 element: <ProtectedRoute allowedRoles={[UserRole.ADMIN]} />,
                 children: [
-                    { path: "users", element: <Users /> },
-                    { path: "users/add", element: <AddUser /> },
-                    { path: "users/:id", element: <UpdateUser /> },
-                    { path: "requests", element: <Requests /> },
-                    { path: "bookings", element: <Bookings /> },
-                    { path: "revenue", element: <Revenue /> },
-                    { path: "analytics", element: <Analytics /> },
+                    { path: "users", element: withSuspense(<Users />) },
+                    { path: "users/add", element: withSuspense(<AddUser />) },
+                    { path: "users/:id", element: withSuspense(<UpdateUser />) },
+                    { path: "requests", element: withSuspense(<Requests />) },
+                    { path: "bookings", element: withSuspense(<Bookings />) },
+                    { path: "bookings/:id", element: withSuspense(<BookingDetails />) },
+                    { path: "revenue", element: withSuspense(<Revenue />) },
+                    { path: "analytics", element: withSuspense(<Analytics />) },
                 ]
             },
             {
                 path: "manager",
                 element: <ProtectedRoute allowedRoles={[UserRole.MANAGER]} />,
                 children: [
-                    { path: "vendors", element: <Vendors /> },
-                    { path: "vendors/add", element: <AddVendor /> },
-                    { path: "requests", element: <Requests /> },
-                    { path: "bookings", element: <Bookings /> },
-                    { path: "staff", element: <Staff /> },
-                    { path: "staff/add", element: <AddStaff /> },
-                    { path: "reports", element: <Reports /> },
+                    { path: "vendors", element: withSuspense(<Vendors />) },
+                    { path: "vendors/add", element: withSuspense(<AddVendor />) },
+                    { path: "requests", element: withSuspense(<Requests />) },
+                    { path: "bookings", element: withSuspense(<Bookings />) },
+                    { path: "bookings/:id", element: withSuspense(<BookingDetails />) },
+                    { path: "staff", element: withSuspense(<Staff />) },
+                    { path: "staff/add", element: withSuspense(<AddStaff />) },
+                    { path: "reports", element: withSuspense(<Reports />) },
                 ]
             },
             {
                 path: "staff",
                 element: <ProtectedRoute allowedRoles={[UserRole.STAFF]} />,
                 children: [
-                    { path: "bookings", element: <Bookings /> },
-                    { path: "tasks", element: <Tasks /> },
-                    { path: "reports", element: <Reports /> },
+                    { path: "bookings", element: withSuspense(<Bookings />) },
+                    { path: "bookings/:id", element: withSuspense(<BookingDetails />) },
+                    { path: "tasks", element: withSuspense(<Tasks />) },
+                    { path: "reports", element: withSuspense(<Reports />) },
                 ]
             },
             {
                 path: "vendor",
                 element: <ProtectedRoute allowedRoles={[UserRole.VENDOR]} />,
                 children: [
-                    { path: "requests", element: <Requests /> },
-                    { path: "services", element: <VendorServicesPage /> },
-                    { path: "services/add", element: <VendorManageDetails /> },
-                    { path: "services/edit/:id", element: <VendorManageDetails /> },
-                    { path: "bookings", element: <Bookings /> },
-                    { path: "earnings", element: <Earnings /> },
+                    { path: "requests", element: withSuspense(<Requests />) },
+                    { path: "services", element: withSuspense(<VendorServicesPage />) },
+                    { path: "services/add", element: withSuspense(<VendorManageDetails />) },
+                    { path: "services/edit/:id", element: withSuspense(<VendorManageDetails />) },
+                    { path: "bookings", element: withSuspense(<Bookings />) },
+                    { path: "bookings/:id", element: withSuspense(<BookingDetails />) },
+                    { path: "earnings", element: withSuspense(<Earnings />) },
                 ]
             },
             {
                 path: "client",
                 element: <ProtectedRoute allowedRoles={[UserRole.CLIENT]} />,
                 children: [
-                    { path: "vendors", element: <PremiumVendors /> },
-                    { path: "vendors/:id", element: <VendorDetails /> },
-                    { path: "requests", element: <Requests /> },
-                    { path: "requests/add", element: <AddRequest /> },
-                    { path: "bookings", element: <Bookings /> },
-                    { path: "saved", element: <SavedVendors /> },
+                    { path: "vendors", element: withSuspense(<PremiumVendors />) },
+                    { path: "vendors/:id", element: withSuspense(<VendorDetails />) },
+                    { path: "requests", element: withSuspense(<Requests />) },
+                    { path: "requests/add", element: withSuspense(<AddRequest />) },
+                    { path: "bookings", element: withSuspense(<Bookings />) },
+                    { path: "bookings/:id", element: withSuspense(<BookingDetails />) },
+                    { path: "saved", element: withSuspense(<SavedVendors />) },
                 ]
             },
             {
                 path: "products",
-                element: <Products />,
+                element: withSuspense(<Products />),
             },
             {
                 path: "products/:id",
-                element: <VendorDetails />,
+                element: withSuspense(<VendorDetails />),
             },
             {
                 path: "profile",
-                element: <Profile />,
+                element: withSuspense(<Profile />),
             },
             {
                 path: "chatbot",
-                element: <ChatbotPage />,
+                element: withSuspense(<ChatbotPage />),
             },
             {
                 path: "cart",
-                element: <CartPage />,
+                element: withSuspense(<CartPage />),
             },
         ],
     },

@@ -16,12 +16,13 @@ import { useForm, Controller, type FieldPath } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useMutation } from '@tanstack/react-query';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 import { InputField } from '@/components/UI/Form';
 import { FormButton } from '@/components/UI/Button';
 import { useSnackbar } from '@/contexts/snackbarContextValue';
 import { AUTH_SERVICE } from '@/features/auth';
-import type { AuthResponse, User } from '@/features/auth/types/auth.types';
+import type { User, UserRole } from '@/entities/user';
+import type { AuthResponse } from '@/features/auth/types/auth.types';
 
 const schema = yup.object().shape({
     name: yup.string().required('Full Name is required'),
@@ -72,7 +73,9 @@ const AddUser = () => {
         },
     });
 
-    const onSubmit = (data: User) => mutate(data); // ✅ isPending handles loading state
+    const onSubmit = (data: { role: string; name: string; email: string; password: string; phoneNumber?: string; address?: string; enabled: boolean }) => {
+        mutate({ ...data, role: data.role as UserRole });
+    };
 
     return (
         <Box sx={{ p: 0 }}>

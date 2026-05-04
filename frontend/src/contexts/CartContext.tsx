@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { CartItem } from '@/features/commerce/types/cart.types';
+import type { CartItem } from '@/entities/cart';
 import { useSnackbar } from '@/contexts/snackbarContextValue';
 import { CartContext } from './cartContextValue';
 

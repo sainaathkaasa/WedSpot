@@ -9,7 +9,7 @@ import {
 } from '@mui/icons-material';
 import { Box, Grid, Typography, Button, Avatar, LinearProgress, Stack, Paper, useTheme, alpha } from '@mui/material';
 import DashboardStats from "@/features/dashboard/components/DashboardStats/DashboardStats";
-import DashboardCard from "@/features/dashboard/components/DashboardCard/DashboardCard";
+import { DashboardCard } from '@/features/dashboard';
 
 const ManagerDashboard: React.FC = () => {
   const theme = useTheme();

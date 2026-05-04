@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
-import { useChatStore, type ChatMessage } from '../store/chatStore';
+import { useChatStore } from '../store';
+import type { ChatMessage } from '../types';
 import { authStore } from '../../auth/utils/authSingleton';
 
 const HUB_URL = (import.meta.env.VITE_API_BASE || "http://localhost:5000") + "/hubs/chat";

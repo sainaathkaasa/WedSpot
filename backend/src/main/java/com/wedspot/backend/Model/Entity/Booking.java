@@ -58,10 +58,5 @@ public class Booking {
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
 
-    public enum BookingStatus {
-        PENDING,
-        CONFIRMED,
-        CANCELLED,
-        COMPLETED
-    }
+
 }

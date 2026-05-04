@@ -3,16 +3,24 @@ import {
     alpha,
     Box,
     Button,
-    Chip,
     IconButton,
+    MenuItem,
+    Select,
     Typography,
     useMediaQuery,
     useTheme,
+    Tooltip,
+    Menu,
 } from '@mui/material';
 import {
     CalendarMonth as CalendarIcon,
     List as ListIcon,
     MoreVert as MoreVertIcon,
+    RemoveRedEye as ViewIcon,
+    Cancel as CancelIcon,
+    EventNote as EventNoteIcon,
+    CheckCircle as CheckCircleIcon,
+    FilterList as FilterListIcon,
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -20,16 +28,18 @@ import {
     type MRT_ColumnDef,
 } from 'material-react-table';
 import { useNavigate } from 'react-router-dom';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 import { TableBottomToolbar, TableComponent, TableHeaderToolbar } from '@/components/UI/Table';
 import { PremiumCalendar } from '@/components/UI/Calendar';
 import { useUser } from '@/features/user';
-import { BOOKING_SERVICE } from '../api/bookings.api';
+import { BOOKING_SERVICE } from '../api';
 import type { Booking, BookingStatus } from '../types/bookings.types';
+import { StatusBadge, EmptyState } from '@/shared/ui';
+import { useSnackbar } from '@/contexts/snackbarContextValue';
+import { getErrorMessage } from '@/lib/error';
 
 type ViewMode = 'list' | 'calendar';
 type BookingRole = 'client' | 'vendor' | 'admin' | 'manager' | 'staff' | string;
-type StatusColor = 'success' | 'warning' | 'error' | 'info' | 'default';
 
 interface CalendarBooking {
     id: string;
@@ -50,19 +60,13 @@ const formatCurrency = (amount?: number): string => {
 };
 
 const formatDisplayDate = (date?: string): string => {
-    if (!date) {
-        return 'N/A';
-    }
-
+    if (!date) return 'N/A';
     const parsedDate = new Date(date);
     return Number.isNaN(parsedDate.getTime()) ? 'N/A' : parsedDate.toLocaleDateString();
 };
 
 const formatCalendarDate = (date?: string): string => {
-    if (!date) {
-        return '';
-    }
-
+    if (!date) return '';
     return date.includes('T') ? date.split('T')[0] : date;
 };
 
@@ -72,22 +76,6 @@ const getServiceNames = (booking: Booking): string => {
 
 const getVendorName = (booking: Booking): string => {
     return booking.services?.[0]?.vendor?.name ?? 'N/A';
-};
-
-const getStatusColor = (status?: string): StatusColor => {
-    switch (status?.toUpperCase()) {
-        case 'CONFIRMED':
-            return 'success';
-        case 'PENDING':
-            return 'warning';
-        case 'CANCELLED':
-        case 'CANCELED':
-            return 'error';
-        case 'COMPLETED':
-            return 'info';
-        default:
-            return 'default';
-    }
 };
 
 const getBookingsByRole = (role: BookingRole, userId?: number) => {
@@ -101,20 +89,31 @@ const getBookingsByRole = (role: BookingRole, userId?: number) => {
     }
 };
 
+const statusOptions: { value: string; label: string }[] = [
+    { value: 'all', label: 'All Statuses' },
+    { value: 'PENDING', label: 'Pending' },
+    { value: 'CONFIRMED', label: 'Confirmed' },
+    { value: 'CANCELLED', label: 'Cancelled' },
+    { value: 'COMPLETED', label: 'Completed' },
+];
+
 const BookingsPage = () => {
     const theme = useTheme();
     const navigate = useNavigate();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { user } = useUser();
+    const { error, success } = useSnackbar();
     const currentRole = (user?.role?.toLowerCase() || 'client') as BookingRole;
     const userId = user?.id ? Number(user.id) : undefined;
     const [viewMode, setViewMode] = useState<ViewMode>('list');
     const [globalFilter, setGlobalFilter] = useState('');
     const [showGlobalFilter, setShowGlobalFilter] = useState(false);
+    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [actionMenu, setActionMenu] = useState<{ el: HTMLElement; booking: Booking } | null>(null);
 
     const canFetchBookings = currentRole !== 'client' && currentRole !== 'vendor' || userId !== undefined;
 
-    const { data: bookingResponse, isLoading } = useQuery({
+    const { data: bookingResponse, isLoading, isError } = useQuery({
         queryKey: getBookingQueryKey(currentRole, userId),
         queryFn: () => getBookingsByRole(currentRole, userId),
         enabled: canFetchBookings,
@@ -122,8 +121,13 @@ const BookingsPage = () => {
 
     const bookings = useMemo(() => bookingResponse?.data ?? [], [bookingResponse?.data]);
 
+    const filteredBookings = useMemo(() => {
+        if (statusFilter === 'all') return bookings;
+        return bookings.filter((b: Booking) => b.status?.toUpperCase() === statusFilter);
+    }, [bookings, statusFilter]);
+
     const calendarBookings = useMemo<CalendarBooking[]>(() => (
-        bookings.map((booking) => ({
+        filteredBookings.map((booking: Booking) => ({
             id: String(booking.id),
             title: getServiceNames(booking),
             client: booking.client?.name ?? 'N/A',
@@ -132,13 +136,23 @@ const BookingsPage = () => {
             amount: formatCurrency(booking.totalAmount),
             status: booking.status,
         }))
-    ), [bookings]);
+    ), [filteredBookings]);
 
     const handleDateClick = useCallback(() => {
         if (currentRole === 'client') {
             navigate('/client/vendors');
         }
     }, [currentRole, navigate]);
+
+    const handleViewDetails = (booking: Booking) => {
+        navigate(`/${currentRole}/bookings/${booking.id}`);
+    };
+
+    const handleActionClick = (event: React.MouseEvent<HTMLElement>, booking: Booking) => {
+        setActionMenu({ el: event.currentTarget, booking });
+    };
+
+    const handleActionClose = () => setActionMenu(null);
 
     const columns = useMemo<MRT_ColumnDef<Booking>[]>(() => [
         {
@@ -164,9 +178,11 @@ const BookingsPage = () => {
             header: 'Services',
             accessorFn: getServiceNames,
             Cell: ({ cell }) => (
-                <Typography sx={{ fontSize: '11px', color: 'text.secondary', fontWeight: 500 }}>
-                    {cell.getValue<string>()}
-                </Typography>
+                <Tooltip title={cell.getValue<string>()}>
+                    <Typography sx={{ fontSize: '11px', color: 'text.secondary', fontWeight: 500, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {cell.getValue<string>()}
+                    </Typography>
+                </Tooltip>
             ),
         },
         {
@@ -197,26 +213,23 @@ const BookingsPage = () => {
             ),
         },
         {
-            accessorKey: 'status',
-            header: 'Status',
+            accessorKey: 'advancePaid',
+            header: 'Advance Paid',
             Cell: ({ cell }) => {
-                const status = cell.getValue<BookingStatus>();
-
+                const val = cell.getValue<number>();
                 return (
-                    <Chip
-                        label={status}
-                        color={getStatusColor(status)}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                            height: 22,
-                            fontSize: '10px',
-                            fontWeight: 800,
-                            letterSpacing: '0.04em',
-                        }}
-                    />
+                    <Typography sx={{ fontWeight: 600, fontSize: '12px', color: val > 0 ? 'success.main' : 'text.disabled' }}>
+                        {val > 0 ? formatCurrency(val) : '—'}
+                    </Typography>
                 );
             },
+        },
+        {
+            accessorKey: 'status',
+            header: 'Status',
+            Cell: ({ cell }) => (
+                <StatusBadge status={cell.getValue<BookingStatus>()} variant="booking" />
+            ),
         },
         {
             accessorKey: 'actions',
@@ -225,9 +238,9 @@ const BookingsPage = () => {
             muiTableBodyCellProps: { align: 'center' },
             enableColumnFilter: false,
             enableSorting: false,
-            Cell: () => (
+            Cell: ({ row }) => (
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <IconButton size="small">
+                    <IconButton size="small" onClick={(e) => handleActionClick(e, row.original)}>
                         <MoreVertIcon fontSize="small" />
                     </IconButton>
                 </Box>
@@ -238,7 +251,7 @@ const BookingsPage = () => {
     const table = useMaterialReactTable({
         muiTopToolbarProps: { sx: { p: '14px' } },
         columns,
-        data: bookings,
+        data: filteredBookings,
         enableColumnActions: false,
         enableColumnFilters: true,
         enableSorting: true,
@@ -261,9 +274,20 @@ const BookingsPage = () => {
             columnVisibility: {
                 id: !isMobile,
                 eventLocation: !isMobile,
+                advancePaid: !isMobile,
             },
         },
     });
+
+    if (isError) {
+        return (
+            <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>
+                <Typography variant="h6" color="error" sx={{ textAlign: 'center', py: 10 }}>
+                    Failed to load bookings. Please try again later.
+                </Typography>
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>
@@ -301,18 +325,45 @@ const BookingsPage = () => {
 
             {viewMode === 'list' ? (
                 <DashboardCard sx={{ p: 0, overflow: 'hidden' }}>
-                    <Box sx={{ p: '14px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderBottom: `1px solid ${theme.dashboard?.glassBorder || alpha(theme.palette.divider, 0.1)}` }}>
+                    <Box sx={{ p: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`, flexWrap: 'wrap', gap: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <FilterListIcon fontSize="small" color="action" />
+                            <Select
+                                size="small"
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                sx={{ minWidth: 140, height: 32 }}
+                                displayEmpty
+                            >
+                                {statusOptions.map((opt) => (
+                                    <MenuItem key={opt.value} value={opt.value} sx={{ fontSize: '0.8rem' }}>
+                                        {opt.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </Box>
                         <TableHeaderToolbar
                             table={table}
                             isSmall
                             ExcelData={{
-                                data: bookings,
+                                data: filteredBookings,
                                 fileName: 'Bookings_Report',
                             }}
                         />
                     </Box>
-                    <TableComponent table={table} />
-                    <TableBottomToolbar table={table} />
+
+                    {filteredBookings.length === 0 && !isLoading ? (
+                        <EmptyState
+                            title="No bookings found"
+                            description={statusFilter !== 'all' ? 'Try changing the status filter.' : 'Bookings will appear here once they are created.'}
+                            icon={<EventNoteIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />}
+                        />
+                    ) : (
+                        <>
+                            <TableComponent table={table} />
+                            <TableBottomToolbar table={table} />
+                        </>
+                    )}
                 </DashboardCard>
             ) : (
                 <PremiumCalendar
@@ -320,6 +371,78 @@ const BookingsPage = () => {
                     onDateClick={handleDateClick}
                 />
             )}
+
+            {/* Action Menu */}
+            <Menu
+                anchorEl={actionMenu?.el}
+                open={!!actionMenu}
+                onClose={handleActionClose}
+                PaperProps={{ sx: { minWidth: 160 } }}
+            >
+                {actionMenu && (
+                    <>
+                        <MenuItem onClick={() => { handleViewDetails(actionMenu.booking); handleActionClose(); }}>
+                            <ViewIcon fontSize="small" sx={{ mr: 1 }} />
+                            View Details
+                        </MenuItem>
+                        {currentRole === 'client' && actionMenu.booking.status === 'PENDING' && (
+                            <MenuItem
+                                onClick={() => {
+                                    BOOKING_SERVICE.cancel(actionMenu.booking.id)
+                                        .then(() => success('Booking cancelled'))
+                                        .catch((err) => error(getErrorMessage(err)));
+                                    handleActionClose();
+                                }}
+                                sx={{ color: 'error.main' }}
+                            >
+                                <CancelIcon fontSize="small" sx={{ mr: 1 }} />
+                                Cancel Booking
+                            </MenuItem>
+                        )}
+                        {currentRole === 'vendor' && actionMenu.booking.status === 'PENDING' && (
+                            <>
+                                <MenuItem
+                                    onClick={() => {
+                                        BOOKING_SERVICE.updateStatus(actionMenu.booking.id, 'CONFIRMED')
+                                            .then(() => success('Booking confirmed'))
+                                            .catch((err) => error(getErrorMessage(err)));
+                                        handleActionClose();
+                                    }}
+                                    sx={{ color: 'success.main' }}
+                                >
+                                    <CheckCircleIcon fontSize="small" sx={{ mr: 1 }} />
+                                    Confirm
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        BOOKING_SERVICE.updateStatus(actionMenu.booking.id, 'CANCELLED')
+                                            .then(() => success('Booking rejected'))
+                                            .catch((err) => error(getErrorMessage(err)));
+                                        handleActionClose();
+                                    }}
+                                    sx={{ color: 'error.main' }}
+                                >
+                                    <CancelIcon fontSize="small" sx={{ mr: 1 }} />
+                                    Reject
+                                </MenuItem>
+                            </>
+                        )}
+                        {currentRole === 'vendor' && actionMenu.booking.status === 'CONFIRMED' && (
+                            <MenuItem
+                                onClick={() => {
+                                    BOOKING_SERVICE.updateStatus(actionMenu.booking.id, 'COMPLETED')
+                                        .then(() => success('Booking marked complete'))
+                                        .catch((err) => error(getErrorMessage(err)));
+                                    handleActionClose();
+                                }}
+                            >
+                                <CheckCircleIcon fontSize="small" sx={{ mr: 1 }} />
+                                Mark Complete
+                            </MenuItem>
+                        )}
+                    </>
+                )}
+            </Menu>
         </Box>
     );
 };

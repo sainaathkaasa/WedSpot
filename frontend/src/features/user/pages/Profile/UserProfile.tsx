@@ -35,7 +35,7 @@ import {
   CalendarMonth as CalendarIcon
 } from "@mui/icons-material";
 import { getInitials } from "@/utils/userUtils";
-import DashboardCard from "@/features/dashboard/components/DashboardCard/DashboardCard";
+import { DashboardCard } from '@/features/dashboard';
 import { useUser } from "@/features/user";
 
 const UserProfile: React.FC = () => {
