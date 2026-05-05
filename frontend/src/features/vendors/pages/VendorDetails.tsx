@@ -215,27 +215,27 @@ const VendorDetails: React.FC = () => {
                                                 {vendor.name}
                                             </Typography>
                                         </Box>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                <StarIcon sx={{ color: 'warning.main', fontSize: 16 }} />
-                                                <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.85rem' }}>{vendor.rating}</Typography>
-                                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>({vendor.ratingCount} Reviews)</Typography>
-                                            </Box>
-                                            <Divider orientation="vertical" flexItem sx={{ height: 14, my: 'auto', display: { xs: 'none', md: 'block' } }} />
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                <LocationIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                                                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.85rem' }}>{vendor.location}</Typography>
-                                            </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                            <StarIcon sx={{ color: 'warning.main', fontSize: 16 }} />
+                                            <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.85rem' }}>{vendor.rating}</Typography>
+                                            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>({vendor.ratingCount} Reviews)</Typography>
+                                        </Box>
+                                        <Divider orientation="vertical" flexItem sx={{ height: 14, my: 'auto', display: { xs: 'none', md: 'block' } }} />
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                            <LocationIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                                            <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.85rem' }}>{vendor.location}</Typography>
                                         </Box>
                                     </Box>
-                                    <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
-                                        <IconButton size="small" sx={{ bgcolor: 'white', '&:hover': { bgcolor: alpha(theme.palette.error.main, 0.1), color: 'error.main' } }}>
-                                            <FavoriteIcon fontSize="small" />
-                                        </IconButton>
-                                        <IconButton size="small" sx={{ bgcolor: 'white' }}>
-                                            <ShareIcon fontSize="small" />
-                                        </IconButton>
-                                    </Stack>
                                 </Box>
+                                <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+                                    <IconButton size="small" sx={{ bgcolor: 'white', '&:hover': { bgcolor: alpha(theme.palette.error.main, 0.1), color: 'error.main' } }}>
+                                        <FavoriteIcon fontSize="small" />
+                                    </IconButton>
+                                    <IconButton size="small" sx={{ bgcolor: 'white' }}>
+                                        <ShareIcon fontSize="small" />
+                                    </IconButton>
+                                </Stack>
+                            </Box>
 
                             {/* Navigation Tabs */}
                             <Box sx={{ borderBottom: 1, borderColor: alpha(theme.palette.divider, 0.1), mb: 3 }}>
@@ -375,7 +375,7 @@ const VendorDetails: React.FC = () => {
                                                     >
                                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                                <Avatar
+                                                                {review.userName && <Avatar
                                                                     src={review.userAvatar}
                                                                     sx={{
                                                                         width: 48,
@@ -386,7 +386,7 @@ const VendorDetails: React.FC = () => {
                                                                     }}
                                                                 >
                                                                     {review.userName.charAt(0)}
-                                                                </Avatar>
+                                                                </Avatar>}
                                                                 <Box>
                                                                     <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>{review.userName}</Typography>
                                                                     <Typography variant="caption" sx={{ color: 'text.disabled', fontWeight: 600 }}>{review.date}</Typography>

@@ -41,6 +41,9 @@ api.interceptors.response.use(
           const newAccessToken = refreshResponse.data.data?.accessToken;
           if (newAccessToken) {
             localStorage.setItem('accessToken', newAccessToken);
+            window.dispatchEvent(
+              new CustomEvent('tokenRefreshed', { detail: { accessToken: newAccessToken } })
+            );
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             }
@@ -50,13 +53,13 @@ api.interceptors.response.use(
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
           localStorage.removeItem('user');
-          window.location.href = '/login?session=expired';
+          window.dispatchEvent(new CustomEvent('sessionExpired'));
           return Promise.reject(error);
         }
       } else {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
-        window.location.href = '/login?session=expired';
+        window.dispatchEvent(new CustomEvent('sessionExpired'));
         return Promise.reject(error);
       }
     }

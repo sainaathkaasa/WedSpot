@@ -10,7 +10,6 @@ export interface MenuItem {
 export const MENU_CONFIG: Record<string, MenuItem[]> = {
     admin: [
         { text: "All Users", icon: icons.Users, path: "/admin/users" },
-        { text: "All Requests", icon: icons.Requests, path: "/admin/requests" },
         { text: "All Bookings", icon: icons.Bookings, path: "/admin/bookings" },
         { text: "Platform Revenue", icon: icons.Revenue, path: "/admin/revenue" },
         { text: "Analytics", icon: icons.Analytics, path: "/admin/analytics" },
@@ -18,7 +17,6 @@ export const MENU_CONFIG: Record<string, MenuItem[]> = {
 
     manager: [
         { text: "Vendors", icon: icons.Vendors, path: "/manager/vendors" },
-        { text: "Requests", icon: icons.Requests, path: "/manager/requests" },
         { text: "Bookings", icon: icons.Bookings, path: "/manager/bookings" },
         { text: "Staff", icon: icons.Staff, path: "/manager/staff" },
         { text: "Reports", icon: icons.Reports, path: "/manager/reports" }
@@ -31,7 +29,6 @@ export const MENU_CONFIG: Record<string, MenuItem[]> = {
     ],
 
     vendor: [
-        { text: "Incoming Requests", icon: icons.File, path: "/vendor/requests" },
         { text: "My Services", icon: icons.Services, path: "/vendor/services" },
         { text: "My Bookings", icon: icons.Bookings, path: "/vendor/bookings" },
         { text: "Earnings", icon: icons.Earning, path: "/vendor/earnings" }
@@ -39,7 +36,6 @@ export const MENU_CONFIG: Record<string, MenuItem[]> = {
 
     client: [
         { text: "Browse Vendors", icon: icons.Search, path: "/client/vendors" },
-        { text: "My Requests", icon: icons.File, path: "/client/requests" },
         { text: "My Bookings", icon: icons.Bookings, path: "/client/bookings" },
         { text: "Saved Vendors", icon: icons.Favorite, path: "/client/saved" }
     ]

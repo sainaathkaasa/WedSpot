@@ -2,7 +2,6 @@ package com.wedspot.backend.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.wedspot.backend.Model.Entity.Booking;
 import com.wedspot.backend.Model.Entity.BookingStatus;
 import lombok.Data;
 import java.math.BigDecimal;

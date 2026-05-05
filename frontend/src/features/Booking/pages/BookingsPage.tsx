@@ -5,7 +5,6 @@ import {
     Button,
     IconButton,
     MenuItem,
-    Select,
     Typography,
     useMediaQuery,
     useTheme,
@@ -20,7 +19,6 @@ import {
     Cancel as CancelIcon,
     EventNote as EventNoteIcon,
     CheckCircle as CheckCircleIcon,
-    FilterList as FilterListIcon,
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -89,14 +87,6 @@ const getBookingsByRole = (role: BookingRole, userId?: number) => {
     }
 };
 
-const statusOptions: { value: string; label: string }[] = [
-    { value: 'all', label: 'All Statuses' },
-    { value: 'PENDING', label: 'Pending' },
-    { value: 'CONFIRMED', label: 'Confirmed' },
-    { value: 'CANCELLED', label: 'Cancelled' },
-    { value: 'COMPLETED', label: 'Completed' },
-];
-
 const BookingsPage = () => {
     const theme = useTheme();
     const navigate = useNavigate();
@@ -108,7 +98,6 @@ const BookingsPage = () => {
     const [viewMode, setViewMode] = useState<ViewMode>('list');
     const [globalFilter, setGlobalFilter] = useState('');
     const [showGlobalFilter, setShowGlobalFilter] = useState(false);
-    const [statusFilter, setStatusFilter] = useState<string>('all');
     const [actionMenu, setActionMenu] = useState<{ el: HTMLElement; booking: Booking } | null>(null);
 
     const canFetchBookings = currentRole !== 'client' && currentRole !== 'vendor' || userId !== undefined;
@@ -121,13 +110,8 @@ const BookingsPage = () => {
 
     const bookings = useMemo(() => bookingResponse?.data ?? [], [bookingResponse?.data]);
 
-    const filteredBookings = useMemo(() => {
-        if (statusFilter === 'all') return bookings;
-        return bookings.filter((b: Booking) => b.status?.toUpperCase() === statusFilter);
-    }, [bookings, statusFilter]);
-
     const calendarBookings = useMemo<CalendarBooking[]>(() => (
-        filteredBookings.map((booking: Booking) => ({
+        bookings.map((booking: Booking) => ({
             id: String(booking.id),
             title: getServiceNames(booking),
             client: booking.client?.name ?? 'N/A',
@@ -136,7 +120,7 @@ const BookingsPage = () => {
             amount: formatCurrency(booking.totalAmount),
             status: booking.status,
         }))
-    ), [filteredBookings]);
+    ), [bookings]);
 
     const handleDateClick = useCallback(() => {
         if (currentRole === 'client') {
@@ -251,7 +235,7 @@ const BookingsPage = () => {
     const table = useMaterialReactTable({
         muiTopToolbarProps: { sx: { p: '14px' } },
         columns,
-        data: filteredBookings,
+        data: bookings,
         enableColumnActions: false,
         enableColumnFilters: true,
         enableSorting: true,
@@ -326,36 +310,20 @@ const BookingsPage = () => {
             {viewMode === 'list' ? (
                 <DashboardCard sx={{ p: 0, overflow: 'hidden' }}>
                     <Box sx={{ p: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`, flexWrap: 'wrap', gap: 1 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <FilterListIcon fontSize="small" color="action" />
-                            <Select
-                                size="small"
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                sx={{ minWidth: 140, height: 32 }}
-                                displayEmpty
-                            >
-                                {statusOptions.map((opt) => (
-                                    <MenuItem key={opt.value} value={opt.value} sx={{ fontSize: '0.8rem' }}>
-                                        {opt.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </Box>
                         <TableHeaderToolbar
                             table={table}
                             isSmall
                             ExcelData={{
-                                data: filteredBookings,
+                                data: bookings,
                                 fileName: 'Bookings_Report',
                             }}
                         />
                     </Box>
 
-                    {filteredBookings.length === 0 && !isLoading ? (
+                    {bookings.length === 0 && !isLoading ? (
                         <EmptyState
                             title="No bookings found"
-                            description={statusFilter !== 'all' ? 'Try changing the status filter.' : 'Bookings will appear here once they are created.'}
+                            description={'Bookings will appear here once they are created.'}
                             icon={<EventNoteIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />}
                         />
                     ) : (

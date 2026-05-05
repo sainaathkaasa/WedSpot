@@ -10,19 +10,37 @@ import {
   HourglassEmpty as PendingIcon,
   CloudUpload as UploadIcon,
 } from "@mui/icons-material";
-import { Box, Grid, Typography, Button, Avatar, useTheme, alpha } from "@mui/material";
+import { Box, Grid, Typography, Button, Avatar, useTheme, alpha, CircularProgress } from "@mui/material";
 import DashboardStats from "@/features/dashboard/components/DashboardStats/DashboardStats";
 import { DashboardCard } from '@/features/dashboard';
 import Chart from "react-apexcharts";
-
+import { useQuery } from "@tanstack/react-query";
+import { DASHBOARD_API } from "@/features/dashboard/api/dashboard.api";
 
 const AdminDashboard: React.FC = () => {
   const theme = useTheme();
 
+  const { data: dashboardData, isLoading } = useQuery({
+    queryKey: ["dashboard-admin"],
+    queryFn: DASHBOARD_API.getAdminMetrics,
+  });
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const metrics = dashboardData?.data?.metrics || {};
+  const chartData = dashboardData?.data?.chartData || [];
+  const activities = dashboardData?.data?.activities || [];
+
   const stats = [
     {
       label: "Total Vendors",
-      value: "1,234",
+      value: metrics.totalVendors?.toLocaleString() || "0",
       change: "+12%",
       icon: BuildingIcon,
       color: theme.palette.primary.main,
@@ -31,7 +49,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       label: "Total Revenue",
-      value: "₹45.2L",
+      value: `₹${((metrics.totalRevenue || 0) / 100000).toFixed(1)}L`,
       change: "+18%",
       icon: DollarIcon,
       color: theme.palette.success.main,
@@ -40,7 +58,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       label: "Active Clients",
-      value: "8,567",
+      value: (metrics.totalUsers || "0").toString(),
       change: "+23%",
       icon: UsersIcon,
       color: theme.palette.warning.main,
@@ -49,7 +67,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       label: "Bookings",
-      value: "456",
+      value: (metrics.totalBookings || "0").toString(),
       change: "+15%",
       icon: CalendarIcon,
       color: theme.palette.info.main,
@@ -58,49 +76,14 @@ const AdminDashboard: React.FC = () => {
     },
   ];
 
-  const recentActivities = [
-    {
-      name: "Royal Banquet Hall",
-      action: "Vendor Verification",
-      time: "2 mins ago",
-      status: "pending",
-      icon: PendingIcon,
-      desc: "Updated venue capacity and license documents."
-    },
-    {
-      name: "Priya & Rahul",
-      action: "Booking Confirmed",
-      time: "15 mins ago",
-      status: "success",
-      icon: SuccessIcon,
-      desc: "Full payment received for Wedding Reception."
-    },
-    {
-      name: "Mahesh Photo",
-      action: "Portfolio Update",
-      time: "1 hour ago",
-      status: "info",
-      icon: UploadIcon,
-      desc: "Added 24 new high-resolution wedding shots."
-    },
-  ];
-
-  // const topVendors = [
-  //   {
-  //     name: "Royal Banquet Hall",
-  //     category: "Venue",
-  //     bookings: 45,
-  //     revenue: "₹12.5L",
-  //     rating: 4.9,
-  //   },
-  //   {
-  //     name: "Spice Caterers",
-  //     category: "Catering",
-  //     bookings: 52,
-  //     revenue: "₹15.3L",
-  //     rating: 4.7,
-  //   },
-  // ];
+  const recentActivities = activities.map((a: any, i: number) => ({
+    name: a.title || "Activity",
+    action: a.description || "",
+    time: a.time || "Recently",
+    status: a.status || "info",
+    icon: i % 3 === 0 ? PendingIcon : i % 3 === 1 ? SuccessIcon : UploadIcon,
+    desc: a.description || "",
+  }));
 
   const actionCards = [
     {
@@ -108,7 +91,7 @@ const AdminDashboard: React.FC = () => {
       desc: "Review pending vendor documents and insurance.",
       icon: ShieldIcon,
       color: theme.palette.primary.main,
-      count: 12
+      count: metrics.pendingBookings || 0
     },
     {
       title: "Revenue Report",
@@ -122,27 +105,15 @@ const AdminDashboard: React.FC = () => {
       desc: "System-wide user activity and security log.",
       icon: UsersIcon,
       color: theme.palette.warning.main,
-      count: 5
+      count: metrics.totalUsers || 0
     },
   ];
 
+  const chartCategories = chartData.map((d: any) => d.name);
+  const chartValues = chartData.map((d: any) => d.revenue || d.bookings || 0);
+
   return (
     <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>
-      <Typography
-        variant="h4"
-        sx={{
-          mb: 3,
-          fontWeight: 800,
-          background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          display: 'inline-block'
-        }}
-      >
-        Admin Dashboard Overview
-      </Typography>
-
-      {/* Stats Grid */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
@@ -152,7 +123,6 @@ const AdminDashboard: React.FC = () => {
       </Grid>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {/* Revenue Area Chart */}
         <Grid item xs={12} md={8}>
           <DashboardCard noPadding sx={{ height: '100%' }}>
             <Box sx={{ p: 3, borderBottom: `1px solid ${theme.dashboard?.glassBorder || alpha(theme.palette.divider, 0.1)}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -162,37 +132,16 @@ const AdminDashboard: React.FC = () => {
             <Box sx={{ p: 2 }}>
               <Chart
                 options={{
-                  chart: {
-                    type: 'area',
-                    toolbar: { show: false },
-                    fontFamily: theme.typography.fontFamily,
-                  },
+                  chart: { type: 'area', toolbar: { show: false }, fontFamily: theme.typography.fontFamily },
                   colors: [theme.palette.primary.main],
-                  fill: {
-                    type: 'gradient',
-                    gradient: {
-                      shadeIntensity: 1,
-                      opacityFrom: 0.7,
-                      opacityTo: 0.1,
-                      stops: [0, 90, 100]
-                    }
-                  },
+                  fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.1, stops: [0, 90, 100] } },
                   stroke: { curve: 'smooth', width: 3 },
                   grid: { borderColor: alpha(theme.palette.divider, 0.5), strokeDashArray: 5 },
-                  xaxis: {
-                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-                    axisBorder: { show: false },
-                    axisTicks: { show: false },
-                  },
-                  yaxis: {
-                    labels: {
-                      style: { colors: theme.palette.text.secondary, fontWeight: 600, fontSize: '10px' },
-                      formatter: (val: number) => `₹${val}L`
-                    }
-                  },
+                  xaxis: { categories: chartCategories.length > 0 ? chartCategories : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], axisBorder: { show: false }, axisTicks: { show: false } },
+                  yaxis: { labels: { style: { colors: theme.palette.text.secondary, fontWeight: 600, fontSize: '10px' }, formatter: (val: number) => `₹${val}L` } },
                   tooltip: { theme: 'light' }
                 }}
-                series={[{ name: "Revenue", data: [3.1, 4.0, 3.5, 5.0, 4.9, 6.2, 6.9, 8.1] }]}
+                series={[{ name: "Revenue", data: chartValues.length > 0 ? chartValues : [3.1, 4.0, 3.5, 5.0, 4.9, 6.2] }]}
                 type="area"
                 height={350}
               />
@@ -200,7 +149,6 @@ const AdminDashboard: React.FC = () => {
           </DashboardCard>
         </Grid>
 
-        {/* Vendor Donut Chart */}
         <Grid item xs={12} md={4}>
           <DashboardCard noPadding sx={{ height: '100%', minHeight: 450 }}>
             <Box sx={{ p: 3, borderBottom: `1px solid ${theme.dashboard?.glassBorder || alpha(theme.palette.divider, 0.1)}` }}>
@@ -211,26 +159,9 @@ const AdminDashboard: React.FC = () => {
                 options={{
                   chart: { type: 'donut', fontFamily: theme.typography.fontFamily },
                   labels: ['Venues', 'Catering', 'Photography', 'Decor', 'Makeup', 'Planners'],
-                  colors: [
-                    theme.palette.primary.main,
-                    theme.palette.success.main,
-                    theme.palette.warning.main,
-                    theme.palette.info.main,
-                    '#f472b6',
-                    theme.palette.secondary.main
-                  ],
+                  colors: [theme.palette.primary.main, theme.palette.success.main, theme.palette.warning.main, theme.palette.info.main, '#f472b6', theme.palette.secondary.main],
                   legend: { position: 'bottom', fontWeight: 600 },
-                  plotOptions: {
-                    pie: {
-                      donut: {
-                        size: '75%',
-                        labels: {
-                          show: true,
-                          total: { show: true, label: 'Analytics', fontWeight: 800 }
-                        }
-                      }
-                    }
-                  },
+                  plotOptions: { pie: { donut: { size: '75%', labels: { show: true, total: { show: true, label: 'Analytics', fontWeight: 800 } } } } },
                   stroke: { show: false }
                 }}
                 series={[44, 55, 13, 33, 22, 18]}
@@ -243,7 +174,6 @@ const AdminDashboard: React.FC = () => {
       </Grid>
 
       <Grid container spacing={3}>
-        {/* Recent Activity Log */}
         <Grid item xs={12} md={8}>
           <DashboardCard sx={{ height: '100%' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -251,7 +181,7 @@ const AdminDashboard: React.FC = () => {
               <Button variant="text" size="small" sx={{ fontWeight: 700 }}>View All Logs</Button>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {recentActivities.map((activity, index) => {
+              {recentActivities.map((activity: any, index: React.Key | null | undefined) => {
                 const IconComponent = activity.icon;
                 const statusColor = activity.status === 'success' ? theme.palette.success.main : activity.status === 'pending' ? theme.palette.warning.main : theme.palette.info.main;
                 return (
@@ -274,7 +204,6 @@ const AdminDashboard: React.FC = () => {
           </DashboardCard>
         </Grid>
 
-        {/* Action Hub */}
         <Grid item xs={12} md={4}>
           <DashboardCard sx={{ height: '100%' }}>
             <Typography variant="h5" sx={{ fontWeight: 900, mb: 3 }}>Operational Control</Typography>

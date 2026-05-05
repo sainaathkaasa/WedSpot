@@ -39,3 +39,11 @@ export interface ResetPasswordPayload {
 
 export type PaginatedAPIResponse<T = unknown> = APIResponse<T[]>;
 
+export interface TokenVerificationResponse {
+    valid: boolean;
+    email: string;
+    role: string;
+    message: string;
+}
+
+

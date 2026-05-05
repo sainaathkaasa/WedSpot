@@ -9,7 +9,6 @@ import com.wedspot.backend.exception.ResourceNotFoundException;
 import com.wedspot.backend.mappers.IBookingMapper;
 import com.wedspot.backend.mappers.IVendorServiceMapper;
 import com.wedspot.backend.repository.IBookingRepository;
-import com.wedspot.backend.repository.IServiceBookingRepository;
 import com.wedspot.backend.repository.IUserRepository;
 import com.wedspot.backend.repository.IVendorServiceRepository;
 import com.wedspot.backend.services.IBookingService;
@@ -34,8 +33,6 @@ public class BookingService implements IBookingService {
     private final IBookingRepository bookingRepository;
     private final IUserRepository userRepository;
     private final IVendorServiceRepository vendorServiceRepository;
-
-    private final IServiceBookingRepository serviceBookingRepository;
 
     private final IBookingMapper bookingMapper;
     private final IVendorServiceMapper vendorServiceMapper;
@@ -143,7 +140,7 @@ public class BookingService implements IBookingService {
 
     @Override
     public APIResponse<BookingDTO> createBooking(BookingRequest request) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         User client = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
 

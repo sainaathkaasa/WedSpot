@@ -166,5 +166,40 @@ public class AuthService implements IAuthService {
         return String.format("%06d", new Random().nextInt(999999));
     }
 
+    @Override
+    public APIResponse<LoginResponse> refreshToken(RefreshTokenRequest request) {
+        try {
+            String email = jwtUtils.extractUsername(request.getRefreshToken());
+            User user = authRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            boolean isValid = !jwtUtils.extractExpiration(request.getRefreshToken()).before(new Date()) && user.isEnabled();
+
+            if (!isValid) {
+                APIResponse<LoginResponse> apiResponse = new APIResponse<>();
+                apiResponse.setMessage("Refresh token is invalid or expired");
+                apiResponse.setStatusCode(401);
+                return apiResponse;
+            }
+
+            String newAccessToken = jwtUtils.generateToken(user);
+
+            LoginResponse loginResponse = new LoginResponse();
+            loginResponse.setUser(IUserMapper.toDTO(user));
+            loginResponse.setAccessToken(newAccessToken);
+            loginResponse.setRefreshToken(request.getRefreshToken());
+
+            APIResponse<LoginResponse> apiResponse = new APIResponse<>();
+            apiResponse.setData(loginResponse);
+            apiResponse.setMessage("Token refreshed successfully");
+            return apiResponse;
+        } catch (Exception e) {
+            APIResponse<LoginResponse> apiResponse = new APIResponse<>();
+            apiResponse.setMessage("Token refresh failed: " + e.getMessage());
+            apiResponse.setStatusCode(401);
+            return apiResponse;
+        }
+    }
+
     private record OtpEntry(String otp, long timestamp) {}
 }

@@ -1,0 +1,44 @@
+[
+  {
+    "subject": "Wedding Venue Inquiry",
+    "description": "Looking for a venue with capacity of 300+ guests for a destination wedding in Goa.",
+    "category": "Venue",
+    "type": "Inquiry",
+    "status": "Pending"
+  },
+  {
+    "subject": "Photography Package",
+    "description": "Need a full-day photography package including pre-wedding shoot and candid coverage.",
+    "category": "Photography",
+    "type": "Inquiry",
+    "status": "In Discussion"
+  },
+  {
+    "subject": "Custom Floral Decor",
+    "description": "Want a custom floral arrangement for the stage and entrance with a rose and peony theme.",
+    "category": "Decoration",
+    "type": "Booking",
+    "status": "Accepted"
+  },
+  {
+    "subject": "Catering for 200 Guests",
+    "description": "Require multi-cuisine catering for 200 guests with vegetarian and non-vegetarian options.",
+    "category": "Catering",
+    "type": "Inquiry",
+    "status": "Pending"
+  },
+  {
+    "subject": "DJ & Sound Setup",
+    "description": "Need professional DJ with LED dance floor and surround sound for reception.",
+    "category": "Music",
+    "type": "Booking",
+    "status": "Rejected"
+  },
+  {
+    "subject": "Makeup Artist Booking",
+    "description": "Looking for bridal makeup artist for mehndi and wedding day looks.",
+    "category": "Makeup",
+    "type": "Booking",
+    "status": "Accepted"
+  }
+]

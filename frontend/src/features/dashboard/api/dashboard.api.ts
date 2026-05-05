@@ -13,12 +13,12 @@ export const DASHBOARD_API = {
         const response = await api.get('/dashboard/staff');
         return response.data;
     },
-    getVendorMetrics: async () => {
-        const response = await api.get('/dashboard/vendor');
+    getVendorMetrics: async (vendorId: number) => {
+        const response = await api.get('/dashboard/vendor', { params: { vendorId } });
         return response.data;
     },
-    getClientMetrics: async () => {
-        const response = await api.get('/dashboard/client');
+    getClientMetrics: async (clientId: number) => {
+        const response = await api.get('/dashboard/client', { params: { clientId } });
         return response.data;
     },
 };

@@ -115,4 +115,16 @@ export const AUTH_SERVICE = {
         const response = await api.post(endpoints.ResetPassword, payload);
         return response.data;
     },
+
+    verifyToken: async (token: string): Promise<APIResponse<TokenVerificationResponse>> => {
+        const response = await api.post(endpoints.VerifyToken, null, {
+            params: { token }
+        });
+        return response.data;
+    },
+
+    refreshToken: async (refreshToken: string): Promise<{ data: { accessToken: string } }> => {
+        const response = await api.post("/auth/refresh-token", { refreshToken });
+        return response;
+    },
 };

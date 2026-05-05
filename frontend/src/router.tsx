@@ -18,7 +18,6 @@ const ChatbotPage = lazy(() => import("@/features/chat/pages/ChatbotPage"));
 const Home = lazy(() => import("@/features/home/pages/Home"));
 const Users = lazy(() => import("@/features/Users/pages/Users"));
 const Vendors = lazy(() => import("@/features/Manager/pages/Vendors/Vendors"));
-const Requests = lazy(() => import("@/features/Request/pages/Requests"));
 const Bookings = lazy(() => import("@/features/Booking/pages/BookingsPage"));
 const BookingDetails = lazy(() => import("@/features/Booking/pages/BookingDetailsPage"));
 const Analytics = lazy(() => import("@/features/Analytics/pages/Analytics"));
@@ -32,7 +31,6 @@ const AddUser = lazy(() => import("@/features/Users/pages/AddUser"));
 const Products = lazy(() => import("@/features/commerce/pages/Products/Products"));
 const AddVendor = lazy(() => import("@/features/Manager/pages/Vendors/AddVendor"));
 const AddStaff = lazy(() => import("@/features/Manager/pages/Staff/AddStaff"));
-const AddRequest = lazy(() => import("@/features/Request/pages/AddRequest"));
 const Profile = lazy(() => import("@/features/Profile/pages/Profile"));
 const CartPage = lazy(() => import("@/features/commerce/pages/Cart/CartPage"));
 const BillsPage = lazy(() => import("@/features/Bills/pages/Bills"));
@@ -92,7 +90,6 @@ export const router = createBrowserRouter([
                     { path: "users", element: withSuspense(<Users />) },
                     { path: "users/add", element: withSuspense(<AddUser />) },
                     { path: "users/:id", element: withSuspense(<UpdateUser />) },
-                    { path: "requests", element: withSuspense(<Requests />) },
                     { path: "bookings", element: withSuspense(<Bookings />) },
                     { path: "bookings/:id", element: withSuspense(<BookingDetails />) },
                     { path: "revenue", element: withSuspense(<Revenue />) },
@@ -105,7 +102,6 @@ export const router = createBrowserRouter([
                 children: [
                     { path: "vendors", element: withSuspense(<Vendors />) },
                     { path: "vendors/add", element: withSuspense(<AddVendor />) },
-                    { path: "requests", element: withSuspense(<Requests />) },
                     { path: "bookings", element: withSuspense(<Bookings />) },
                     { path: "bookings/:id", element: withSuspense(<BookingDetails />) },
                     { path: "staff", element: withSuspense(<Staff />) },
@@ -127,7 +123,6 @@ export const router = createBrowserRouter([
                 path: "vendor",
                 element: <ProtectedRoute allowedRoles={[UserRole.VENDOR]} />,
                 children: [
-                    { path: "requests", element: withSuspense(<Requests />) },
                     { path: "services", element: withSuspense(<VendorServicesPage />) },
                     { path: "services/add", element: withSuspense(<VendorManageDetails />) },
                     { path: "services/edit/:id", element: withSuspense(<VendorManageDetails />) },
@@ -142,8 +137,6 @@ export const router = createBrowserRouter([
                 children: [
                     { path: "vendors", element: withSuspense(<PremiumVendors />) },
                     { path: "vendors/:id", element: withSuspense(<VendorDetails />) },
-                    { path: "requests", element: withSuspense(<Requests />) },
-                    { path: "requests/add", element: withSuspense(<AddRequest />) },
                     { path: "bookings", element: withSuspense(<Bookings />) },
                     { path: "bookings/:id", element: withSuspense(<BookingDetails />) },
                     { path: "saved", element: withSuspense(<SavedVendors />) },

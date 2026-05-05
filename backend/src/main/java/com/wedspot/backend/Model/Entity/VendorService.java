@@ -1,5 +1,6 @@
 package com.wedspot.backend.Model.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -42,9 +43,11 @@ public class VendorService {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendor_id", nullable = false)
+    @JsonIgnoreProperties({"reviews", "serviceBookings"})
     private User vendor;
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("service")
     private List<Review> reviews = new ArrayList<>();
 
     public double getRating() {

@@ -1,5 +1,6 @@
 package com.wedspot.backend.Model.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,6 +24,7 @@ public class Booking {
     // Client who made the booking
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CLIENT_ID", nullable = false)
+    @JsonIgnoreProperties({"reviews", "serviceBookings"})
     private User client;
 
     @Column(name = "EVENT_DATE", nullable = false)
@@ -48,6 +50,7 @@ public class Booking {
     private String notes;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("booking")
     private List<ServiceBooking> serviceBookings = new ArrayList<>();
 
     @CreationTimestamp

@@ -36,5 +36,5 @@ public class VendorServiceDTO {
 
     private UserDTO vendor;
 
-    private List<Review> reviews;
+    private List<ReviewDTO> reviews;
 }

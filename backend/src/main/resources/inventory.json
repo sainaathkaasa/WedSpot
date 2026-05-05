@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Premium Velvet Chair Covers",
+    "category": "decor",
+    "stock": 450,
+    "unit": "pcs"
+  },
+  {
+    "name": "Industrial Smoke Machines",
+    "category": "technical",
+    "stock": 12,
+    "unit": "units"
+  },
+  {
+    "name": "Silk Table Linens (Gold)",
+    "category": "decor",
+    "stock": 15,
+    "unit": "pcs"
+  },
+  {
+    "name": "Emergency Power Backup",
+    "category": "safety",
+    "stock": 5,
+    "unit": "units"
+  },
+  {
+    "name": "Organic Floral Centerpieces",
+    "category": "decor",
+    "stock": 0,
+    "unit": "pcs"
+  },
+  {
+    "name": "LED String Lights",
+    "category": "decor",
+    "stock": 200,
+    "unit": "sets"
+  },
+  {
+    "name": "Professional Speaker System",
+    "category": "technical",
+    "stock": 8,
+    "unit": "units"
+  },
+  {
+    "name": "Fire Safety Extinguishers",
+    "category": "safety",
+    "stock": 20,
+    "unit": "units"
+  }
+]

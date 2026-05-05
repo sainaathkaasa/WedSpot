@@ -14,4 +14,6 @@ public interface IAuthService {
     APIResponse<Void> resetPassword(ResetPasswordRequest request);
 
     APIResponse<TokenVerificationResponse> verifyToken(String token);
+
+    APIResponse<LoginResponse> refreshToken(RefreshTokenRequest request);
 }

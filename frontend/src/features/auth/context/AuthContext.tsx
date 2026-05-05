@@ -6,7 +6,7 @@ export type AuthContextType = {
     accessToken: string | null;
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<AuthResponse>;
-    logout: (id: number) => Promise<void>;
+    logout: () => void;
     register: (user: User) => Promise<AuthResponse>;
 };
 

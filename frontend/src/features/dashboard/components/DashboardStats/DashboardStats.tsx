@@ -66,13 +66,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
     trend = 'up',
 }) => {
     return (
-        <DashboardCard
-            sx={{
-                '&:hover': {
-                    boxShadow: (theme) => theme.shadows[4],
-                }
-            }}
-        >
+        <DashboardCard>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                 <IconWrapper $color={color}>
                     <Icon />

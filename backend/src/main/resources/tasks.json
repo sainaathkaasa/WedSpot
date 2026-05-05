@@ -1,0 +1,50 @@
+[
+  {
+    "text": "Confirm florist availability for June wedding",
+    "priority": "High",
+    "dueDate": "2024-06-01",
+    "category": "vendor",
+    "points": 10,
+    "completed": false
+  },
+  {
+    "text": "Draft contract for Blue Lagoon Venue",
+    "priority": "Medium",
+    "dueDate": "2024-05-15",
+    "category": "venue",
+    "points": 25,
+    "completed": true
+  },
+  {
+    "text": "Follow up with catering team on menu changes",
+    "priority": "High",
+    "dueDate": "2024-05-26",
+    "category": "logistics",
+    "points": 15,
+    "completed": false
+  },
+  {
+    "text": "Schedule photography site visit",
+    "priority": "Low",
+    "dueDate": "2024-06-02",
+    "category": "creative",
+    "points": 5,
+    "completed": false
+  },
+  {
+    "text": "Finalize guest list and send invitations",
+    "priority": "High",
+    "dueDate": "2024-05-20",
+    "category": "logistics",
+    "points": 20,
+    "completed": false
+  },
+  {
+    "text": "Order wedding cake tasting samples",
+    "priority": "Medium",
+    "dueDate": "2024-06-05",
+    "category": "catering",
+    "points": 10,
+    "completed": false
+  }
+]
