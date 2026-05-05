@@ -1,6 +1,6 @@
 import api from "@/api/axios";
 import endpoints from "@/api/ApiEndpoints";
-import type { UserRole, AuthResponse, User, ResetPasswordPayload } from "@/features/auth/types/auth.types";
+import type { UserRole, AuthResponse, User, ResetPasswordPayload, TokenVerificationResponse } from "@/features/auth/types/auth.types";
 import type { APIResponse } from "@/api/types";
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === "true";

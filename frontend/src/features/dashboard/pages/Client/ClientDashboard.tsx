@@ -6,11 +6,9 @@ import {
   People as UsersIcon,
   CheckCircle as CheckCircleIcon,
   AccessTime as ClockIcon,
-  CameraAlt as CameraIcon,
-  Cake as CakeIcon,
   CardGiftcard as GiftIcon,
 } from '@mui/icons-material';
-import { Box, Grid, Typography, Button, Avatar, LinearProgress, useTheme, alpha, CircularProgress } from '@mui/material';
+import { Box, Grid, Typography, LinearProgress, useTheme, alpha, CircularProgress } from '@mui/material';
 import DashboardStats from "@/features/dashboard/components/DashboardStats/DashboardStats";
 import { DashboardCard } from '@/features/dashboard';
 import Chart from "react-apexcharts";
@@ -38,7 +36,6 @@ const ClientDashboard: React.FC = () => {
 
   const metrics = dashboardData?.data?.metrics || {};
   const chartData = dashboardData?.data?.chartData || [];
-  const activities = dashboardData?.data?.activities || [];
 
   const budgetStats = [
     { label: 'Wedding Budget', value: '₹15L', icon: GiftIcon, color: theme.palette.secondary.main, progress: 55 },
@@ -47,23 +44,9 @@ const ClientDashboard: React.FC = () => {
     { label: 'Days Remaining', value: (metrics.upcomingEvents || '0').toString(), icon: ClockIcon, color: theme.palette.error.main, progress: 100 },
   ];
 
-  const bookedVendors = activities.slice(0, 2).map((a: any) => ({
-    name: a.title || 'Vendor',
-    category: a.description || 'Service',
-    status: a.status === 'success' ? 'confirmed' : 'pending',
-    amount: '₹1.2L',
-    icon: a.status === 'success' ? MapPinIcon : CameraIcon,
-    date: a.time || 'Jan 15, 2025'
-  }));
 
-  const actionCards = [
-    { title: 'Marketplace', desc: 'Discover and book curated premium vendors.', icon: UsersIcon, color: theme.palette.secondary.main, count: 'New' },
-    { title: 'Budgeter', desc: 'Real-time expense and payment tracking.', icon: GiftIcon, color: theme.palette.success.main, count: null },
-    { title: 'Timeline', desc: 'Chronological roadmap of your big day.', icon: CalendarIcon, color: theme.palette.warning.main, count: null },
-  ];
 
   const chartCategories = chartData.map((d: any) => d.name);
-  const chartAllocated = chartData.map((d: any) => d.progress || 0);
 
   return (
     <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>

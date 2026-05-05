@@ -41,11 +41,10 @@ const InfoItem: React.FC<InfoItemProps> = ({ icon, label, value, colorType = 'pr
 const ProfileSidebarHeader: React.FC<ProfileSidebarHeaderProps> = ({ name, role, email, address }) => {
     const theme = useTheme();
     const { logout } = useAuth();
-    const { user } = useUser();
 
     const onLogout = async () => {
         try {
-            await logout(Number(user?.id));
+            await logout();
         } catch (error) {
             console.error("Logout failed:", error);
         }

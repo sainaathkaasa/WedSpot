@@ -35,7 +35,7 @@ const Sidebar = (): JSX.Element => {
   const isExpanded = sidebarOpen || isHovered;
 
   const handleLogout = async () => {
-    await logout(Number(user?.id));
+    await logout();
     navigate("/login");
   };
 
