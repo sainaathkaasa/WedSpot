@@ -16,7 +16,7 @@ import {
     ArrowUpward as ArrowUpIcon
 } from '@mui/icons-material';
 import { useMaterialReactTable } from 'material-react-table';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 import { TableComponent, TableBottomToolbar, TableHeaderToolbar } from '@/components/UI/Table';
 
 const stats = [

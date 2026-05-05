@@ -27,8 +27,8 @@ const NavBar = (): JSX.Element => {
   const handleLogout = async () => {
     try {
       if (!user?.id) return;
-      await logout(user.id);
-    } catch (e) {
+      await logout();
+    } catch {
       // ignore
     } finally {
       closeMenu();

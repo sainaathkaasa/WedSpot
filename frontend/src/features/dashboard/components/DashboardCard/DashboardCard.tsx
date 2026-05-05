@@ -28,7 +28,7 @@ const StyledPaper = styled(Paper, {
     padding: $noPadding ? 0 : theme.spacing(3),
     position: 'relative',
     overflow: 'hidden',
-    borderRadius: theme.shape.borderRadius * 2, 
+    borderRadius: theme.shape.borderRadius * 2,
     transition: theme.dashboard?.transition || 'all 0.3s ease',
     border: `1px solid ${theme.dashboard?.glassBorder || 'rgba(0,0,0,0.08)'}`,
     boxShadow: '0 4px 12px rgba(0,0,0,0.03)',

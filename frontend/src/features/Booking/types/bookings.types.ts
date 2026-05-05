@@ -1,5 +1,5 @@
-import type { User } from "@/features/auth";
-import type { VendorService } from "@/features/vendors/types/vendor";
+import type { User } from '@/entities/user';
+import type { VendorService } from '@/entities/vendor-service';
 
 export interface Booking {
     id: number;

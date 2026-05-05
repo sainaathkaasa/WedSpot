@@ -19,6 +19,13 @@ declare module '@mui/material/styles' {
   }
 }
 
+declare module '@mui/material/Button' {
+  interface ButtonPropsVariantOverrides {
+    cta: true;
+    ghost: true;
+  }
+}
+
 let theme = createTheme({
   palette: {
     mode: 'light',
@@ -134,7 +141,7 @@ let theme = createTheme({
       variants: [
         {
           // Blush CTA
-          props: { variant: 'cta' as any },
+          props: { variant: 'cta' },
           style: {
             backgroundColor: '#ff7f88',
             color: '#fff',
@@ -147,7 +154,7 @@ let theme = createTheme({
         },
         {
           // Subtle gray “ghost” button
-          props: { variant: 'ghost' as any },
+          props: { variant: 'ghost' },
           style: {
             backgroundColor: '#f1f5f9',
             color: '#0f172a',

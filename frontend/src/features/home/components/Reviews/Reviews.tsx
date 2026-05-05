@@ -8,11 +8,11 @@ import {
 } from "@mui/material";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import type { Review } from "@/features/vendors/types/review.types";
+import type { HomeReview } from "@/features/home/types";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const reviews: Review[] = [
+const reviews: HomeReview[] = [
   {
     id: 1,
     name: "Sarah & Michael",

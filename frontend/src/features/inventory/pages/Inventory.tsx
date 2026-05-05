@@ -13,8 +13,9 @@ import {
     Inventory as InventoryIcon
 } from '@mui/icons-material';
 import { useMaterialReactTable } from 'material-react-table';
-import DashboardCard from "@/features/dashboard/components/DashboardCard/DashboardCard";
+import { DashboardCard } from '@/features/dashboard';
 import { TableComponent, TableBottomToolbar, TableHeaderToolbar } from '@/components/UI/Table';
+import { StatusBadge } from '@/shared/ui/StatusBadge';
 
 interface InventoryItem {
     id: string;
@@ -37,15 +38,6 @@ const mockInventory: InventoryItem[] = [
 const InventoryPage = () => {
     const theme = useTheme();
 
-
-    const getStatusColor = (status: InventoryItem['status']) => {
-        switch (status) {
-            case 'available': return 'success';
-            case 'low': return 'warning';
-            case 'out': return 'error';
-            default: return 'default';
-        }
-    };
 
     const columns = useMemo(
         () => [
@@ -95,17 +87,7 @@ const InventoryPage = () => {
                 accessorKey: 'status',
                 header: 'Status',
                 Cell: ({ cell }: any) => (
-                    <Typography 
-                        variant="caption" 
-                        sx={{ 
-                            fontWeight: 900, 
-                            color: `${theme.palette[getStatusColor(cell.getValue() as any) as 'success' | 'warning' | 'error' | 'info'].main}`, 
-                            textTransform: 'uppercase', 
-                            fontSize: '0.65rem' 
-                        }}
-                    >
-                        {cell.getValue() as string}
-                    </Typography>
+                    <StatusBadge status={cell.getValue() as string} variant="inventory" />
                 )
             },
             {

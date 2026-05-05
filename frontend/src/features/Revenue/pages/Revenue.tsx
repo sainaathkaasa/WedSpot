@@ -13,7 +13,7 @@ import {
     AccountBalance as BankIcon,
     Savings as SavingsIcon
 } from '@mui/icons-material';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 import Chart from 'react-apexcharts';
 
 const Revenue = () => {

@@ -16,7 +16,7 @@ import {
     VisibilityOff as EyeOffIcon,
     CheckCircle as CheckIcon
 } from "@mui/icons-material";
-import { USER_SERVICE } from "@/features/user/api/user.api";
+import { USER_SERVICE } from "@/features/Users/api/user.api";
 import { useUser } from "@/features/user";
 
 

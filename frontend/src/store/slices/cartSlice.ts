@@ -1,4 +1,4 @@
-import type { CartItem } from '@/features/commerce/types/cart.types';
+import type { CartItem } from '@/entities/cart';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 

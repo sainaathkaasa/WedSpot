@@ -90,30 +90,9 @@ const AuthActions = ({
               display: "inline-flex",
               alignItems: "center",
               gap: "8px",
-              boxShadow: "none",
               transition: "all 0.25s ease",
               position: "relative",
-              overflow: "hidden",
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                inset: 0,
-                borderRadius: "10px",
-                opacity: 0,
-                background:
-                  "linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%)",
-                transition: "opacity 0.25s ease",
-              },
-              "&:hover": {
-                background: "linear-gradient(135deg, #9333ea 0%, #8b5cf6 100%)",
-                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.15)",
-                "&::after": {
-                  opacity: 1,
-                },
-              },
-              "&:active": {
-                transform: "scale(0.98)",
-              },
+              overflow: "hidden"  
             }}
           >
             Get Started

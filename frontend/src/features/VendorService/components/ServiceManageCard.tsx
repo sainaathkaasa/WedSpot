@@ -21,8 +21,8 @@ import {
     Restaurant as FoodIcon,
     ShoppingCart as CartIcon
 } from '@mui/icons-material';
-import type { VendorService } from '@/features/vendors/types/vendor';
-import { formatCurrency } from '../Utils/helperMethods';
+import type { VendorService } from '@/entities/vendor-service';
+import { formatCurrency } from '../utils/CurrencyFormatter';
 
 interface ServiceManageCardProps {
     service: VendorService;

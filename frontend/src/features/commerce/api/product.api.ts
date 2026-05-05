@@ -1,28 +1,15 @@
 import type { AxiosResponse } from "axios";
 import type { Product } from "@/features/commerce/types/product.types";
 import api from "@/api/axios";
-import endpoints from "@/api/GlobalEndpoints";
+import endpoints from "@/api/ApiEndpoints";
 
 const PRODUCT_SERVICE = {
     GetAllProducts: async (): Promise<AxiosResponse<Product[]>> => {
-        try {
-            const response = await api.get(endpoints.Products)
-            return response
-        } catch (error) {
-            console.log(error)
-            throw error
-        }
-
+        return api.get(endpoints.Products);
     },
     GetProductById: async (id: string): Promise<AxiosResponse<Product>> => {
-        try {
-            const response = await api.get(`${endpoints.Products}/${id}`)
-            return response
-        } catch (error) {
-            console.log(error)
-            throw error
-        }
-    }
-}
+        return api.get(`${endpoints.Products}/${id}`);
+    },
+};
 
-export default PRODUCT_SERVICE
+export default PRODUCT_SERVICE;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, alpha, useTheme, Avatar } from '@mui/material';
 import { motion } from 'framer-motion';
 import dayjs from 'dayjs';
-import { type ChatMessage } from '../store/chatStore';
+import { type ChatMessage } from '../types';
 
 interface MessageBubbleProps {
     message: ChatMessage;

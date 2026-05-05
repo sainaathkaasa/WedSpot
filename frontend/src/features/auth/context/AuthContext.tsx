@@ -1,11 +1,12 @@
 import { createContext } from "react";
-import type { AuthResponse, User } from "@/features/auth/types/auth.types";
+import type { User } from '@/entities/user';
+import type { AuthResponse } from "@/features/auth/types/auth.types";
 
 export type AuthContextType = {
     accessToken: string | null;
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<AuthResponse>;
-    logout: (id: number) => Promise<void>;
+    logout: () => void;
     register: (user: User) => Promise<AuthResponse>;
 };
 

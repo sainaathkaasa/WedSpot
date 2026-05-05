@@ -15,11 +15,10 @@ import {
     Logout as LogoutIcon
 } from "@mui/icons-material";
 import { getInitials } from "@/utils/userUtils";
-import DashboardCard from "@/features/dashboard/components/DashboardCard/DashboardCard";
+import { DashboardCard } from '@/features/dashboard';
 import { useAuth } from "@/features/auth";
 import type { InfoItemProps, ProfileSidebarHeaderProps } from "../../types/ProfileSidebarHeader.types";
 import { ProfileAvatar, LogoutButton, InfoIconWrapper } from "./ProfileSidebarHeader.styles";
-import { useUser } from "@/features/user";
 
 const InfoItem: React.FC<InfoItemProps> = ({ icon, label, value, colorType = 'primary' }) => {
     const theme = useTheme();
@@ -41,11 +40,10 @@ const InfoItem: React.FC<InfoItemProps> = ({ icon, label, value, colorType = 'pr
 const ProfileSidebarHeader: React.FC<ProfileSidebarHeaderProps> = ({ name, role, email, address }) => {
     const theme = useTheme();
     const { logout } = useAuth();
-    const { user } = useUser();
 
     const onLogout = async () => {
         try {
-            await logout(Number(user?.id));
+            await logout();
         } catch (error) {
             console.error("Logout failed:", error);
         }

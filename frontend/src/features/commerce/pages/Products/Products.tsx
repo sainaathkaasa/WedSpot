@@ -18,7 +18,7 @@ import {
     FilterList as FilterIcon
 } from '@mui/icons-material';
 import VendorCard from '@/features/vendors/components/VendorCard';
-import type { VendorService } from '@/features/vendors/types/vendor';
+import type { VendorService } from '@/entities/vendor-service';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { VENDOR_SERVICE } from '@/features/VendorService/api/vendor.api';

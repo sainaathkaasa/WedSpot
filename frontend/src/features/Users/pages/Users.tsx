@@ -1,35 +1,29 @@
 import { useMemo, useState } from 'react';
-import {
-    Box,
-    Typography,
-    IconButton,
-    Button,
-    useTheme,
-    alpha
-} from '@mui/material';
+import { Box, Typography, IconButton, useTheme, alpha } from '@mui/material';
 import { useMaterialReactTable } from 'material-react-table';
 import { useNavigate } from 'react-router-dom';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+
+
+import { DashboardCard } from '@/features/dashboard';
 import { TableComponent, TableBottomToolbar, TableHeaderToolbar } from '@/components/UI/Table';
-import { USER_SERVICE } from '../../user/api/user.api';
+import { USER_SERVICE } from '../api/user.api';
 import { useQuery } from '@tanstack/react-query';
-import { EyeIcon } from 'lucide-react';
+import { EyeIcon, PlusIcon } from 'lucide-react';
 import { useUser } from '../../user/context/useUser';
+import type { User } from '@/features/auth';
 
 const UsersPage = () => {
     const theme = useTheme();
     const navigate = useNavigate();
     const { user } = useUser();
 
-    const { data: users } = useQuery({
+    const { data: users = [], isLoading } = useQuery<User[]>({
         queryKey: ["users"],
         queryFn: async () => {
             const response = await USER_SERVICE.getAllUsers();
-            if (response.ok) {
-                console.log(response?.data)
-                return (response?.data || []).filter((u) => u.email !== user?.email) || [];
-            }
-            return [];
+            if (!response.ok) throw new Error("Failed to fetch users");
+            const rawData: User[] = response?.data || [];
+            return rawData.filter((u) => u.email !== user?.email);
         }
     });
 
@@ -38,54 +32,32 @@ const UsersPage = () => {
             {
                 accessorKey: 'name',
                 header: 'Name',
-                Cell: ({ row }: any) => {
-                    const user = row.original;
-                    return (
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 2 }}>
-                            <Box>
-                                <Typography sx={{ fontSize: '13px', fontWeight: 800, color: 'text.primary' }}>{user.name}</Typography>
-                            </Box>
-                        </Box>
-                    );
-                }
+                Cell: ({ cell }: any) => <Typography sx={{ fontSize: 12, color: 'text.primary', textAlign: 'start' }}>{cell.getValue() as string}</Typography>
             },
             {
                 accessorKey: 'email',
                 header: 'Email',
-                Cell: ({ cell }: any) => (
-                    <Typography sx={{ fontSize: '12px', color: 'text.secondary', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-                        {cell.getValue() as string}
-                    </Typography>
-                )
+                Cell: ({ cell }: any) => <Typography sx={{ fontSize: 12, color: 'text.secondary', textAlign: 'start' }}>{cell.getValue() as string}</Typography>
             },
             {
                 accessorKey: 'phoneNumber',
                 header: 'Phone Number',
-                Cell: ({ cell }: any) => (
-                    <Typography sx={{ fontSize: '12px', color: 'text.secondary', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-                        {cell.getValue() as string}
-                    </Typography>
-                )
+                Cell: ({ cell }: any) => <Typography sx={{ fontSize: 12, color: 'text.secondary', textAlign: 'start' }}>{cell.getValue() as string}</Typography>
             },
             {
                 accessorKey: 'address',
                 header: 'Address',
-                Cell: ({ cell }: any) => (
-                    <Typography sx={{ fontSize: '12px', color: 'text.secondary', fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-                        {cell.getValue() as string}
-                    </Typography>
-                )
+                Cell: ({ cell }: any) => <Typography sx={{ fontSize: 12, color: 'text.secondary', textAlign: 'start' }}>{cell.getValue() as string}</Typography>
+            },
+            {
+                accessorKey: 'createdAt',
+                header: 'Joined Date',
+                Cell: ({ cell }: any) => <Typography sx={{ fontSize: 12, color: 'text.secondary', textAlign: 'start' }}>{new Date(cell.getValue() as string).toLocaleDateString()}</Typography>
             },
             {
                 accessorKey: 'role',
                 header: 'Role',
-                muiTableHeadCellProps: { align: 'center' as const },
-                muiTableBodyCellProps: { align: 'center' as const },
-                Cell: ({ cell }: any) => (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'flex-start' }}>
-                        <Typography sx={{ fontSize: '12px', fontWeight: 600, color: 'text.primary' }}>{cell.getValue() as string}</Typography>
-                    </Box>
-                )
+                Cell: ({ cell }: any) => <Typography sx={{ fontSize: 12, color: 'text.primary', textAlign: 'start' }}>{cell.getValue() as string}</Typography>
             },
             {
                 accessorKey: 'actions',
@@ -94,15 +66,12 @@ const UsersPage = () => {
                 enableColumnFilter: false,
                 enableSorting: false,
                 Cell: ({ row }: any) => (
-                    <Box>
-                        <IconButton
-                            onClick={() => navigate(`${row.original.id}`)}
-                            sx={{ color: theme.palette.primary.main }}
-                            size="small"
-                        >
-                            <EyeIcon fontSize="small" />
-                        </IconButton>
-                    </Box>
+                    <IconButton
+                        onClick={() => navigate(`${row.original.id}`)}
+                        sx={{ color: theme.palette.primary.main }}
+                    >
+                        <EyeIcon size={18} />
+                    </IconButton>
                 )
             }
         ],
@@ -113,36 +82,23 @@ const UsersPage = () => {
     const [showGlobalFilter, setShowGlobalFilter] = useState(false);
 
     const table = useMaterialReactTable({
-        muiTopToolbarProps: { sx: { p: '14px' } },
         columns,
-        data: users || [],
-        enableColumnActions: false,
-        enableColumnFilters: true,
-        enableSorting: true,
-        enablePagination: true,
-        enableRowSelection: true,
-        enableGlobalFilter: true,
-        onGlobalFilterChange: setGlobalFilter,
-        onShowGlobalFilterChange: setShowGlobalFilter,
-        initialState: {
-            pagination: { pageSize: 10, pageIndex: 0 },
-        },
+        data: users,
         state: {
             globalFilter,
             showGlobalFilter,
+            isLoading
         },
-        muiTablePaperProps: {
-            elevation: 0,
-            sx: {
-                borderRadius: '0',
-                border: 'none',
-            },
-        },
+        onGlobalFilterChange: setGlobalFilter,
+        onShowGlobalFilterChange: setShowGlobalFilter,
+        enableRowSelection: true,
+        initialState: { pagination: { pageSize: 10, pageIndex: 0 } },
+        muiTablePaperProps: { elevation: 1, sx: { borderRadius: 0 } },
     });
 
     return (
-        <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>
-            <DashboardCard sx={{ mt: 1, p: 0, overflow: 'hidden' }}>
+        <Box sx={{ p: 0, maxWidth: 1600, m: 0 }}>
+            <DashboardCard sx={{ m: 0, p: 0, overflow: 'hidden' }}>
                 <Box sx={{
                     p: '14px',
                     display: 'flex',
@@ -156,26 +112,17 @@ const UsersPage = () => {
                         HeaderText="User Management"
                         table={table}
                         isSmall
-                        ExcelData={{
-                            data: users,
-                            fileName: 'Users_Export'
-                        }}
+                        ExcelData={{ data: users, fileName: 'Users_Export' }}
                         actionButton={
-                            <Button
-                                variant="contained"
+                            <IconButton
                                 size="small"
                                 onClick={() => navigate('add')}
                                 sx={{
-                                    borderRadius: '10px',
-                                    bgcolor: theme.palette.primary.main,
-                                    height: '32px',
-                                    textTransform: 'none',
-                                    fontWeight: 700,
-                                    px: 2
+                                    borderRadius: "50%",
                                 }}
                             >
-                                Add
-                            </Button>
+                                <PlusIcon color={theme.palette.primary.main} size={20} />
+                            </IconButton>
                         }
                     />
                 </Box>

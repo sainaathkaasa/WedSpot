@@ -231,7 +231,6 @@ const NavLinks = ({
                   textTransform: "none",
                   "&:hover": {
                     background: "linear-gradient(135deg, #9333ea 0%, #8b5cf6 100%)",
-                    boxShadow: "0 4px 12px rgba(124, 58, 237, 0.2)",
                   },
                 }}
                 onClick={onClose}

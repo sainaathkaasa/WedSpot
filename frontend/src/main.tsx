@@ -13,8 +13,9 @@ import { store } from '@/store';
 
 import { CartProvider } from '@/contexts/CartContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { OfflineBanner } from '@/shared/ui/OfflineBanner';
 
-// 1. Initialize the QueryClient
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -26,22 +27,24 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <UserProvider>
-            <AuthProvider>
-              <SnackbarProvider>
-                <CartProvider>
-                  <RouterProvider router={router} />
-                </CartProvider>
-              </SnackbarProvider>
-            </AuthProvider>
-          </UserProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </Provider>
-
+    <ErrorBoundary>
+      <OfflineBanner />
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <UserProvider>
+              <AuthProvider>
+                <SnackbarProvider>
+                  <CartProvider>
+                    <RouterProvider router={router} />
+                  </CartProvider>
+                </SnackbarProvider>
+              </AuthProvider>
+            </UserProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </Provider>
+    </ErrorBoundary>
   </React.StrictMode>
 );

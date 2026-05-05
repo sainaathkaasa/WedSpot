@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Box } from '@mui/material';
-import { useSnackbar } from '@/contexts/SnackbarContext';
+import { useSnackbar } from '@/contexts/snackbarContextValue';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '@/contexts/CartContext';
+import { useCart } from '@/contexts/cartContextValue';
 import CartList from '../../components/Cart/CartList';
 import BookingDialog, { type BookingDetails } from '../../components/Cart/BookingDialog';
 import { BOOKING_SERVICE } from '@/features/Booking/api/bookings.api';

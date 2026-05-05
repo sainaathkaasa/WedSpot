@@ -23,14 +23,16 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { VENDOR_SERVICE } from '@/features/VendorService/api/vendor.api';
-import { useSnackbar } from '@/contexts/SnackbarContext';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { VENDOR_SERVICE } from '@/features/VendorService/api';
+import type { VendorFormData } from '../types';
+import { useSnackbar } from '@/contexts/snackbarContextValue';
+import { DashboardCard } from '@/features/dashboard';
 import { InputField } from '@/components/UI/Form';
 import { FormButton } from '@/components/UI/Button';
-import type { VendorService } from '@/features/vendors/types/vendor';
+import type { VendorService } from '@/entities/vendor-service';
 import { useState } from 'react';
 import type { APIResponse } from '@/api/types';
+import type { AxiosError } from 'axios';
 
 
 const SECTOR_OPTIONS = [
@@ -41,8 +43,6 @@ const SECTOR_OPTIONS = [
     { label: 'Invitations', value: 'invitations' },
     { label: 'Catering', value: 'catering' },
 ] as const;
-
-export type VendorFormData = Omit<VendorService, 'id' | 'rating' | 'ratingCount' | 'reviews' | 'quantity' | 'vendor'>;
 
 const schema: yup.ObjectSchema<VendorFormData> = yup.object().shape({
     name: yup.string().required('Service name is required'),
@@ -87,20 +87,12 @@ const VendorManageDetails: React.FC = () => {
         queryKey: ['vendor', id],
         queryFn: () => VENDOR_SERVICE.getById(Number(id)),
         enabled: isEditMode,
-        select: (response) => {
-            console.log("Response Data: ", response)
-            return response.data;
-        },
+        select: (response) => response.data,
     });
-
-
-    // console.log("Vendor Manage Details: ", vendorData)
-    // console.log("Params Id: ", id)
 
     // Separate useEffect to populate form when data arrives
     React.useEffect(() => {
         if (!vendorData) return;
-        console.log(vendorData)
         reset({
             name: vendorData.name,
             description: vendorData.description,
@@ -110,9 +102,9 @@ const VendorManageDetails: React.FC = () => {
             imageUrl: vendorData.imageUrl,
             tags: vendorData.tags,
         });
-    }, [vendorData]);
+    }, [reset, vendorData]);
 
-    const { mutate, isPending } = useMutation<APIResponse<VendorService | void>, any, VendorFormData>({
+    const { mutate, isPending } = useMutation<APIResponse<VendorService | void>, AxiosError<{ message?: string }>, VendorFormData>({
         mutationFn: (data: VendorFormData) =>
             isEditMode
                 ? VENDOR_SERVICE.update(Number(id), data)
@@ -121,8 +113,8 @@ const VendorManageDetails: React.FC = () => {
             success(isEditMode ? 'Service updated successfully!' : 'Service created successfully!');
             navigate('/vendor/services');
         },
-        onError: (err: any) => {
-            error(err?.response?.data?.message || 'Something went wrong. Please try again.');
+        onError: (err) => {
+            error(err.response?.data?.message || 'Something went wrong. Please try again.');
         },
     });
 
@@ -146,8 +138,7 @@ const VendorManageDetails: React.FC = () => {
     };
 
     const onSubmit = (data: VendorFormData) => {
-        console.log("Submitting the Servce: ", data)
-        mutate(data)
+        mutate(data);
     };
 
     if (isFetching && isEditMode) {

@@ -1,0 +1,37 @@
+[
+  {
+    "invoiceNumber": "INV-2024-001",
+    "clientEmail": "client1@gmail.com",
+    "amount": 450000,
+    "date": "2024-03-15",
+    "status": "paid"
+  },
+  {
+    "invoiceNumber": "INV-2024-002",
+    "clientEmail": "client2@gmail.com",
+    "amount": 250000,
+    "date": "2024-03-18",
+    "status": "pending"
+  },
+  {
+    "invoiceNumber": "INV-2024-003",
+    "clientEmail": "client3@gmail.com",
+    "amount": 680000,
+    "date": "2024-03-20",
+    "status": "overdue"
+  },
+  {
+    "invoiceNumber": "INV-2024-004",
+    "clientEmail": "client4@gmail.com",
+    "amount": 125000,
+    "date": "2024-03-22",
+    "status": "pending"
+  },
+  {
+    "invoiceNumber": "INV-2024-005",
+    "clientEmail": "client5@gmail.com",
+    "amount": 320000,
+    "date": "2024-03-25",
+    "status": "paid"
+  }
+]

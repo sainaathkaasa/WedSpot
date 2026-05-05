@@ -24,14 +24,14 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 import { InputField } from '@/components/UI/Form';
 import { FormButton } from '@/components/UI/Button';
-import { useSnackbar } from '@/contexts/SnackbarContext';
+import { useSnackbar } from '@/contexts/snackbarContextValue';
 import type { APIResponse } from '@/api/types';
-import type { User } from '@/features/auth/types/auth.types';
+import type { User, UserRole } from '@/entities/user';
 import type { UserFormFields } from '@/features/Users/pages/AddUser';
-import { USER_SERVICE } from "@/features/user/api/user.api";
+import { USER_SERVICE } from "@/features/Users/api/user.api";
 
 const schema = yup.object().shape({
     name: yup.string().required('Full Name is required'),
@@ -124,9 +124,10 @@ const UpdateUser = () => {
         },
     });
 
-    const onSubmit = (data: User) => {
-        if (!data.password) delete data.password;
-        updateUser(data);
+    const onSubmit = (data: { role: string; name: string; email: string; phoneNumber?: string; address?: string; enabled: boolean; password?: string }) => {
+        const { password, ...rest } = data;
+        const payload = password ? { ...rest, role: rest.role as UserRole, password } : { ...rest, role: rest.role as UserRole };
+        updateUser(payload);
     };
 
     if (isFetching) {

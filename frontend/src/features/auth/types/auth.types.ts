@@ -15,7 +15,7 @@ export interface User {
     email: string;
     name: string;
     password?: string;
-    role: UserRole | string;
+    role: UserRole;
     phoneNumber?: string;
     address?: string;
     createdAt?: string;
@@ -30,5 +30,20 @@ export interface LoginResponse {
 
 export type AuthResponse = APIResponse<LoginResponse>;
 
-export type PaginatedAPIResponse<T = any> = APIResponse<T[]>;
+export interface ResetPasswordPayload {
+    email: string;
+    password: string;
+    confirmPassword?: string;
+    otp?: string;
+}
+
+export type PaginatedAPIResponse<T = unknown> = APIResponse<T[]>;
+
+export interface TokenVerificationResponse {
+    valid: boolean;
+    email: string;
+    role: string;
+    message: string;
+}
+
 

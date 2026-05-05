@@ -11,7 +11,8 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(
         componentModel = "spring",
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        unmappedTargetPolicy = ReportingPolicy.IGNORE
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = {IReviewMapper.class, IUserMapper.class}
 )
 public interface IVendorServiceMapper {
 

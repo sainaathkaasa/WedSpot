@@ -1,8 +1,8 @@
-import endpoints from "@/api/GlobalEndpoints";
+import endpoints from "@/api/ApiEndpoints";
 import api from "@/api/axios";
 import type { APIResponse } from "@/api/types";
-import type { VendorService } from "@/features/vendors/types/vendor";
-import type { VendorFormData } from "../components/VendorManageDetails";
+import type { VendorService } from '@/entities/vendor-service';
+import type { VendorFormData } from '../types';
 
 export const VENDOR_SERVICE = {
     getById: async (id: number): Promise<APIResponse<VendorService>> => {

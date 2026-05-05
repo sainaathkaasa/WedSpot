@@ -153,13 +153,10 @@ const Footer = (): JSX.Element => {
                     background: "rgba(255, 255, 255, 0.05)",
                     color: "#b0b0b0",
                     border: "1px solid rgba(255, 255, 255, 0.1)",
-                    transition: "all 0.3s ease",
                     "&:hover": {
                       background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
                       color: "#fff",
-                      transform: "translateY(-3px)",
                       borderColor: "transparent",
-                      boxShadow: "0 8px 20px rgba(124, 58, 237, 0.3)",
                     },
                   }}
                 >

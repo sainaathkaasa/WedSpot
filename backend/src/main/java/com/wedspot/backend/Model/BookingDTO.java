@@ -2,7 +2,7 @@ package com.wedspot.backend.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.wedspot.backend.Model.Entity.Booking;
+import com.wedspot.backend.Model.Entity.BookingStatus;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,7 +30,7 @@ public class BookingDTO {
 
     private BigDecimal advancePaid;
 
-    private Booking.BookingStatus status = Booking.BookingStatus.PENDING;
+    private BookingStatus status = BookingStatus.PENDING;
 
     private String notes;
 

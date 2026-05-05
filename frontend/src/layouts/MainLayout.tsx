@@ -10,8 +10,6 @@ const MainLayout = ({ children }: { children: React.ReactNode }): JSX.Element =>
   const { user } = useUser();
   const role = user?.role;
 
-  console.log("Main Layout", user, isAuthenticated)
-
   if (isAuthenticated) {
     const dashboardPath = role ? `/dashboard` : '/';
     return <Navigate to={dashboardPath} replace />;

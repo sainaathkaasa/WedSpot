@@ -1,6 +1,7 @@
 import api from "@/api/axios";
-import endpoints from "@/api/GlobalEndpoints";
-import type { UserRole, AuthResponse, User } from "@/features/auth/types/auth.types";
+import endpoints from "@/api/ApiEndpoints";
+import type { UserRole, AuthResponse, User, ResetPasswordPayload, TokenVerificationResponse } from "@/features/auth/types/auth.types";
+import type { APIResponse } from "@/api/types";
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === "true";
 
@@ -34,7 +35,7 @@ const mockLogin = (payload: { email: string; password: string }): AuthResponse =
     };
 };
 
-const mockRegister = (payload: { email: string; role: UserRole | string }): AuthResponse => ({
+const mockRegister = (payload: { email: string; role: UserRole }): AuthResponse => ({
     ok: true,
     message: "Mock Registration Success",
     timestamp: new Date().toISOString(),
@@ -100,18 +101,30 @@ export const AUTH_SERVICE = {
         }
     },
 
-    forgotPassword: async (email: string): Promise<any> => {
+    forgotPassword: async (email: string): Promise<APIResponse<void>> => {
         const response = await api.post(endpoints.ForgotPassword, { email });
         return response.data;
     },
 
-    verifyOtp: async (email: string, otp: string): Promise<any> => {
+    verifyOtp: async (email: string, otp: string): Promise<APIResponse<void>> => {
         const response = await api.post(endpoints.VerifyOtp, { email, otp });
         return response.data;
     },
 
-    resetPassword: async (payload: any): Promise<any> => {
+    resetPassword: async (payload: ResetPasswordPayload): Promise<APIResponse<void>> => {
         const response = await api.post(endpoints.ResetPassword, payload);
         return response.data;
+    },
+
+    verifyToken: async (token: string): Promise<APIResponse<TokenVerificationResponse>> => {
+        const response = await api.post(endpoints.VerifyToken, null, {
+            params: { token }
+        });
+        return response.data;
+    },
+
+    refreshToken: async (refreshToken: string): Promise<{ data: { accessToken: string } }> => {
+        const response = await api.post("/auth/refresh-token", { refreshToken });
+        return response;
     },
 };

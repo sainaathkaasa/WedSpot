@@ -1,4 +1,4 @@
-export interface APIResponse<T = any> {
+export interface APIResponse<T = unknown> {
     data: T;
     timestamp: string;
     message: string;

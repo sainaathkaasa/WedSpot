@@ -1,321 +1,172 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
     Box,
     Typography,
     Grid,
     Container,
-    useTheme,
-    alpha,
     InputAdornment,
     TextField,
     Button,
     Skeleton,
     IconButton,
-    Pagination
+    Pagination,
+    Divider
 } from '@mui/material';
 import {
     Search as SearchIcon,
     FilterList as FilterIcon,
-    Verified as VerifiedIcon,
-    Star as StarIcon,
     Close as CloseIcon
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
 import VendorCard from '../components/VendorCard';
 import SectorNavigation from '../components/CategoryNavigation';
-import type { VendorCategory, VendorService } from '../types/vendor';
-import { useQuery } from '@tanstack/react-query';
-import { VENDOR_SERVICE } from '@/features/VendorService/api/vendor.api';
+import type { VendorCategory, VendorService } from '../types';
+import { useVendors } from '../hooks';
 
-// Mock Sectors (Wedding Focused)
 const SECTORS: VendorCategory[] = [
-    { id: 'floral', name: 'Floral Decoration', icon: '🌸', description: 'Artisanal floral designs for every theme' },
-    { id: 'coordination', name: 'Wedding Coordination', icon: '📋', description: 'Seamless planning and on-day execution' },
-    { id: 'photography', name: 'Cinematic Photoshoot', icon: '📸', description: 'Visual storytelling at its finest' },
-    { id: 'makeup', name: 'Luxury Makeup Artist', icon: '💄', description: 'Premium bridal and party beaty services' },
-    { id: 'invitations', name: 'Elegant Invitations', icon: '✉️', description: 'Custom-designed stationery and invites' },
-    { id: 'catering', name: 'Premium Catering', icon: '🍽️', description: 'Gourmet culinary experiences' },
+    { id: 'all', name: 'All Services', icon: '📋', description: 'View all' }, // Added explicit All
+    { id: 'floral', name: 'Floral Decoration', icon: '🌸', description: 'Artisanal floral designs' },
+    { id: 'coordination', name: 'Wedding Coordination', icon: '📋', description: 'Seamless planning' },
+    { id: 'photography', name: 'Cinematic Photoshoot', icon: '📸', description: 'Visual storytelling' },
+    { id: 'makeup', name: 'Luxury Makeup', icon: '💄', description: 'Premium beauty services' },
+    { id: 'invitations', name: 'Elegant Invitations', icon: '✉️', description: 'Custom stationery' },
+    { id: 'catering', name: 'Premium Catering', icon: '🍽️', description: 'Gourmet culinary' },
 ];
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 9; // Increased for professional density (3x3 grid)
 
 const PremiumVendors: React.FC = () => {
-    const theme = useTheme();
     const [activeSector, setActiveSector] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [page, setPage] = useState(1);
 
-    const { data: response, isLoading, isError } = useQuery({
-        queryKey: ['premium-services'],
-        queryFn: () => VENDOR_SERVICE.getAllServices()
-    });
+    const { data: response, isLoading, isError } = useVendors();
 
     const allServices = response?.data || [];
 
-    // Reset page on filter/search
-    React.useEffect(() => {
-        setPage(1);
-    }, [activeSector, searchQuery]);
-
-    // Filter Logic
+    // Filter Logic - Memoized
     const filteredVendors = useMemo(() => {
+        const query = searchQuery.toLowerCase().trim();
         return allServices.filter((service: VendorService) => {
             const matchesSector = activeSector === 'all' || service.category?.toLowerCase() === activeSector.toLowerCase();
-            const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                service.description.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesSearch = !query || 
+                service.name.toLowerCase().includes(query) ||
+                service.description.toLowerCase().includes(query);
             return matchesSector && matchesSearch;
         });
     }, [activeSector, searchQuery, allServices]);
 
-    // Pagination Logic
-    const totalPages = Math.ceil(filteredVendors.length / ITEMS_PER_PAGE);
     const paginatedVendors = useMemo(() => {
         const start = (page - 1) * ITEMS_PER_PAGE;
         return filteredVendors.slice(start, start + ITEMS_PER_PAGE);
     }, [filteredVendors, page]);
 
-    const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
-        setPage(value);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    const totalPages = Math.ceil(filteredVendors.length / ITEMS_PER_PAGE);
+
+    // Handlers
+    const handleSectorChange = useCallback((id: string) => {
+        setActiveSector(id);
+        setPage(1); // Reset page on filter
+    }, []);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        setPage(1); // Reset page on search
     };
 
-    const handleSectorChange = (id: string) => {
-        setActiveSector(id);
+    const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+        window.scrollTo({ top: 0, behavior: 'instant' }); // 'instant' is more professional than 'smooth'
     };
+
+    if (isError) {
+        return (
+            <Box sx={{ py: 20, textAlign: 'center' }}>
+                <Typography variant="h6" color="error">System Unavailable</Typography>
+                <Typography color="text.secondary">Please contact support if the issue persists.</Typography>
+            </Box>
+        );
+    }
 
     return (
-        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', pb: 10 }}>
-            {/* Header Section */}
-            <Box sx={{
-                bgcolor: 'background.paper',
-                pt: 8,
-                pb: 6,
-                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                background: `linear-gradient(180deg, ${alpha(theme.palette.primary.main, 0.03)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`
-            }}>
-                <Container maxWidth="xl">
-                    <Box sx={{ textAlign: 'center', mb: 6 }}>
-                        <Typography
-                            variant="h1"
-                            sx={{
-                                fontWeight: 800,
-                                fontSize: { xs: '2rem', md: '3.5rem' },
-                                mb: 2,
-                                letterSpacing: '-0.04em',
-                                background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                            }}
-                        >
-                            Service Marketplace
-                        </Typography>
-                        <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 600, maxWidth: '700px', mx: 'auto', lineHeight: 1.6 }}>
-                            Discover and collaborate with the world's most elite providers across multiple industry sectors.
-                        </Typography>
-                    </Box>
-
-                    {/* Search & Stats Bar */}
-                    <Box sx={{
-                        display: 'flex',
-                        flexDirection: { xs: 'column', md: 'row' },
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 3,
-                        px: 3,
-                        py: 2.5,
-                        bgcolor: alpha(theme.palette.background.paper, 0.4),
-                        backdropFilter: 'blur(10px)',
-                        borderRadius: 5,
-                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                    }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2, md: 4 }, flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'flex-start' } }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <VerifiedIcon sx={{ color: 'primary.main', fontSize: 18 }} />
-                                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.75rem', md: '0.875rem' } }}>{allServices.length} Verified Partners</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <StarIcon sx={{ color: 'warning.main', fontSize: 18 }} />
-                                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.75rem', md: '0.875rem' } }}>4.9/5 Average Rating</Typography>
-                            </Box>
-                        </Box>
-
-                        <TextField
-                            placeholder="Find your perfect wedding partner..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            sx={{
-                                width: { xs: '100%', md: 420 },
-                                '& .MuiOutlinedInput-root': {
-                                    height: '56px',
-                                    borderRadius: '20px',
-                                    bgcolor: alpha(theme.palette.background.paper, 0.8),
-                                    backdropFilter: 'blur(12px)',
-                                    fontWeight: 700,
-                                    fontSize: '0.95rem',
-                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                                    '& fieldset': { border: 'none' },
-                                    '&:hover': {
-                                        bgcolor: alpha(theme.palette.background.paper, 1),
-                                        boxShadow: `0 8px 32px ${alpha(theme.palette.primary.main, 0.08)}`,
-                                        transform: 'translateY(-1px)'
-                                    },
-                                    '&.Mui-focused': {
-                                        bgcolor: alpha(theme.palette.background.paper, 1),
-                                        boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.12)}`,
-                                        border: `1px solid ${alpha(theme.palette.primary.main, 0.3)}`,
-                                    }
-                                }
-                            }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start" sx={{ mr: 1.5 }}>
-                                        <Box sx={{
-                                            p: 0.8,
-                                            display: 'flex',
-                                            borderRadius: '12px',
-                                            bgcolor: alpha(theme.palette.primary.main, 0.08)
-                                        }}>
-                                            <SearchIcon sx={{ color: 'primary.main', fontSize: 22 }} />
-                                        </Box>
-                                    </InputAdornment>
-                                ),
-                                endAdornment: searchQuery && (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            size="small"
-                                            onClick={() => setSearchQuery('')}
-                                            sx={{
-                                                bgcolor: alpha(theme.palette.divider, 0.05),
-                                                '&:hover': { bgcolor: alpha(theme.palette.error.main, 0.1), color: 'error.main' }
-                                            }}
-                                        >
-                                            <CloseIcon fontSize="small" />
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }}
-                        />
-                    </Box>
-                </Container>
-            </Box>
-
-            <Container maxWidth="xl" sx={{ mt: 0 }}>
-                {/* Sector Navigation */}
+        <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh', pb: 10 }}>
+            <Container maxWidth="xl">
                 <SectorNavigation
                     categories={SECTORS}
                     activeCategoryId={activeSector}
                     onCategoryChange={handleSectorChange}
                 />
 
-                {/* Vendors Grid */}
-                <Box>
-                    <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: '-0.02em' }}>
-                            {activeSector === 'all' ? 'Featured Vendors' : `Top Providers in ${SECTORS.find(s => s.id === activeSector)?.name}`}
-                        </Typography>
-                        <Button startIcon={<FilterIcon />} sx={{ fontWeight: 700, textTransform: 'none', color: 'text.secondary' }}>Sort & Filter</Button>
-                    </Box>
-
-                    {isLoading ? (
-                        <Grid container spacing={4}>
-                            {Array.from(new Array(6)).map((_, index) => (
-                                <Grid item xs={12} sm={6} lg={4} key={`skeleton-${index}`}>
-                                    <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 4 }} />
-                                    <Box sx={{ pt: 2 }}>
-                                        <Skeleton width="60%" height={32} />
-                                        <Skeleton width="40%" height={24} />
-                                    </Box>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    ) : isError ? (
-                        <Box sx={{ py: 10, textAlign: 'center' }}>
-                            <Typography variant="h6" color="error" sx={{ fontWeight: 700 }}>
-                                Failed to connect to the marketplace.
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'text.secondary', mt: 1 }}>
-                                Please check your connection and try again.
-                            </Typography>
-                        </Box>
-                    ) : (
-                        <>
-                            <Grid container spacing={4}>
-                                <AnimatePresence mode="popLayout">
-                                    {paginatedVendors.map((vendor: VendorService) => (
-                                        <Grid
-                                            item
-                                            xs={12}
-                                            sm={6}
-                                            lg={4}
-                                            key={vendor.id}
-                                            component={motion.div}
-                                            layout
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.9 }}
-                                            transition={{ duration: 0.3 }}
-                                        >
-                                            <VendorCard service={vendor} />
-                                        </Grid>
-                                    ))}
-                                </AnimatePresence>
-                            </Grid>
-
-                            {/* Empty State */}
-                            {filteredVendors.length === 0 && (
-                                <Box sx={{
-                                    textAlign: 'center',
-                                    py: 12,
-                                    px: 4,
-                                    bgcolor: alpha(theme.palette.background.paper, 0.4),
-                                    borderRadius: '32px',
-                                    border: `1px dashed ${theme.palette.divider}`
-                                }}>
-                                    <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: 'text.primary' }}>
-                                        No vendors found
-                                    </Typography>
-                                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                                        Try adjusting your search or category filters
-                                    </Typography>
-                                </Box>
-                            )}
-
-                            {/* Pagination */}
-                            {totalPages > 1 && (
-                                <Box sx={{
-                                    mt: 8,
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    '& .MuiPagination-ul': { gap: 1 },
-                                    '& .MuiPaginationItem-root': {
-                                        borderRadius: '12px',
-                                        fontWeight: 800,
-                                        fontSize: '0.9rem',
-                                        transition: 'all 0.3s ease',
-                                        '&.Mui-selected': {
-                                            bgcolor: 'primary.main',
-                                            color: 'white',
-                                            boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
-                                            '&:hover': {
-                                                bgcolor: 'primary.dark',
-                                            }
-                                        }
-                                    }
-                                }}>
-                                    <Pagination
-                                        count={totalPages}
-                                        page={page}
-                                        onChange={handlePageChange}
-                                        size="large"
-                                        color="primary"
-                                        shape="rounded"
-                                    />
-                                </Box>
-                            )}
-                        </>
-                    )}
+                <Box sx={{ mb: 4, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <TextField
+                        placeholder="Search vendors by name or service..."
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        size="small"
+                        sx={{ 
+                            width: { xs: '100%', md: 400 },
+                            bgcolor: 'background.paper'
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon fontSize="small" color="action" />
+                                </InputAdornment>
+                            ),
+                            endAdornment: searchQuery && (
+                                <IconButton size="small" onClick={() => { setSearchQuery(''); setPage(1); }}>
+                                    <CloseIcon fontSize="small" />
+                                </IconButton>
+                            )
+                        }}
+                    />
+                    <Button 
+                        variant="outlined" 
+                        startIcon={<FilterIcon />} 
+                        sx={{ color: 'text.primary', borderColor: 'divider', textTransform: 'none' }}
+                    >
+                        Filters
+                    </Button>
                 </Box>
+
+                <Divider sx={{ mb: 4 }} />
+
+                <Grid container spacing={3}>
+                    {isLoading ? (
+                        Array.from(new Array(ITEMS_PER_PAGE)).map((_, i) => (
+                            <Grid item xs={12} sm={6} lg={4} key={i}>
+                                <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 1 }} />
+                                <Skeleton width="60%" sx={{ mt: 1 }} />
+                                <Skeleton width="40%" />
+                            </Grid>
+                        ))
+                    ) : paginatedVendors.length > 0 ? (
+                        paginatedVendors.map((vendor: VendorService) => (
+                            <Grid item xs={12} sm={6} lg={4} key={vendor.id}>
+                                <VendorCard service={vendor} />
+                            </Grid>
+                        ))
+                    ) : (
+                        <Grid item xs={12}>
+                            <Box sx={{ py: 10, textAlign: 'center', border: '1px dashed', borderColor: 'divider' }}>
+                                <Typography variant="subtitle1" color="text.secondary">
+                                    No records found matching your criteria.
+                                </Typography>
+                            </Box>
+                        </Grid>
+                    )}
+                </Grid>
+
+                {totalPages > 1 && (
+                    <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center' }}>
+                        <Pagination
+                            count={totalPages}
+                            page={page}
+                            onChange={handlePageChange}
+                            shape="rounded"
+                            color="primary"
+                        />
+                    </Box>
+                )}
             </Container>
         </Box>
     );

@@ -5,11 +5,12 @@ import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 import ChatHeader from './ChatHeader';
 import { useChat } from '@/features/chat/hooks/useChat';
-import { useChatStore, type Conversation } from '@/features/chat/store/chatStore';
+import { useChatStore } from '@/features/chat/store/chatStore';
 import { authStore } from '@/features/auth/utils/authSingleton';
 import CallOverlay from './CallOverlay';
 import ContactInfo from './ContactInfo';
 import { AnimatePresence } from 'framer-motion';
+import type { Conversation } from '../types/chat.types';
 
 const ChatContainer: React.FC = () => {
     const theme = useTheme();

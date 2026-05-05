@@ -1,15 +1,6 @@
-import React, { createContext, useContext, useMemo, useState, useCallback, type JSX } from 'react';
+import React, { useMemo, useState, useCallback, type JSX } from 'react';
 import { Snackbar, Alert, type AlertColor } from '@mui/material';
-
-type SnackbarContextType = {
-  show: (message: string, severity?: AlertColor, durationMs?: number) => void;
-  success: (message: string, durationMs?: number) => void;
-  error: (message: string, durationMs?: number) => void;
-  info: (message: string, durationMs?: number) => void;
-  warning: (message: string, durationMs?: number) => void;
-};
-
-const SnackbarContext = createContext<SnackbarContextType | null>(null);
+import { SnackbarContext, type SnackbarContextType } from './snackbarContextValue';
 
 export const SnackbarProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [open, setOpen] = useState(false);
@@ -44,10 +35,4 @@ export const SnackbarProvider = ({ children }: { children: React.ReactNode }): J
       </Snackbar>
     </SnackbarContext.Provider>
   );
-};
-
-export const useSnackbar = (): SnackbarContextType => {
-  const ctx = useContext(SnackbarContext);
-  if (!ctx) throw new Error('useSnackbar must be used within SnackbarProvider');
-  return ctx;
 };

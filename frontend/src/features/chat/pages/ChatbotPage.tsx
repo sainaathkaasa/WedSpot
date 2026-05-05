@@ -1,12 +1,12 @@
 import { useEffect, type JSX } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
-import { CHAT_SERVICE } from "@/features/chat/api/chat.api";
+import { Box } from "@mui/material";
+import { CHAT_SERVICE } from "@/features/chat/api";
 import { authStore } from "@/features/auth/utils/authSingleton";
-import { useChatStore, type ChatMessage } from "@/features/chat/store/chatStore";
+import { useChatStore } from "@/features/chat/store";
+import type { ChatMessage } from "@/features/chat/types";
 import ChatContainer from "@/features/chat/components/ChatContainer";
 
 const ChatbotPage = (): JSX.Element => {
-    const theme = useTheme();
     const { setMessages } = useChatStore();
     const currentUserEmail = authStore.getEmail();
 
@@ -32,25 +32,6 @@ const ChatbotPage = (): JSX.Element => {
 
     return (
         <Box sx={{ p: 0, maxWidth: 1600, margin: "0 auto" }}>
-            <Box sx={{ mb: 4 }}>
-                <Typography 
-                    variant="h4" 
-                    sx={{ 
-                        fontWeight: 900, 
-                        letterSpacing: '-0.02em',
-                        background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        display: 'inline-block'
-                    }}
-                >
-                    Chat & Support
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500, mt: 0.5 }}>
-                    Real-time collaboration with your team and vendors.
-                </Typography>
-            </Box>
-
             <ChatContainer />
         </Box>
     );

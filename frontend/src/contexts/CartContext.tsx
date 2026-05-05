@@ -1,15 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { CartContextType, CartItem } from '@/features/commerce/types/cart.types';
-import { useSnackbar } from '@/contexts/SnackbarContext';
+import React, { useEffect, useState } from 'react';
+import type { CartItem } from '@/entities/cart';
+import { useSnackbar } from '@/contexts/snackbarContextValue';
+import { CartContext } from './cartContextValue';
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
-export const useCart = () => {
-    const context = useContext(CartContext);
-    if (!context) {
-        throw new Error('useCart must be used within a CartProvider');
-    }
-    return context;
+type PersistedCartItem = CartItem & {
+    numericPrice?: number;
+    priceRange?: string;
 };
 
 /**
@@ -30,11 +26,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const parsed = JSON.parse(saved);
             // Re-validate and ensure numericPrice exists for migration safety
-            return parsed.map((item: any) => ({
+            return (parsed as PersistedCartItem[]).map((item) => ({
                 ...item,
-                numericPrice: item.numericPrice || extractNumericPrice(item.priceRange || '')
+                numericPrice: item.numericPrice || item.price || extractNumericPrice(item.priceRange || '')
             }));
-        } catch (e) {
+        } catch {
             return [];
         }
     });

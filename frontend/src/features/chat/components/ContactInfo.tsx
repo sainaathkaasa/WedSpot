@@ -23,21 +23,21 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ onClose, contact }) => {
     ];
 
     return (
-        <Box 
+        <Box
             component={motion.div}
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            sx={{ 
+            sx={{
                 position: { xs: 'absolute', md: 'relative' },
                 top: 0,
                 right: 0,
                 bottom: 0,
-                width: { xs: '100%', md: 320 }, 
-                height: '100%', 
+                width: { xs: '100%', md: 320 },
+                height: '100%',
                 zIndex: 1000,
-                bgcolor: 'background.paper', 
+                bgcolor: 'background.paper',
                 borderLeft: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
                 display: 'flex',
                 flexDirection: 'column',
@@ -54,32 +54,29 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ onClose, contact }) => {
 
             {/* Profile Section */}
             <Box sx={{ p: 4, textAlign: 'center' }}>
-                <Avatar 
-                    src={contact.avatar} 
-                    sx={{ 
-                        width: 100, 
-                        height: 100, 
-                        mx: 'auto', 
-                        mb: 2, 
+                <Avatar
+                    src={contact.avatar}
+                    sx={{
+                        width: 100,
+                        height: 100,
+                        mx: 'auto',
+                        mb: 1,
                         bgcolor: alpha(theme.palette.primary.main, 0.1),
                         color: 'primary.main',
-                        fontSize: '2.5rem',
+                        fontSize: '2rem',
                         fontWeight: 900,
                         border: `4px solid ${alpha(theme.palette.primary.main, 0.05)}`
                     }}
                 >
                     {contact.name[0]}
                 </Avatar>
-                <Typography variant="h5" sx={{ fontWeight: 900, mb: 0.5 }}>{contact.name}</Typography>
-                <Typography variant="caption" sx={{ color: contact.isOnline ? 'success.main' : 'text.disabled', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    {contact.isOnline ? 'Active Now' : 'Last seen Monday'}
-                </Typography>
+                <Typography variant="h6">{contact.name}</Typography>
             </Box>
 
             {/* Contact Info */}
             <Box sx={{ px: 3, mb: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                    <Box sx={{ p: 1, borderRadius: '8px', bgcolor: alpha(theme.palette.divider, 0.05), color: 'text.secondary' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: '100%', bgcolor: alpha(theme.palette.divider, 0.05), color: 'text.secondary' }}>
                         <Phone size={18} />
                     </Box>
                     <Box>
@@ -87,17 +84,17 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ onClose, contact }) => {
                         <Typography variant="body2" sx={{ fontWeight: 700 }}>+91 98765 43210</Typography>
                     </Box>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Box sx={{ p: 1, borderRadius: '8px', bgcolor: alpha(theme.palette.divider, 0.05), color: 'text.secondary' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: '100%', bgcolor: alpha(theme.palette.divider, 0.05), color: 'text.secondary' }}>
                         <Mail size={18} />
                     </Box>
-                    <Box sx={{ minWidth: 0 }}>
+                    <Box>
                         <Typography variant="caption" sx={{ color: 'text.disabled', fontWeight: 600 }}>Email</Typography>
-                        <Typography variant="body2" sx={{ 
-                            fontWeight: 700, 
-                            wordBreak: 'break-all', 
+                        <Typography variant="body2" sx={{
+                            fontWeight: 700,
+                            wordBreak: 'break-all',
                             whiteSpace: 'normal',
-                            fontSize: { xs: '12px', sm: '14px' } 
+                            maxWidth: "75%"
                         }}>
                             {contact.name.toLowerCase().replace(/\s+/g, '.')}@example.com
                         </Typography>
@@ -116,9 +113,9 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ onClose, contact }) => {
                 <Grid container spacing={1}>
                     {sharedMedia.map((item) => (
                         <Grid item xs={3} key={item.id}>
-                            <Box sx={{ 
-                                pt: '100%', 
-                                position: 'relative', 
+                            <Box sx={{
+                                pt: '100%',
+                                position: 'relative',
                                 bgcolor: alpha(theme.palette.divider, 0.05),
                                 borderRadius: '8px',
                                 overflow: 'hidden',
@@ -152,10 +149,10 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ onClose, contact }) => {
                             key={idx}
                             fullWidth
                             startIcon={item.icon}
-                            sx={{ 
-                                justifyContent: 'flex-start', 
-                                color: item.color, 
-                                py: 1, 
+                            sx={{
+                                justifyContent: 'flex-start',
+                                color: item.color,
+                                py: 1,
                                 fontWeight: 700,
                                 textTransform: 'none',
                                 '&:hover': { bgcolor: alpha(theme.palette.divider, 0.03) }

@@ -18,7 +18,7 @@ import {
     Add as AddIcon,
     Remove as RemoveIcon
 } from '@mui/icons-material';
-import type { CartItem } from '@/features/commerce/types/cart.types';
+import type { CartItem } from '@/entities/cart';
 
 interface CateringDialogProps {
     open: boolean;

@@ -14,11 +14,11 @@ import {
     MoreVert as MoreVertIcon
 } from '@mui/icons-material';
 import { useMaterialReactTable } from 'material-react-table';
-import DashboardCard from '@/features/dashboard/components/DashboardCard/DashboardCard';
+import { DashboardCard } from '@/features/dashboard';
 import { TableComponent, TableBottomToolbar, TableHeaderToolbar } from '@/components/UI/Table';
 
 import { useQuery } from '@tanstack/react-query';
-import { USER_SERVICE } from '@/features/user/api/user.api';
+import { USER_SERVICE } from '@/features/Users/api/user.api';
 
 const ClientsPage = () => {
     const theme = useTheme();

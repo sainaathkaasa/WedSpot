@@ -22,7 +22,7 @@ import {
 } from "@mui/icons-material";
 import { Logo } from "@/components/UI/Logo";
 import NotificationCenter from "@/components/Notifications/NotificationCenter";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/contexts/cartContextValue";
 import { UserRole } from "@/features/auth";
 
 // ✅ Constants outside component — not recreated on every render
@@ -180,9 +180,10 @@ const DashboardLayout = (): JSX.Element => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 2.5, md: 3 },
+          px: { xs: 2.5, md: 2 },
+          py: { xs: 2.5, md: 1 },
           width: { lg: `calc(100% - ${currentSidebarWidth}px)` },
-          mt: `${APPBAR_HEIGHT}px`,  // ✅ Tied to the constant, not a magic number
+          mt: `${APPBAR_HEIGHT}px`,
           transition: theme.dashboard?.transition,
           overflowX: 'hidden'
         }}

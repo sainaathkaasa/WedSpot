@@ -1,5 +1,6 @@
 package com.wedspot.backend.Model.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,10 +18,12 @@ public class Review {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id", nullable = false)
+    @JsonIgnoreProperties("reviews")
     private VendorService service;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"reviews", "bookings", "serviceBookings"})
     private User reviewer;
 
     @Column(nullable = false)
