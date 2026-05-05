@@ -19,7 +19,6 @@ import { DashboardCard } from '@/features/dashboard';
 import { useAuth } from "@/features/auth";
 import type { InfoItemProps, ProfileSidebarHeaderProps } from "../../types/ProfileSidebarHeader.types";
 import { ProfileAvatar, LogoutButton, InfoIconWrapper } from "./ProfileSidebarHeader.styles";
-import { useUser } from "@/features/user";
 
 const InfoItem: React.FC<InfoItemProps> = ({ icon, label, value, colorType = 'primary' }) => {
     const theme = useTheme();
