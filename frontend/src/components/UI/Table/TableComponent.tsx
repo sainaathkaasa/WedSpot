@@ -1,4 +1,4 @@
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme, alpha, type Theme } from '@mui/material';
 import {
   MRT_TableBodyCellValue,
   flexRender,
@@ -10,37 +10,46 @@ interface TableComponentProps<TData extends MRT_RowData = MRT_RowData> {
   table: MRT_TableInstance<TData>;
 }
 
+const headerSx = (theme: Theme) => ({
+  fontSize: theme.typography.caption.fontSize,
+  fontWeight: 700,
+  py: theme.spacing(1),
+  px: theme.spacing(1.75),
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  color: 'text.secondary',
+  borderBottom: `2px solid ${theme.palette.divider}`,
+});
+
+const cellSx = (theme: Theme) => ({
+  ...theme.typography.body2,
+  fontWeight: 500,
+  py: theme.spacing(1),
+  px: theme.spacing(1.75),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  color: 'text.primary',
+});
+
 const TableComponent = <TData extends MRT_RowData = MRT_RowData>({ table }: TableComponentProps<TData>) => {
   const theme = useTheme();
 
   return (
-    <TableContainer sx={{ overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
-      <Table>
-        <TableHead style={{ background: theme.palette.primary.main }}>
+    <TableContainer sx={{
+      overflowX: 'auto',
+      maxWidth: '100%',
+      WebkitOverflowScrolling: 'touch',
+      border: `1px solid ${theme.palette.divider}`,
+      borderRadius: 0,
+    }}>
+      <Table size="small">
+        <TableHead sx={{ bgcolor: alpha(theme.palette.text.primary, 0.02) }}>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <TableCell
                   sx={{
-                    fontSize: { xs: 8, md: 10 },
-                    fontWeight: 500,
-                    py: 0.7,
-                    px: 1,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    color: theme.palette.primary.contrastText || '#ffff',
-                    borderLeft: `0.6px solid ${theme.dashboard?.glassBorder || '#ecf0f5'}`,
+                    ...headerSx(theme),
                     width: header.column.getSize() !== 150 ? `${header.column.getSize()}px` : 'auto',
-                    '& .MuiCheckbox-root': {
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      p: 0.5,
-                      '& .MuiSvgIcon-root': {
-                        fontSize: '18px',
-                      },
-                    },
-                    '& .MuiCheckbox-root.Mui-checked': {
-                      color: '#ffffff',
-                    },
                   }}
                   align={header.column.id === "actions" ? "center" : "left"}
                   variant="head"
@@ -56,25 +65,19 @@ const TableComponent = <TData extends MRT_RowData = MRT_RowData>({ table }: Tabl
         </TableHead>
         <TableBody>
           {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id} selected={row.getIsSelected()}>
+            <TableRow
+              key={row.id}
+              selected={row.getIsSelected()}
+              sx={{
+                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.02) },
+                '&.Mui-selected': { bgcolor: alpha(theme.palette.primary.main, 0.05) }
+              }}
+            >
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   sx={{
-                    fontSize: { xs: 8, md: 10 },
-                    fontWeight: 500,
-                    py: 0.5,
-                    px: 1,
-                    border: `1px solid ${theme.dashboard?.glassBorder || '#ecf0f5'}`,
-                    color: 'text.primary',
+                    ...cellSx(theme),
                     width: cell.column.getSize() !== 150 ? `${cell.column.getSize()}px` : 'auto',
-                    whiteSpace: 'normal',
-                    wordBreak: 'break-word',
-                    '& .MuiCheckbox-root': {
-                      p: 0.5,
-                      '& .MuiSvgIcon-root': {
-                        fontSize: '18px',
-                      },
-                    },
                   }}
                   align={cell.column.id === "actions" ? "center" : "left"}
                   variant="body"

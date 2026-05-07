@@ -23,7 +23,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<APIResponse<LoginResponse>> register(@RequestBody @Valid RegisterRequest request) {
         APIResponse<LoginResponse> response = authService.register(request);
-        return ResponseEntity.status(200).body(response);
+        return ResponseEntity.status(201).body(response);
     }
 
     @GetMapping("/logout/{id}")

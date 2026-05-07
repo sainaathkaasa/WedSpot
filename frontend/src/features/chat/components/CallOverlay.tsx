@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, Typography, Avatar, Fab, alpha, useTheme, styled } from '@mui/material';
 import { Mic, MicOff, Video, VideoOff, PhoneOff } from 'lucide-react';
 
-// 1. Move static assets or styled components outside to prevent re-creation
 const StyledOverlay = styled(Box)(({ theme }) => ({
     position: 'fixed',
     inset: 0,
@@ -34,7 +33,6 @@ const CallOverlay: React.FC<CallOverlayProps> = ({
     const [isCameraOff, setIsCameraOff] = useState(false);
     const [callTime, setCallTime] = useState(0);
 
-    // 2. Optimized Timer Logic
     useEffect(() => {
         let timer: ReturnType<typeof setInterval>;
         if (isOpen) {
@@ -46,14 +44,12 @@ const CallOverlay: React.FC<CallOverlayProps> = ({
         };
     }, [isOpen]);
 
-    // 3. Memoized formatters to prevent recalculation on every render
     const formattedTime = useMemo(() => {
         const mins = Math.floor(callTime / 60);
         const secs = callTime % 60;
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }, [callTime]);
 
-    // 4. Action Handlers
     const toggleMute = useCallback(() => setIsMuted(prev => !prev), []);
     const toggleCamera = useCallback(() => setIsCameraOff(prev => !prev), []);
 
@@ -67,7 +63,6 @@ const CallOverlay: React.FC<CallOverlayProps> = ({
                             : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.95)} 0%, ${alpha(theme.palette.secondary.main, 0.95)} 100%)`,
                     }}
                 >
-                    {/* Pulsing Rings - Simplified CSS Animation */}
                     <Box sx={{ position: 'relative', mb: 4 }}>
                         {[1, 2].map((i) => (
                             <Box
@@ -145,7 +140,6 @@ const CallOverlay: React.FC<CallOverlayProps> = ({
     );
 };
 
-// 5. Componentize sub-elements for cleaner JSX
 const CallControl = ({ active, onClick, icon }: { active: boolean, onClick: () => void, icon: React.ReactNode }) => (
     <Fab
         size="medium"

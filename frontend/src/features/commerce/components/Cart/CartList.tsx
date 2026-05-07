@@ -21,7 +21,6 @@ export interface CartListProps {
     onRemove: (id: string, name: string) => void;
     onCheckout: () => void;
     onExplore: () => void;
-    // Removed onIncrement/onDecrement as they are no longer needed
 }
 
 /**
@@ -63,16 +62,16 @@ const CartList: React.FC<CartListProps> = ({
                 <Typography sx={{ color: 'text.secondary', mb: 5, fontSize: '1.1rem', maxWidth: 500, mx: 'auto', fontWeight: 500 }}>
                     Explore our premium wedding services and start crafting your perfect celebration today.
                 </Typography>
-                <Button 
-                    variant="contained" 
+                <Button
+                    variant="contained"
                     size="large"
                     onClick={onExplore}
                     startIcon={<MallIcon />}
-                    sx={{ 
-                        borderRadius: "16px", 
-                        textTransform: 'none', 
-                        px: 6, 
-                        py: 2, 
+                    sx={{
+                        borderRadius: "16px",
+                        textTransform: 'none',
+                        px: 6,
+                        py: 2,
                         fontWeight: 700,
                         fontSize: '1rem',
                         boxShadow: `0 10px 30px ${alpha(theme.palette.primary.main, 0.15)}`,
@@ -91,10 +90,10 @@ const CartList: React.FC<CartListProps> = ({
     return (
         <Box sx={{ maxWidth: '100%', mx: 0, px: { xs: 1.5, md: 2 }, pt: 0 }}>
             <Box sx={{ mb: 3 }}>
-                <Typography 
-                    variant="h3" 
-                    sx={{ 
-                        fontWeight: 900, 
+                <Typography
+                    variant="h3"
+                    sx={{
+                        fontWeight: 900,
                         letterSpacing: '-0.04em',
                         background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                         WebkitBackgroundClip: 'text',
@@ -113,10 +112,10 @@ const CartList: React.FC<CartListProps> = ({
             <Grid container spacing={5}>
                 {/* Cart Items List */}
                 <Grid item xs={12} lg={8}>
-                    <Box 
-                        sx={{ 
-                            display: 'flex', 
-                            flexDirection: 'column', 
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
                             gap: 2.5,
                             position: 'relative',
                             ...(items.length > 3 && {
@@ -124,11 +123,11 @@ const CartList: React.FC<CartListProps> = ({
                                 overflowY: 'auto',
                                 pr: 1.5,
                                 py: 2, // Extra vertical padding for smooth mask experience
-                                
+
                                 // Premium Fading Mask
                                 maskImage: 'linear-gradient(to bottom, transparent, black 20px, black calc(100% - 20px), transparent)',
                                 WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 20px, black calc(100% - 20px), transparent)',
-                                
+
                                 // Premium Custom Scrollbar
                                 '&::-webkit-scrollbar': {
                                     width: '4px',
@@ -160,7 +159,7 @@ const CartList: React.FC<CartListProps> = ({
                                     exit={{ opacity: 0, x: -20, scale: 0.95, transition: { duration: 0.2 } }}
                                     layout
                                 >
-                                    <CartItemCard 
+                                    <CartItemCard
                                         {...item}
                                         onRemove={() => onRemove(item.id, item.name)}
                                     />
@@ -172,7 +171,7 @@ const CartList: React.FC<CartListProps> = ({
 
                 {/* Summary Panel */}
                 <Grid item xs={12} lg={4}>
-                    <CartSummary 
+                    <CartSummary
                         subtotal={subtotal}
                         itemCount={items.length}
                         total={total}

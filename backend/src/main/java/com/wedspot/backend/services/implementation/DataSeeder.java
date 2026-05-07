@@ -28,7 +28,6 @@ public class DataSeeder implements CommandLineRunner {
     private final IAuthRepository authRepository;
     private final IVendorServiceRepository serviceRepository;
     private final IReviewRepository reviewRepository;
-    private final IRequestRepository requestRepository;
     private final IBillRepository billRepository;
     private final IInventoryRepository inventoryRepository;
     private final ITaskRepository taskRepository;
@@ -41,7 +40,6 @@ public class DataSeeder implements CommandLineRunner {
         SeedUsers();
         seedServices();
         seedReviews();
-        seedRequests();
         seedBills();
         seedInventory();
         seedTasks();
@@ -137,39 +135,6 @@ public class DataSeeder implements CommandLineRunner {
             }
         } catch (Exception e) {
             log.error("Failed to seed reviews: {}", e.getMessage());
-        }
-    }
-
-    private void seedRequests() {
-        try {
-            if (requestRepository.count() > 0) {
-                log.info("Requests already exist, skipping seed.");
-                return;
-            }
-
-            InputStream inputStream = getClass().getResourceAsStream("/requests.json");
-            if (inputStream == null) return;
-
-            List<Map<String, String>> requests = objectMapper.readValue(inputStream,
-                    new TypeReference<>() {});
-
-            Optional<User> client = authRepository.findByEmail("client1@gmail.com");
-
-            if (client.isPresent()) {
-                for (Map<String, String> req : requests) {
-                    Request request = new Request();
-                    request.setSubject(req.get("subject"));
-                    request.setDescription(req.get("description"));
-                    request.setCategory(req.get("category"));
-                    request.setType(req.get("type"));
-                    request.setStatus(req.get("status"));
-                    request.setClient(client.get());
-                    requestRepository.save(request);
-                }
-                log.info("Successfully seeded {} requests.", requests.size());
-            }
-        } catch (Exception e) {
-            log.error("Failed to seed requests: {}", e.getMessage());
         }
     }
 

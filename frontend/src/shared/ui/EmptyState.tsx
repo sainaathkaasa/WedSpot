@@ -1,4 +1,4 @@
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, useTheme } from '@mui/material';
 import { Inbox as InboxIcon } from '@mui/icons-material';
 
 interface EmptyStateProps {
@@ -16,23 +16,25 @@ export function EmptyState({
     actionLabel,
     onAction,
 }: EmptyStateProps) {
+    const theme = useTheme();
+
     return (
         <Box
             sx={{
-                py: 8,
-                px: 4,
+                py: theme.spacing(6),
+                px: theme.spacing(4),
                 textAlign: 'center',
                 bgcolor: 'background.paper',
-                borderRadius: 2,
+                borderRadius: theme.dashboard.cardRadius,
                 border: '1px dashed',
                 borderColor: 'divider',
             }}
         >
             {icon || <InboxIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />}
-            <Typography variant="h6" color="text.secondary" fontWeight={600} gutterBottom>
+            <Typography variant="subtitle1" color="text.secondary" fontWeight={600} gutterBottom>
                 {title}
             </Typography>
-            <Typography variant="body2" color="text.disabled" sx={{ mb: 3 }}>
+            <Typography variant="body2" color="text.disabled" sx={{ mb: theme.spacing(2.25) }}>
                 {description}
             </Typography>
             {actionLabel && onAction && (
