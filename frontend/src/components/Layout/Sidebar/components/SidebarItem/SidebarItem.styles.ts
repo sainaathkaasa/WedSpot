@@ -5,14 +5,14 @@ import {
 } from "@mui/material";
 
 export const StyledListItemButton = styled(ListItemButton)<{ component?: React.ElementType; to?: string }>(({ theme }) => ({
-    borderRadius: 0,
+    borderRadius: theme.shape.borderRadius,
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     minHeight: 48,
     paddingLeft: theme.spacing(2.5),
     paddingRight: theme.spacing(2.5),
     backgroundColor: 'transparent',
-    transition: 'color 0.2s',
+    transition: theme.dashboard.transition,
     '&:hover': {
         backgroundColor: 'transparent',
         color: theme.palette.primary.main,
@@ -47,6 +47,6 @@ export const UnderlineWrapper = styled(Box, {
         backgroundColor: theme.palette.primary.main,
         transform: $isActive ? 'scaleX(1)' : 'scaleX(0)',
         transformOrigin: 'left',
-        transition: 'transform 0.3s ease-in-out',
+        transition: theme.dashboard.transition,
     }
 }));

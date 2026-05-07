@@ -30,40 +30,39 @@ interface TableToolbarProps<TData extends MRT_RowData = MRT_RowData> {
 }
 
 export const TableBottomToolbar = <TData extends MRT_RowData = MRT_RowData>({ table }: TableToolbarProps<TData>) => {
+  const theme = useTheme();
   return (
     <Box
       sx={{
         display: 'flex',
         justifyContent: 'flex-end',
-        height: '36px',
+        height: 36,
         alignItems: 'center',
-        padding: '0 !important',
+        padding: 0,
       }}
     >
       <Box
         className="pagination-container"
         sx={{
-          '& .MuiBox-root': { padding: '0px !important' },
-          '& .MuiTypography-root': { fontSize: '10px !important' },
-          '& .MuiTablePagination-select': { fontSize: '10px !important' },
-          '& .MuiTablePagination-selectLabel': { fontSize: '10px !important', fontWeight: 600 },
-          '& .MuiTablePagination-displayedRows': { fontSize: '10px !important', fontWeight: 400 },
+          '& .MuiTypography-root': { fontSize: theme.typography.caption.fontSize },
+          '& .MuiTablePagination-select': { fontSize: theme.typography.caption.fontSize },
+          '& .MuiTablePagination-selectLabel': { fontSize: theme.typography.caption.fontSize, fontWeight: 600 },
+          '& .MuiTablePagination-displayedRows': { fontSize: theme.typography.caption.fontSize, fontWeight: 400 },
           '& .MuiToolbar-root': {
-            minHeight: '36px !important',
-            height: '36px !important',
-            padding: '0 8px !important',
+            minHeight: 36,
+            height: 36,
+            padding: theme.spacing(0, 1),
           },
           '& .MuiTablePagination-actions .MuiButtonBase-root': {
-            width: '28px !important',
-            height: '28px !important',
-            display: 'flex !important',
-            justifyContent: 'center !important',
-            alignItems: 'center !important',
+            width: 28,
+            height: 28,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
           },
           '& .MuiTablePagination-actions .MuiButtonBase-root .MuiSvgIcon-root': {
-            width: '22px !important',
-            height: '22px !important',
-            fontSize: 'unset !important',
+            width: 22,
+            height: 22,
           },
         }}
       >
@@ -86,7 +85,7 @@ export const TableHeaderToolbar = <TData extends MRT_RowData = MRT_RowData>({
   return (
     <Box
       sx={{
-        minHeight: '32px',
+        minHeight: 32,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-end',
@@ -99,11 +98,8 @@ export const TableHeaderToolbar = <TData extends MRT_RowData = MRT_RowData>({
         <Typography
           variant="h5"
           sx={{
-            background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            display: 'inline-block',
-            marginLeft: 1,
+            color: 'text.primary',
+            marginLeft: theme.spacing(1),
           }}
         >
           {HeaderText}
@@ -112,19 +108,19 @@ export const TableHeaderToolbar = <TData extends MRT_RowData = MRT_RowData>({
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0, ml: 'auto' }}>
         {isSearchActive && (
-          <Box sx={{ width: { xs: '160px', sm: '260px' }, mr: 0.5 }}>
+          <Box sx={{ width: { xs: '160px', sm: '260px' }, mr: theme.spacing(0.5) }}>
             <MRT_GlobalFilterTextField
               table={table}
               placeholder="Search items..."
               sx={{
                 width: '100%',
                 '& .MuiInputBase-root': {
-                  height: '30px',
-                  fontSize: '12px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  borderRadius: '6px',
+                  height: 30,
+                  fontSize: theme.typography.body2.fontSize,
+                  backgroundColor: 'background.paper',
+                  borderRadius: theme.shape.borderRadius,
                   border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                  transition: 'border-color 0.2s ease',
+                  transition: theme.dashboard.transition,
                   '&:hover': {
                     borderColor: alpha(theme.palette.primary.main, 0.5),
                   },
@@ -134,14 +130,14 @@ export const TableHeaderToolbar = <TData extends MRT_RowData = MRT_RowData>({
                   },
                 },
                 '& .MuiInputBase-input': {
-                  padding: '4px 8px',
+                  padding: theme.spacing(0.5, 1),
                 },
                 '& .MuiSvgIcon-root': {
-                  fontSize: '18px',
-                  color: theme.palette.text.secondary,
+                  fontSize: 18,
+                  color: 'text.secondary',
                 },
                 '& .MuiInputAdornment-root': {
-                  marginRight: '4px',
+                  marginRight: theme.spacing(0.5),
                 },
               }}
             />
@@ -158,15 +154,16 @@ export const TableHeaderToolbar = <TData extends MRT_RowData = MRT_RowData>({
             }
           }}
           sx={{
-            p: 0.5,
-            width: '32px',
-            height: '32px',
+            p: theme.spacing(0.5),
+            width: 32,
+            height: 32,
             color: 'primary.main',
+            transition: theme.dashboard.transition,
             '&:hover': {
               backgroundColor: alpha(theme.palette.primary.main, 0.05),
             },
             '& .MuiSvgIcon-root': {
-              fontSize: '20px',
+              fontSize: 20,
             },
           }}
         >
@@ -188,11 +185,12 @@ export const TableHeaderToolbar = <TData extends MRT_RowData = MRT_RowData>({
               }
               sx={{
                 p: 0,
-                minWidth: '32px',
-                height: '32px',
+                minWidth: 32,
+                height: 32,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                transition: theme.dashboard.transition,
                 '&:hover': {
                   background: alpha(theme.palette.success.main, 0.05),
                 },
@@ -204,7 +202,7 @@ export const TableHeaderToolbar = <TData extends MRT_RowData = MRT_RowData>({
         )}
 
         {!isSearchActive && actionButton && (
-          <Box sx={{ ml: 1, display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+          <Box sx={{ ml: theme.spacing(1), display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
             {actionButton}
           </Box>
         )}

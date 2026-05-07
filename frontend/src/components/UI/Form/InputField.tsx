@@ -4,6 +4,8 @@ import {
     Typography,
     TextField,
     InputAdornment,
+    useTheme,
+    alpha,
     type TextFieldProps,
 } from "@mui/material";
 
@@ -19,18 +21,19 @@ const InputField: React.FC<InputFieldProps> = ({
     InputProps,
     ...props
 }): JSX.Element => {
+    const theme = useTheme();
+
     return (
         <Box>
             {label && (
                 <Typography
                     component="label"
                     sx={{
-                        fontSize: "0.875rem",
+                        ...theme.typography.body2,
                         fontWeight: 600,
-                        color: "#334155",
+                        color: theme.palette.text.secondary,
                         mb: 0.75,
                         display: "block",
-                        fontFamily: "'Inter', sans-serif",
                     }}
                 >
                     {label}
@@ -52,30 +55,31 @@ const InputField: React.FC<InputFieldProps> = ({
                         InputProps?.startAdornment
                     ),
                     sx: {
-                        borderRadius: "10px",
-                        background: "#f8fafc",
-                        fontSize: "0.95rem",
-                        height: props.multiline ? "auto" : "48px",
-                        minHeight: props.multiline ? "100px" : "auto",
+                        borderRadius: theme.shape.borderRadius,
+                        backgroundColor: theme.palette.background.default,
+                        fontSize: theme.typography.body1.fontSize,
+                        height: props.multiline ? "auto" : 48,
+                        minHeight: props.multiline ? 100 : "auto",
                         alignItems: props.multiline ? "flex-start" : "center",
                         py: props.multiline ? 1.5 : 0,
+                        transition: theme.dashboard.transition,
                         "&.Mui-focused": {
-                            background: "#ffffff",
-                            boxShadow: "0 0 0 4px rgba(124, 58, 237, 0.1)",
+                            backgroundColor: theme.palette.background.paper,
+                            boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.1)}`,
                         },
                         "& .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#e2e8f0",
+                            borderColor: theme.palette.divider,
                             borderWidth: "1.5px",
-                            transition: "all 0.2s ease",
+                            transition: theme.dashboard.transition,
                         },
                         "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#cbd5e1",
+                            borderColor: alpha(theme.palette.divider, 0.8),
                         },
                         "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "#7c3aed",
+                            borderColor: theme.palette.primary.main,
                         },
                         "&.Mui-focused svg": {
-                            color: "#7c3aed",
+                            color: theme.palette.primary.main,
                         },
                         ...InputProps?.sx,
                     },

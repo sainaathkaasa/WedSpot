@@ -4,7 +4,7 @@ import {
     Typography,
     IconButton,
     useTheme,
-    useMediaQuery
+    useMediaQuery,
 } from '@mui/material';
 import {
     MoreVert as MoreIcon,
@@ -59,7 +59,7 @@ const BillsPage = () => {
                 Cell: ({ row }: any) => (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
                         <BillIcon sx={{ color: 'text.disabled', fontSize: 14 }} />
-                        <Typography sx={{ fontWeight: 700, fontSize: '11px', color: 'text.secondary' }}>{row.original.invoiceNumber}</Typography>
+                        <Typography sx={{ fontWeight: 700, fontSize: theme.typography.caption.fontSize, color: 'text.secondary' }}>{row.original.invoiceNumber}</Typography>
                     </Box>
                 ),
             },
@@ -67,14 +67,14 @@ const BillsPage = () => {
                 accessorKey: 'client',
                 header: 'Client / Event',
                 Cell: ({ cell }: any) => (
-                    <Typography sx={{ fontWeight: 600, fontSize: '12px', color: 'text.primary' }}>{cell.getValue() as string}</Typography>
+                    <Typography sx={{ fontWeight: 600, fontSize: theme.typography.body2.fontSize, color: 'text.primary' }}>{cell.getValue() as string}</Typography>
                 ),
             },
             {
                 accessorKey: 'amount',
                 header: 'Amount',
                 Cell: ({ cell }: any) => (
-                    <Typography sx={{ fontWeight: 800, color: 'text.primary', fontSize: '13px' }}>
+                    <Typography sx={{ fontWeight: 800, color: 'text.primary', fontSize: theme.typography.body2.fontSize }}>
                         {formatCurrency(cell.getValue() as number)}
                     </Typography>
                 ),
@@ -83,7 +83,7 @@ const BillsPage = () => {
                 accessorKey: 'date',
                 header: 'Due Date',
                 Cell: ({ cell }: any) => (
-                    <Typography sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '11px' }}>{cell.getValue() as string}</Typography>
+                    <Typography sx={{ color: 'text.secondary', fontWeight: 600, fontSize: theme.typography.caption.fontSize }}>{cell.getValue() as string}</Typography>
                 ),
             },
             {
@@ -116,7 +116,7 @@ const BillsPage = () => {
     const [showGlobalFilter, setShowGlobalFilter] = useState(false);
 
     const table = useMaterialReactTable({
-        muiTopToolbarProps: { sx: { p: '14px' } },
+        muiTopToolbarProps: { sx: { p: theme.spacing(1.75) } },
         columns,
         data: mockBills,
         enableColumnActions: false,
@@ -124,7 +124,7 @@ const BillsPage = () => {
         enableSorting: true,
         enablePagination: true,
         enableRowSelection: true,
-        enableGlobalFilter: true, // Added
+        enableGlobalFilter: true,
         onGlobalFilterChange: setGlobalFilter,
         onShowGlobalFilterChange: setShowGlobalFilter,
         initialState: {
@@ -133,7 +133,7 @@ const BillsPage = () => {
         muiTablePaperProps: {
             elevation: 0,
             sx: {
-                borderRadius: '0',
+                borderRadius: 0,
                 border: 'none',
             },
         },
@@ -148,21 +148,18 @@ const BillsPage = () => {
     });
 
     return (
-        <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>
+        <Box sx={{ p: 0, maxWidth: theme.dashboard.contentMaxWidth, margin: '0 auto' }}>
             <Typography
                 variant="h4"
                 sx={{
                     mb: 2,
-                    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    display: 'inline-block'
+                    color: 'text.primary'
                 }}
             >
                 Bills Management
             </Typography>
             <DashboardCard sx={{ mt: 1, p: 0, overflow: 'hidden' }}>
-                <Box sx={{ p: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${theme.dashboard?.glassBorder || 'divider'}`, flexWrap: 'wrap', gap: 2 }}>
+                <Box sx={{ p: theme.spacing(1.75), display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${theme.palette.divider}`, flexWrap: 'wrap', gap: 2 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Invoices</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <TableHeaderToolbar

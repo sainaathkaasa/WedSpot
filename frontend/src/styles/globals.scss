@@ -23,30 +23,6 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Container helper */
-.container {
-    width: min(1100px, 92%);
-    margin-inline: auto;
-}
-
-/* Utilities */
-.mt {
-    &-1 {
-        margin-top: .25rem;
-    }
-
-    &-2 {
-        margin-top: .5rem;
-    }
-
-    &-3 {
-        margin-top: 1rem;
-    }
-
-    &-4 {
-        margin-top: 1.5rem;
-    }
-}
 
 /* Links */
 a {

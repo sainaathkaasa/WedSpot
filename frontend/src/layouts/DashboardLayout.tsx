@@ -13,7 +13,9 @@ import {
   Avatar,
   Tooltip,
   alpha,
-  useTheme
+  useTheme,
+  Divider,
+  Typography
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -25,10 +27,9 @@ import NotificationCenter from "@/components/Notifications/NotificationCenter";
 import { useCart } from "@/contexts/cartContextValue";
 import { UserRole } from "@/features/auth";
 
-// ✅ Constants outside component — not recreated on every render
-const SIDEBAR_WIDTH_FULL = 260;
-const SIDEBAR_WIDTH_COLLAPSED = 72;
-const APPBAR_HEIGHT = 70;
+export const SIDEBAR_WIDTH_FULL = 230;
+export const SIDEBAR_WIDTH_COLLAPSED = 64;
+const APPBAR_HEIGHT = 56;
 
 const DashboardLayout = (): JSX.Element => {
   const theme = useTheme();
@@ -43,7 +44,6 @@ const DashboardLayout = (): JSX.Element => {
   const cartCount = items.length;
   const isClient = role === UserRole.CLIENT;
 
-  // ✅ Memoized handlers — stable references across renders
   const handleProfileClick = useCallback(() => navigate("/profile"), [navigate]);
   const handleCartClick = useCallback(() => navigate("/cart"), [navigate]);
   const handleNotificationsToggle = useCallback(
@@ -55,79 +55,87 @@ const DashboardLayout = (): JSX.Element => {
     []
   );
 
-  // ✅ Derived value memoized
   const currentSidebarWidth = useMemo(
     () => (sidebarOpen ? SIDEBAR_WIDTH_FULL : SIDEBAR_WIDTH_COLLAPSED),
     [sidebarOpen]
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: theme.palette.background.default }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
 
-      {/* ✅ Conditionally render only when open — avoids keeping it in the DOM */}
       {isNotificationsOpen && (
         <NotificationCenter onClose={handleNotificationsClose} />
       )}
 
       <AppBar
         position="fixed"
-        elevation={0} // ✅ Use elevation instead of manual boxShadow for MUI consistency
+        elevation={0}
         sx={{
           zIndex: theme.zIndex.drawer + 1,
           bgcolor: 'background.paper',
           color: 'text.primary',
-          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
           borderBottom: '1px solid',
           borderColor: 'divider',
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between', minHeight: APPBAR_HEIGHT }}>
+        <Toolbar sx={{ justifyContent: 'space-between', minHeight: APPBAR_HEIGHT, px: { lg: theme.spacing(3) } }}>
 
           {/* Left — Logo + Sidebar Toggle */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <IconButton
               color="inherit"
               aria-label="toggle sidebar"
               edge="start"
               onClick={toggleSidebar}
-              sx={{ mr: 1 }}
+              sx={{
+                mr: 1,
+                borderRadius: theme.shape.borderRadius,
+                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) }
+              }}
             >
               <MenuIcon />
             </IconButton>
-            <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', ml: 1 }}>
               <Logo />
             </Box>
           </Box>
 
           {/* Right — Notifications, Cart, Profile */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: theme.spacing(2.5) } }}>
 
             <Tooltip title="Notifications">
               <IconButton
-                size="large"
+                size="medium"
                 onClick={handleNotificationsToggle}
                 aria-label="notifications"
                 sx={{
+                  borderRadius: theme.shape.borderRadius,
                   bgcolor: isNotificationsOpen
                     ? alpha(theme.palette.primary.main, 0.1)
-                    : 'transparent',
-                  color: isNotificationsOpen ? 'primary.main' : 'inherit',
+                    : alpha(theme.palette.text.primary, 0.03),
+                  color: isNotificationsOpen ? 'primary.main' : 'text.secondary',
+                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) }
                 }}
               >
-                <Badge badgeContent={4} color="error">
+                <Badge badgeContent={4} color="error" variant="dot">
                   <BellIcon fontSize="small" />
                 </Badge>
               </IconButton>
             </Tooltip>
 
-            {/* ✅ Only renders for CLIENT role */}
             {isClient && (
               <Tooltip title="View Cart">
                 <IconButton
-                  size="large"
+                  size="medium"
                   aria-label="view cart"
                   onClick={handleCartClick}
-                  sx={{ color: 'inherit' }}
+                  sx={{
+                    borderRadius: theme.shape.borderRadius,
+                    bgcolor: alpha(theme.palette.text.primary, 0.03),
+                    color: 'text.secondary',
+                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) }
+                  }}
                 >
                   <Badge badgeContent={cartCount} color="primary">
                     <CartIcon fontSize="small" />
@@ -136,20 +144,23 @@ const DashboardLayout = (): JSX.Element => {
               </Tooltip>
             )}
 
+            <Divider orientation="vertical" flexItem sx={{ height: 24, alignSelf: 'center', mx: theme.spacing(0.5) }} />
+
             <Tooltip title="View Profile">
               <Box
                 onClick={handleProfileClick}
-                role="button"      // ✅ Accessibility — Box acting as button needs role
-                tabIndex={0}       // ✅ Keyboard navigable
-                onKeyDown={(e) => e.key === 'Enter' && handleProfileClick()} // ✅ Keyboard support
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleProfileClick()}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1.5,
+                  gap: theme.spacing(1.5),
                   cursor: 'pointer',
-                  p: 0.5,
-                  borderRadius: '50px',
-                  transition: theme.dashboard?.transition,
+                  p: theme.spacing(0.5),
+                  pr: theme.spacing(1.5),
+                  borderRadius: theme.shape.borderRadius,
+                  transition: theme.dashboard.transition,
                   '&:hover': {
                     bgcolor: alpha(theme.palette.text.primary, 0.04)
                   }
@@ -157,16 +168,23 @@ const DashboardLayout = (): JSX.Element => {
               >
                 <Avatar
                   sx={{
-                    width: 40,
-                    height: 40,
+                    width: 36,
+                    height: 36,
                     bgcolor: 'primary.main',
-                    fontSize: '0.9rem',
+                    fontSize: theme.typography.caption.fontSize,
                     fontWeight: 700,
-                    boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.25)}`
                   }}
                 >
                   {getInitials(userName || role)}
                 </Avatar>
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                        {userName || 'User'}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, textTransform: 'capitalize' }}>
+                        {role?.toLowerCase()}
+                    </Typography>
+                </Box>
               </Box>
             </Tooltip>
 
@@ -180,12 +198,13 @@ const DashboardLayout = (): JSX.Element => {
         component="main"
         sx={{
           flexGrow: 1,
-          px: { xs: 2.5, md: 2 },
-          py: { xs: 2.5, md: 1 },
+          px: { xs: theme.spacing(2.5), md: theme.spacing(2) },
+          py: { xs: theme.spacing(2.5), md: theme.spacing(2.5) },
           width: { lg: `calc(100% - ${currentSidebarWidth}px)` },
           mt: `${APPBAR_HEIGHT}px`,
-          transition: theme.dashboard?.transition,
-          overflowX: 'hidden'
+          transition: theme.dashboard.transition,
+          overflowX: 'hidden',
+          maxWidth: theme.dashboard.contentMaxWidth,
         }}
       >
         <Outlet />

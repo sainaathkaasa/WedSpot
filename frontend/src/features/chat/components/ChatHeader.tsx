@@ -14,7 +14,6 @@ import {
 import { Phone, Video, Info, Search, X, ChevronLeft } from 'lucide-react';
 import { useChatStore } from '../store/chatStore';
 
-// 1. Define strict types for your data structures
 interface Conversation {
     id: string;
     name: string;

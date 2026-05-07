@@ -5,13 +5,11 @@ import {
     IconButton,
     Avatar,
     alpha,
-    useTheme,
-    Button
+    useTheme
 } from '@mui/material';
 import {
-    Phone as PhoneIcon,
-    Email as EmailIcon,
-    MoreVert as MoreVertIcon
+    MoreVert as MoreVertIcon,
+    Person as PersonIcon
 } from '@mui/icons-material';
 import { useMaterialReactTable } from 'material-react-table';
 import { DashboardCard } from '@/features/dashboard';
@@ -38,13 +36,20 @@ const ClientsPage = () => {
                 Cell: ({ row }: any) => {
                     const client = row.original;
                     return (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Avatar sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.1), color: 'secondary.main', fontWeight: 700 }}>
-                                {client.name?.charAt(0)}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing(1.5) }}>
+                            <Avatar sx={{ 
+                                bgcolor: alpha(theme.palette.primary.main, 0.08), 
+                                color: 'primary.main', 
+                                fontWeight: 700, 
+                                width: 32, 
+                                height: 32, 
+                                fontSize: '0.8rem' 
+                            }}>
+                                {client.name?.charAt(0) || <PersonIcon sx={{ fontSize: 16 }} />}
                             </Avatar>
                             <Box>
-                                <Typography sx={{ fontWeight: 700, fontSize: '0.9rem' }}>{client.name}</Typography>
-                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>ID: {client.id}</Typography>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{client.name}</Typography>
+                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>ID: {client.id?.substring(0, 8)}...</Typography>
                             </Box>
                         </Box>
                     );
@@ -57,15 +62,9 @@ const ClientsPage = () => {
                 Cell: ({ row }: any) => {
                     const client = row.original;
                     return (
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <EmailIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                                <Typography variant="caption" sx={{ fontWeight: 600 }}>{client.email}</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <PhoneIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                                <Typography variant="caption" sx={{ fontWeight: 600 }}>{client.phoneNumber || 'N/A'}</Typography>
-                            </Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>{client.email}</Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>{client.phoneNumber || 'No phone'}</Typography>
                         </Box>
                     );
                 }
@@ -76,8 +75,8 @@ const ClientsPage = () => {
                 Cell: ({ cell }: any) => {
                     const date = cell.getValue();
                     return (
-                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: 'text.secondary' }}>
-                            {date ? new Date(date).toLocaleDateString() : 'N/A'}
+                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.secondary' }}>
+                            {date ? new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '—'}
                         </Typography>
                     )
                 }
@@ -88,17 +87,21 @@ const ClientsPage = () => {
                 Cell: ({ cell }: any) => {
                     const enabled = cell.getValue() as boolean;
                     return (
-                        <Typography
-                            variant="caption"
+                        <Box
                             sx={{
-                                fontWeight: 900,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                px: 1.25,
+                                py: 0.5,
+                                borderRadius: theme.shape.borderRadius,
+                                bgcolor: enabled ? alpha(theme.palette.success.main, 0.1) : alpha(theme.palette.text.disabled, 0.1),
                                 color: enabled ? 'success.main' : 'text.disabled',
-                                textTransform: 'uppercase',
-                                fontSize: '0.65rem'
                             }}
                         >
-                            {enabled ? 'Active' : 'Inactive'}
-                        </Typography>
+                            <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.02em' }}>
+                                {enabled ? 'Active' : 'Inactive'}
+                            </Typography>
+                        </Box>
                     );
                 }
             },
@@ -110,11 +113,9 @@ const ClientsPage = () => {
                 enableColumnFilter: false,
                 enableSorting: false,
                 Cell: () => (
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                        <IconButton size="small">
-                            <MoreVertIcon fontSize="small" />
-                        </IconButton>
-                    </Box>
+                    <IconButton size="small" sx={{ color: 'text.secondary' }}>
+                        <MoreVertIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
                 )
             }
         ],
@@ -125,7 +126,7 @@ const ClientsPage = () => {
     const [showGlobalFilter, setShowGlobalFilter] = useState(false);
 
     const table = useMaterialReactTable({
-        muiTopToolbarProps: { sx: { p: '14px' } },
+        muiTopToolbarProps: { sx: { p: theme.spacing(1.5) } },
         columns,
         data: clients,
         enableColumnActions: false,
@@ -155,33 +156,22 @@ const ClientsPage = () => {
 
     return (
         <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>
-            <Typography
-                variant="h4"
-                sx={{
-                    mb: 2,
-                    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    display: 'inline-block'
-                }}
+            <DashboardCard 
+                noPadding 
+                sx={{ mt: 1 }}
+                title="Client Management"
+                subtitle="View and manage all registered clients on the platform."
+                actions={
+                    <TableHeaderToolbar
+                        table={table}
+                        isSmall
+                        ExcelData={{
+                            data: clients,
+                            fileName: 'Clients_Export'
+                        }}
+                    />
+                }
             >
-                Client Management
-            </Typography>
-            <DashboardCard sx={{ mt: 3, p: 0, overflow: 'hidden' }}>
-                <Box sx={{ p: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, borderBottom: `1px solid ${theme.dashboard?.glassBorder || alpha(theme.palette.divider, 0.1)}` }}>
-                    <Button variant="contained" size="small" sx={{ borderRadius: '10px' }}>Add New Client</Button>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <TableHeaderToolbar
-                            table={table}
-                            isSmall
-                            ExcelData={{
-                                data: clients,
-                                fileName: 'Clients_Export'
-                            }}
-                        />
-                    </Box>
-                </Box>
-
                 <TableComponent table={table} />
                 <TableBottomToolbar table={table} />
             </DashboardCard>

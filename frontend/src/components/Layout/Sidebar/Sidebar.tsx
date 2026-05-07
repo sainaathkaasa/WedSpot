@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { MENU_CONFIG, type MenuItem } from "@/config/menuConfig";
 import SidebarSection from "./components/SidebarSection";
+import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_FULL } from "@/layouts/DashboardLayout";
 
 const Sidebar = (): JSX.Element => {
   const theme = useTheme();
@@ -30,8 +31,8 @@ const Sidebar = (): JSX.Element => {
 
   const currentRole = role?.toLowerCase();
 
-  const sidebarWidth = 260;
-  const collapsedWidth = 72;
+  const sidebarWidth = SIDEBAR_WIDTH_FULL;
+  const collapsedWidth = SIDEBAR_WIDTH_COLLAPSED;
   const isExpanded = sidebarOpen || isHovered;
 
   const handleLogout = async () => {
@@ -74,7 +75,7 @@ const Sidebar = (): JSX.Element => {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        pt: '80px',
+        pt: theme.spacing(8),
         overflowX: 'hidden',
         overflowY: 'auto',
         msOverflowStyle: 'none',
@@ -102,26 +103,27 @@ const Sidebar = (): JSX.Element => {
         />
       </Box>
 
-      <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
+      <Box sx={{ p: theme.spacing(2), borderTop: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
         <ListItemButton
           onClick={handleLogout}
           sx={{
-            borderRadius: 1,
-            py: 1.25,
+            borderRadius: theme.shape.borderRadius,
+            py: theme.spacing(1.25),
             minHeight: 48,
             justifyContent: isExpanded ? 'initial' : 'center',
-            px: 2.5,
+            px: theme.spacing(2.5),
             color: 'error.main',
+            transition: theme.dashboard.transition,
             '&:hover': { bgcolor: alpha(theme.palette.error.main, 0.08) }
           }}
         >
-          <ListItemIcon sx={{ minWidth: 0, mr: isExpanded ? 2 : 'auto', justifyContent: 'center', color: 'inherit' }}>
+          <ListItemIcon sx={{ minWidth: 0, mr: isExpanded ? theme.spacing(2) : 'auto', justifyContent: 'center', color: 'inherit' }}>
             {icons.Logout}
           </ListItemIcon>
           <ListItemText
             primary="Logout"
-            sx={{ opacity: isExpanded ? 1 : 0, transition: 'opacity 0.15s' }}
-            primaryTypographyProps={{ fontSize: '0.9rem', fontWeight: 700, whiteSpace: 'nowrap' }}
+            sx={{ opacity: isExpanded ? 1 : 0, transition: theme.dashboard.transition }}
+            primaryTypographyProps={{ fontSize: theme.typography.caption.fontSize, fontWeight: 700, whiteSpace: 'nowrap' }}
           />
         </ListItemButton>
       </Box>
@@ -151,8 +153,8 @@ const Sidebar = (): JSX.Element => {
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: sidebarWidth,
-            borderRight: 'none',
-            boxShadow: '10px 0 25px rgba(0,0,0,0.05)',
+            borderRight: '1px solid',
+            borderColor: 'divider',
             msOverflowStyle: 'none',
             scrollbarWidth: 'none',
             '&::-webkit-scrollbar': {

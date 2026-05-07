@@ -1,4 +1,4 @@
-import { Chip } from '@mui/material';
+import { Chip, useTheme, type Theme } from '@mui/material';
 
 type StatusVariant = 'booking' | 'payment' | 'user' | 'inventory' | 'request' | 'vendor' | 'bill';
 
@@ -66,6 +66,13 @@ const VARIANT_MAPS: Record<StatusVariant, Record<string, { color: string; label:
     bill: BILL_STATUS_MAP,
 };
 
+const chipSx = (theme: Theme, size: 'small' | 'medium') => ({
+  height: size === 'small' ? theme.spacing(2.75) : theme.spacing(3.5),
+  fontSize: size === 'small' ? theme.typography.caption.fontSize : theme.typography.body2.fontSize,
+  fontWeight: 800,
+  letterSpacing: '0.04em',
+});
+
 interface StatusBadgeProps {
     status: string;
     variant?: StatusVariant;
@@ -73,6 +80,7 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, variant = 'booking', size = 'small' }: StatusBadgeProps) {
+    const theme = useTheme();
     if (!status) return null;
 
     const map = VARIANT_MAPS[variant];
@@ -84,12 +92,7 @@ export function StatusBadge({ status, variant = 'booking', size = 'small' }: Sta
             color={config.color as any}
             size={size}
             variant="outlined"
-            sx={{
-                height: size === 'small' ? 22 : 28,
-                fontSize: size === 'small' ? '10px' : '12px',
-                fontWeight: 800,
-                letterSpacing: '0.04em',
-            }}
+            sx={chipSx(theme, size)}
         />
     );
 }

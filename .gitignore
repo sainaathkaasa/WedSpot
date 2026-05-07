@@ -10,6 +10,8 @@ build/
 **/build/
 .vercel/
 
+nul
+
 # Logs
 logs
 *.log

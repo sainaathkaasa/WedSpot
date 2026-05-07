@@ -81,173 +81,174 @@ const SORT_OPTIONS: Array<{ value: SortOption; label: string }> = [
     { value: 'most_reviews', label: 'Most Reviews' },
 ];
 
-const headerOuterSx: SxProps<Theme> = {
+const getHeaderOuterSx = (theme: Theme): SxProps<Theme> => ({
     bgcolor: 'background.default',
-    pt: { xs: 1, md: 1.5 },
+    pt: { xs: theme.spacing(1), md: theme.spacing(1.5) },
     pb: 0,
-};
+});
 
-const headerContentSx: SxProps<Theme> = (theme) => ({
+const getHeaderContentSx = (theme: Theme) => ({
     display: 'flex',
     flexDirection: { xs: 'column', md: 'row' },
     alignItems: { xs: 'stretch', md: 'center' },
     justifyContent: 'space-between',
-    gap: { xs: 2, md: 3 },
-    py: { xs: 1.5, md: 2 },
+    gap: { xs: theme.spacing(2), md: theme.spacing(3) },
+    py: { xs: theme.spacing(1.5), md: theme.spacing(2) },
     borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
 });
 
-const headerIntroSx: SxProps<Theme> = {
+const getHeaderIntroSx = () => ({
     minWidth: 0,
-};
+});
 
-const headerEyebrowSx: SxProps<Theme> = {
-    mb: 0.75,
+const getHeaderEyebrowSx = (theme: Theme) => ({
+    mb: theme.spacing(0.75),
     color: 'primary.main',
-    fontSize: '0.72rem',
+    ...theme.typography.caption,
     fontWeight: 800,
     letterSpacing: '0.12em',
     textTransform: 'uppercase',
-};
+});
 
-const headerTitleSx: SxProps<Theme> = {
+const getHeaderTitleSx = () => ({
     color: 'text.primary',
     fontSize: { xs: '1.45rem', md: '1.9rem' },
     fontWeight: 850,
     letterSpacing: '-0.03em',
     lineHeight: 1.15,
-};
+});
 
-const headerSubtitleSx: SxProps<Theme> = {
-    mt: 1,
+const getHeaderSubtitleSx = (theme: Theme) => ({
+    mt: theme.spacing(1),
     color: 'text.secondary',
     fontWeight: 600,
-};
+});
 
-const headerActionsSx: SxProps<Theme> = {
+const getHeaderActionsSx = (theme: Theme) => ({
     display: 'flex',
     flexDirection: { xs: 'column', sm: 'row' },
     alignItems: { xs: 'stretch', sm: 'center' },
-    gap: 1.5,
+    gap: theme.spacing(1.5),
     width: { xs: '100%', md: 'auto' },
-};
+});
 
-const pageContentSx: SxProps<Theme> = {
+const getPageContentSx = (theme: Theme) => ({
     mt: 0,
     bgcolor: 'background.default',
     pt: 0,
-    pb: 1,
-};
+    pb: theme.spacing(1),
+});
 
-const titleRowSx: SxProps<Theme> = {
-    mb: 3,
+const getTitleRowSx = (theme: Theme) => ({
+    mb: theme.spacing(3),
     display: 'flex',
     flexDirection: { xs: 'column', sm: 'row' },
-    gap: 2,
+    gap: theme.spacing(2),
     justifyContent: 'space-between',
     alignItems: { xs: 'stretch', sm: 'center' },
-};
+});
 
-const pageTitleSx: SxProps<Theme> = {
+const getPageTitleSx = () => ({
     fontWeight: 800,
     color: 'text.primary',
     letterSpacing: '-0.02em',
-};
+});
 
-const contentContainerSx: SxProps<Theme> = {
+const getContentContainerSx = (): SxProps<Theme> => ({
     mt: 0,
-};
+});
 
-const emptyStateSx: SxProps<Theme> = {
+const getEmptyStateSx = (theme: Theme): SxProps<Theme> => ({
     width: '100%',
-    py: 10,
+    py: theme.spacing(10),
     textAlign: 'center',
-};
+});
 
-const emptyStateTextSx: SxProps<Theme> = {
+const emptyStateTextSx = (): SxProps<Theme> => ({
     color: 'text.disabled',
     fontWeight: 700,
-};
+});
 
-const drawerPaperSx: SxProps<Theme> = {
+const drawerPaperSx = (theme: Theme): SxProps<Theme> => ({
     width: { xs: '100%', sm: 380 },
     p: 0,
     display: 'flex',
     flexDirection: 'column',
-    borderRadius: { sm: '16px 0 0 16px' },
+    borderRadius: { sm: `${theme.dashboard.cardRadius} 0 0 ${theme.dashboard.cardRadius}` },
     overflow: 'hidden',
-};
+});
 
-const drawerHeaderSx: SxProps<Theme> = {
+const drawerHeaderSx = (theme: Theme): SxProps<Theme> => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    px: 2.5,
-    py: 1.75,
-};
+    px: theme.spacing(2.5),
+    py: theme.spacing(1.75),
+});
 
-const drawerSectionTitleSx: SxProps<Theme> = {
+const drawerSectionTitleSx = (theme: Theme): SxProps<Theme> => ({
     fontWeight: 800,
-    mb: 1,
+    mb: theme.spacing(1),
     textTransform: 'uppercase',
     letterSpacing: '0.08em',
-    fontSize: '0.7rem',
+    ...theme.typography.caption,
     color: 'text.secondary',
-};
+});
 
-const drawerBodySx: SxProps<Theme> = {
-    px: 2.5,
-    py: 2,
+const drawerBodySx = (theme: Theme): SxProps<Theme> => ({
+    px: theme.spacing(2.5),
+    py: theme.spacing(2),
     display: 'flex',
     flexDirection: 'column',
-    gap: 2,
+    gap: theme.spacing(2),
     overflowY: 'auto',
     flex: 1,
-};
+});
 
-const drawerSectionSx: SxProps<Theme> = {
+const drawerSectionSx = (): SxProps<Theme> => ({
     display: 'flex',
     flexDirection: 'column',
-};
+});
 
-const drawerActionsSx: SxProps<Theme> = {
+const drawerActionsSx = (theme: Theme): SxProps<Theme> => ({
     display: 'flex',
-    gap: 1,
-    px: 2.5,
-    py: 1.5,
+    gap: theme.spacing(1),
+    px: theme.spacing(2.5),
+    py: theme.spacing(1.5),
     bgcolor: 'background.paper',
     borderTop: '1px solid',
     borderColor: 'divider',
     flexShrink: 0,
-};
+});
 
-const dialogPaperSx: SxProps<Theme> = {
-    borderRadius: '14px',
-    p: 1,
-};
+const dialogPaperSx = (theme: Theme): SxProps<Theme> => ({
+    borderRadius: theme.dashboard.cardRadius,
+    p: theme.spacing(1),
+});
 
-const dialogActionsSx: SxProps<Theme> = {
-    px: 3,
-    pb: 2,
-    gap: 1,
-};
+const dialogActionsSx = (theme: Theme): SxProps<Theme> => ({
+    px: theme.spacing(3),
+    pb: theme.spacing(2),
+    gap: theme.spacing(1),
+});
 
-const applyButtonSx: SxProps<Theme> = {
-    borderRadius: '10px',
+const applyButtonSx = (theme: Theme): SxProps<Theme> => ({
+    borderRadius: theme.shape.borderRadius,
     textTransform: 'none',
     fontWeight: 800,
     height: 40,
-};
+});
 
-const dialogButtonSx: SxProps<Theme> = {
-    borderRadius: '10px',
+const dialogButtonSx = (theme: Theme): SxProps<Theme> => ({
+    borderRadius: theme.shape.borderRadius,
     textTransform: 'none',
-};
+});
 
-const deleteButtonSx: SxProps<Theme> = {
-    ...dialogButtonSx,
+const deleteButtonSx = (theme: Theme): SxProps<Theme> => ({
+    borderRadius: theme.shape.borderRadius,
+    textTransform: 'none',
     minWidth: 80,
-};
+});
 
 const getErrorMessage = (err: unknown): string => {
     const axiosError = err as AxiosError<ApiErrorResponse>;
@@ -296,38 +297,39 @@ const FilterDrawer = React.memo(({ open, filters, onClose, onApply, onReset }: F
 
     const closeDrawerButtonSx = useMemo<SxProps<Theme>>(() => ({
         bgcolor: alpha(theme.palette.divider, 0.06),
-        borderRadius: '10px',
+        borderRadius: theme.shape.borderRadius,
     }), [theme]);
 
     const radioOptionSx = useCallback((isSelected: boolean): SxProps<Theme> => ({
         m: 0,
         px: 1,
         py: 0.15,
-        borderRadius: '10px',
+        borderRadius: theme.shape.borderRadius,
         border: `1px solid ${isSelected ? alpha(theme.palette.primary.main, 0.3) : 'transparent'}`,
         bgcolor: isSelected ? alpha(theme.palette.primary.main, 0.05) : 'transparent',
     }), [theme]);
 
     const locationInputProps = useMemo(() => ({
         sx: {
-            borderRadius: '10px',
+            borderRadius: theme.shape.borderRadius,
             bgcolor: alpha(theme.palette.divider, 0.04),
         },
     }), [theme]);
 
     const resetButtonSx = useMemo<SxProps<Theme>>(() => ({
-        borderRadius: '10px',
+        borderRadius: theme.shape.borderRadius,
         textTransform: 'none',
         fontWeight: 700,
         height: 40,
         borderColor: alpha(theme.palette.divider, 0.3),
         color: 'text.secondary',
+        transition: theme.dashboard.transition,
         '&:hover': { bgcolor: alpha(theme.palette.divider, 0.06) },
     }), [theme]);
 
     const sliderSx: SxProps<Theme> = {
-        '& .MuiSlider-thumb': { borderRadius: '8px', width: 20, height: 20 },
-        '& .MuiSlider-valueLabel': { borderRadius: '8px', fontWeight: 700 },
+        '& .MuiSlider-thumb': { borderRadius: theme.shape.borderRadius, width: 20, height: 20 },
+        '& .MuiSlider-valueLabel': { borderRadius: theme.shape.borderRadius, fontWeight: 700 },
     };
 
     const handleSortChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -356,18 +358,18 @@ const FilterDrawer = React.memo(({ open, filters, onClose, onApply, onReset }: F
             anchor="right"
             open={open}
             onClose={onClose}
-            PaperProps={{ sx: drawerPaperSx }}
+            PaperProps={{ sx: getDrawerPaperSx(theme) }}
         >
-            <Box sx={drawerHeaderSx}>
+                    <Box sx={getDrawerHeaderSx(theme)}>
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>Sort & Filter</Typography>
-                <IconButton onClick={onClose} sx={closeDrawerButtonSx}>
+                        <IconButton onClick={onClose} sx={closeDrawerButtonSx(theme)}>
                     <CloseIcon fontSize="small" />
                 </IconButton>
             </Box>
 
             <Divider />
 
-            <Box sx={drawerBodySx}>
+            <Box sx={getDrawerBodySx(theme)}>
                 <Box sx={drawerSectionSx}>
                     <Typography variant="subtitle2" sx={drawerSectionTitleSx}>
                         Sort By
@@ -434,11 +436,11 @@ const FilterDrawer = React.memo(({ open, filters, onClose, onApply, onReset }: F
                 </Box>
             </Box>
 
-            <Box sx={drawerActionsSx}>
-                <Button fullWidth variant="outlined" onClick={handleReset} sx={resetButtonSx}>
+            <Box sx={getDrawerActionsSx(theme)}>
+                <Button fullWidth variant="outlined" onClick={handleReset} sx={resetButtonSx(theme)}>
                     Reset
                 </Button>
-                <Button fullWidth variant="contained" onClick={handleApply} sx={applyButtonSx}>
+                <Button fullWidth variant="contained" onClick={handleApply} sx={getApplyButtonSx(theme)}>
                     Apply Filters
                 </Button>
             </Box>
@@ -514,11 +516,12 @@ const VendorServicesPage = () => {
         width: { xs: '100%', sm: 360, md: 420 },
         '& .MuiOutlinedInput-root': {
             height: 48,
-            borderRadius: 2,
+            borderRadius: theme.shape.borderRadius,
             bgcolor: alpha(theme.palette.background.paper, 0.96),
             fontWeight: 700,
-            fontSize: '0.85rem',
+            fontSize: theme.typography.body2.fontSize,
             border: `1px solid ${alpha(theme.palette.divider, 0.18)}`,
+            transition: theme.dashboard.transition,
             '& fieldset': { border: 'none' },
             '&:hover': {
                 borderColor: alpha(theme.palette.primary.main, 0.28),
@@ -530,14 +533,15 @@ const VendorServicesPage = () => {
     }), [theme]);
 
     const searchIconWrapperSx = useMemo<SxProps<Theme>>(() => ({
-        p: 0.8,
+        p: theme.spacing(0.8),
         display: 'flex',
-        borderRadius: 2,
+        borderRadius: theme.shape.borderRadius,
         bgcolor: alpha(theme.palette.primary.main, 0.08),
     }), [theme]);
 
     const clearSearchButtonSx = useMemo<SxProps<Theme>>(() => ({
         bgcolor: alpha(theme.palette.divider, 0.06),
+        transition: theme.dashboard.transition,
         '&:hover': {
             bgcolor: alpha(theme.palette.error.main, 0.1),
             color: 'error.main',
@@ -547,34 +551,37 @@ const VendorServicesPage = () => {
     const addButtonSx: SxProps<Theme> = {
         height: 48,
         px: 2.4,
-        borderRadius: 2,
+        borderRadius: theme.shape.borderRadius,
         bgcolor: 'primary.main',
         color: 'white',
         fontWeight: 800,
         textTransform: 'none',
         flexShrink: 0,
+        transition: theme.dashboard.transition,
         '&:hover': { bgcolor: 'primary.dark' },
     };
 
     const filterButtonSx = useMemo<SxProps<Theme>>(() => ({
         fontWeight: 700,
         textTransform: 'none',
-        borderRadius: '10px',
+        borderRadius: theme.shape.borderRadius,
         height: 42,
         alignSelf: { xs: 'flex-start', sm: 'center' },
         color: activeFilterCount > 0 ? 'white' : 'text.secondary',
         borderColor: alpha(theme.palette.divider, 0.3),
+        transition: theme.dashboard.transition,
     }), [activeFilterCount, theme]);
 
     const paginationWrapperSx = useMemo<SxProps<Theme>>(() => ({
-        mt: 8,
+        mt: theme.spacing(8),
         display: 'flex',
         justifyContent: 'center',
         '& .MuiPagination-ul': { gap: 1 },
         '& .MuiPaginationItem-root': {
-            borderRadius: '10px',
+            borderRadius: theme.shape.borderRadius,
             fontWeight: 800,
-            fontSize: '0.9rem',
+            fontSize: theme.typography.body2.fontSize,
+            transition: theme.dashboard.transition,
             '&.Mui-selected': {
                 bgcolor: 'primary.main',
                 color: 'white',
@@ -684,21 +691,21 @@ const VendorServicesPage = () => {
     }), [searchEndAdornment, searchStartAdornment]);
 
     return (
-        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', pb: 10 }}>
-            <Box sx={headerOuterSx}>
+        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', pb: theme.spacing(10) }}>
+            <Box sx={getHeaderOuterSx(theme)}>
                 <Container maxWidth={false} disableGutters>
-                    <Box sx={headerContentSx}>
-                        <Box sx={headerIntroSx}>
-                            <Typography sx={headerEyebrowSx}>Vendor Workspace</Typography>
-                            <Typography variant="h4" sx={headerTitleSx}>
+                    <Box sx={getHeaderContentSx(theme)}>
+                        <Box sx={getHeaderIntroSx()}>
+                            <Typography sx={getHeaderEyebrowSx(theme)}>Vendor Workspace</Typography>
+                            <Typography variant="h4" sx={getHeaderTitleSx()}>
                                 Manage your services
                             </Typography>
-                            <Typography variant="body2" sx={headerSubtitleSx}>
+                            <Typography variant="body2" sx={getHeaderSubtitleSx(theme)}>
                                 {allServices.length} total services | {filteredAndSorted.length} matching current view
                             </Typography>
                         </Box>
 
-                        <Box sx={headerActionsSx}>
+                        <Box sx={getHeaderActionsSx(theme)}>
                             <TextField
                                 placeholder="Search services"
                                 value={searchQuery}
@@ -708,7 +715,7 @@ const VendorServicesPage = () => {
                             />
 
                             <Button
-                                variant="contained"
+                                variant="cta"
                                 startIcon={<AddIcon />}
                                 onClick={handleAddService}
                                 sx={addButtonSx}
@@ -720,20 +727,20 @@ const VendorServicesPage = () => {
                 </Container>
             </Box>
 
-            <Box sx={pageContentSx}>
+            <Box sx={getPageContentSx(theme)}>
                 <CategoryNavigation
                     categories={CATEGORIES}
                     activeCategoryId={activeCategory}
                     onCategoryChange={handleCategoryChange}
                 />
 
-                <Container maxWidth={false} disableGutters sx={contentContainerSx}>
-                    <Box sx={titleRowSx}>
+                <Container maxWidth={false} disableGutters sx={getContentContainerSx()}>
+                    <Box sx={getTitleRowSx(theme)}>
                         <Box>
-                            <Typography variant="h5" sx={pageTitleSx}>
+                            <Typography variant="h5" sx={getPageTitleSx()}>
                                 {activeCategory === 'all' ? 'My Services' : `Services in ${activeCategoryName}`}
                             </Typography>
-                            <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, mt: 0.5 }}>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, mt: theme.spacing(0.5) }}>
                                 Review, update, and organize your listed vendor services.
                             </Typography>
                         </Box>
@@ -742,7 +749,7 @@ const VendorServicesPage = () => {
                             <Button
                                 startIcon={<FilterIcon />}
                                 onClick={handleOpenDrawer}
-                                variant={activeFilterCount > 0 ? 'contained' : 'outlined'}
+                                variant={activeFilterCount > 0 ? 'cta' : 'outlined'}
                                 sx={filterButtonSx}
                             >
                                 Sort & Filter
@@ -750,12 +757,12 @@ const VendorServicesPage = () => {
                         </Badge>
                     </Box>
 
-                    <Grid container spacing={4}>
+                    <Grid container spacing={theme.spacing(4)}>
                         {isLoading ? (
                             Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
                                 <Grid item xs={12} sm={6} lg={4} key={`skeleton-${index}`}>
-                                    <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 4 }} />
-                                    <Box sx={{ pt: 2 }}>
+                                    <Skeleton variant="rectangular" height={320} sx={{ borderRadius: theme.dashboard.cardRadius }} />
+                                    <Box sx={{ pt: theme.spacing(2) }}>
                                         <Skeleton width="60%" height={32} />
                                         <Skeleton width="40%" height={24} />
                                     </Box>
@@ -772,8 +779,8 @@ const VendorServicesPage = () => {
                                 </Grid>
                             ))
                         ) : (
-                            <Box sx={emptyStateSx}>
-                                <Typography variant="h6" sx={emptyStateTextSx}>
+                            <Box sx={getEmptyStateSx(theme)}>
+                                    <Typography variant="subtitle1" sx={getEmptyStateTextSx()}>
                                     No services found matching your current filters.
                                 </Typography>
                             </Box>
@@ -781,7 +788,7 @@ const VendorServicesPage = () => {
                     </Grid>
 
                     {totalPages > 1 && (
-                        <Box sx={paginationWrapperSx}>
+                        <Box sx={getPaginationWrapperSx(theme)}>
                             <Pagination
                                 count={totalPages}
                                 page={page}
@@ -806,7 +813,7 @@ const VendorServicesPage = () => {
             <Dialog
                 open={deleteTarget !== null}
                 onClose={handleDeleteCancel}
-                PaperProps={{ sx: dialogPaperSx }}
+                PaperProps={{ sx: dialogPaperSx(theme) }}
             >
                 <DialogTitle sx={{ fontWeight: 700 }}>Delete Service?</DialogTitle>
                 <DialogContent>
@@ -814,22 +821,22 @@ const VendorServicesPage = () => {
                         This will permanently delete the service and cannot be undone.
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions sx={dialogActionsSx}>
-                    <Button
-                        onClick={handleDeleteCancel}
-                        variant="outlined"
-                        disabled={isDeleting}
-                        sx={dialogButtonSx}
-                    >
+                <DialogActions sx={dialogActionsSx(theme)}>
+                        <Button
+                            onClick={handleDeleteCancel}
+                            variant="outlined"
+                            disabled={isDeleting}
+                            sx={dialogButtonSx(theme)}
+                        >
                         Cancel
                     </Button>
-                    <Button
-                        onClick={handleDeleteConfirm}
-                        variant="contained"
-                        color="error"
-                        disabled={isDeleting}
-                        sx={deleteButtonSx}
-                    >
+                        <Button
+                            onClick={handleDeleteConfirm}
+                            variant="contained"
+                            color="error"
+                            disabled={isDeleting}
+                            sx={deleteButtonSx(theme)}
+                        >
                         {isDeleting ? <CircularProgress size={18} color="inherit" /> : 'Delete'}
                     </Button>
                 </DialogActions>

@@ -1,18 +1,15 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
-    Card,
     CardMedia,
-    CardContent,
     Typography,
     Box,
     Button,
-    Chip,
     alpha,
     useTheme,
-    Stack,
     IconButton,
     Tooltip
 } from '@mui/material';
+import { DashboardCard } from '@/features/dashboard';
 import {
     LocationOn as LocationIcon,
     Stars as StarsIcon,
@@ -32,53 +29,26 @@ interface ServiceManageCardProps {
 
 const ServiceManageCard: React.FC<ServiceManageCardProps> = ({ service, onEdit, onDelete }) => {
     const theme = useTheme();
-    const cardRef = useRef<HTMLDivElement>(null);
-
-
 
     const isCatering = service.category && service.category.toLowerCase() === 'catering';
 
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const rect = cardRef.current?.getBoundingClientRect();
-        if (rect) {
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            cardRef.current?.style.setProperty("--x", `${x}px`);
-            cardRef.current?.style.setProperty("--y", `${y}px`);
-        }
-    };
-
     return (
-        <Card
-            ref={cardRef}
-            onMouseMove={handleMouseMove}
+        <DashboardCard
+            noPadding
             sx={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                borderRadius: 3,
-                overflow: 'hidden',
-                position: 'relative',
-                bgcolor: 'background.paper',
-                border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
-                boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.03)}`,
-                transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
-                '&:hover': {
-                    boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.1)}`,
-                    borderColor: alpha(theme.palette.primary.main, 0.2),
-                    '& .vendor-image': { transform: 'scale(1.05)' },
-                    '& .card-shine': { opacity: 1 },
-                }
+                transition: theme.dashboard.transition,
             }}
         >
             {/* Image Section */}
-            <Box sx={{ position: 'relative', pt: '60%' }}>
+            <Box sx={{ position: 'relative', pt: '56.25%' }}>
                 <CardMedia
                     component="img"
                     image={service.imageUrl}
                     alt={service.name}
                     loading="lazy"
-                    className="vendor-image"
                     sx={{
                         position: 'absolute',
                         top: 0,
@@ -86,59 +56,26 @@ const ServiceManageCard: React.FC<ServiceManageCardProps> = ({ service, onEdit, 
                         width: '100%',
                         height: '100%',
                         objectFit: 'cover',
-                        transition: 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)',
-                        willChange: 'transform',
                     }}
                 />
 
-                {/* Price Overlay */}
+                {/* Status/Category Badge */}
                 <Box sx={{
                     position: 'absolute',
-                    top: 12,
-                    left: 12,
-                    bgcolor: 'rgba(0,0,0,0.6)',
-                    backdropFilter: 'blur(10px)',
-                    px: 1.5,
-                    py: 1,
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    zIndex: 1
-                }}>
-                    <Typography variant="caption" sx={{
-                        color: 'rgba(255,255,255,0.7)',
-                        fontWeight: 800,
-                        display: 'block',
-                        fontSize: '0.6rem',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        lineHeight: 1
-                    }}>
-                        Starting At
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ color: 'white', fontWeight: 900, fontSize: '0.9rem' }}>
-                        {formatCurrency(service.price)} +
-                    </Typography>
-                </Box>
-
-                {/* Sector Badge */}
-                <Box sx={{
-                    position: 'absolute',
-                    bottom: 12,
-                    left: 12,
-                    bgcolor: alpha(isCatering ? theme.palette.secondary.main : theme.palette.primary.main, 0.9),
-                    backdropFilter: 'blur(4px)',
-                    px: 1.2,
-                    py: 0.6,
-                    borderRadius: '10px',
+                    top: theme.spacing(1.5),
+                    left: theme.spacing(1.5),
+                    bgcolor: alpha(isCatering ? theme.palette.secondary.main : theme.palette.primary.main, 0.95),
+                    px: theme.spacing(1),
+                    py: theme.spacing(0.5),
+                    borderRadius: theme.shape.borderRadius,
                     color: 'white',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 0.7,
-                    boxShadow: 2,
+                    gap: theme.spacing(0.5),
                     zIndex: 1
                 }}>
-                    {isCatering ? <FoodIcon sx={{ fontSize: 14 }} /> : <CartIcon sx={{ fontSize: 14 }} />}
-                    <Typography variant="caption" sx={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '0.6rem' }}>
+                    {isCatering ? <FoodIcon sx={{ fontSize: 12 }} /> : <CartIcon sx={{ fontSize: 12 }} />}
+                    <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', fontSize: theme.typography.caption.fontSize }}>
                         {service.category}
                     </Typography>
                 </Box>
@@ -146,122 +83,89 @@ const ServiceManageCard: React.FC<ServiceManageCardProps> = ({ service, onEdit, 
                 {/* Rating Badge */}
                 <Box sx={{
                     position: 'absolute',
-                    top: 12,
-                    right: 12,
-                    bgcolor: 'rgba(255,255,255,0.9)',
-                    backdropFilter: 'blur(4px)',
-                    px: 1.5,
-                    py: 0.5,
-                    borderRadius: 2,
+                    top: theme.spacing(1.5),
+                    right: theme.spacing(1.5),
+                    bgcolor: 'background.paper',
+                    px: theme.spacing(1),
+                    py: theme.spacing(0.5),
+                    borderRadius: theme.shape.borderRadius,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 0.5,
+                    gap: theme.spacing(0.5),
+                    border: `1px solid ${theme.palette.divider}`,
                     zIndex: 1
                 }}>
-                    <StarsIcon sx={{ fontSize: 16, color: 'warning.main' }} />
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.primary' }}>
+                    <StarsIcon sx={{ fontSize: 14, color: 'warning.main' }} />
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.primary' }}>
                         {service.rating}
                     </Typography>
                 </Box>
             </Box>
 
-            <CardContent sx={{ flexGrow: 1, p: 2.5, display: 'flex', flexDirection: 'column' }}>
-                {/* Name and Location */}
-                <Box sx={{ mb: 1.5 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5, color: 'text.primary', lineHeight: 1.2 }}>
+            <Box sx={{ flexGrow: 1, p: theme.spacing(2), display: 'flex', flexDirection: 'column', gap: theme.spacing(1.5) }}>
+                <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: 'text.primary', lineHeight: 1.3, mb: theme.spacing(0.5) }}>
                         {service.name}
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing(0.5) }}>
                         <LocationIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
                             {service.location}
                         </Typography>
                     </Box>
                 </Box>
 
-                {/* Service Chips */}
-                <Box sx={{ mb: 2 }}>
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                        {service.tags.slice(0, 3).map((tag, idx) => (
-                            <Chip
-                                key={idx}
-                                label={tag}
-                                size="small"
-                                sx={{
-                                    height: 22,
-                                    fontSize: '0.65rem',
-                                    fontWeight: 700,
-                                    bgcolor: alpha(theme.palette.primary.main, 0.05),
-                                    color: 'primary.main',
-                                    border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
-                                }}
-                            />
-                        ))}
-                    </Stack>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: theme.spacing(0.5) }}>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                        Starts at
+                    </Typography>
+                    <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 800 }}>
+                        {formatCurrency(service.price)}
+                    </Typography>
                 </Box>
 
-                {/* Edit and Delete Actions */}
                 <Box sx={{
-                    borderTop: `1px solid ${alpha(theme.palette.divider, 0.06)}`,
-                    pt: 2,
-                    mt: 'auto',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
+                    pt: theme.spacing(2),
+                    mt: 'auto',
+                    borderTop: `1px solid ${theme.palette.divider}`,
                 }}>
-                    <Tooltip title="Delete Service">
+                    <Tooltip title="Delete">
                         <IconButton
                             size="small"
                             onClick={() => onDelete(Number(service.id))}
                             sx={{
-                                color: 'error.main',
-                                border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
-                                borderRadius: '10px',
-                                p: 0.8,
+                                color: 'text.secondary',
+                                transition: theme.dashboard.transition,
                                 '&:hover': {
-                                    bgcolor: alpha(theme.palette.error.main, 0.08),
-                                    borderColor: 'error.main',
+                                    color: 'error.main',
+                                    bgcolor: alpha(theme.palette.error.main, 0.05),
                                 }
                             }}
                         >
-                            <DeleteIcon fontSize="small" />
+                            <DeleteIcon sx={{ fontSize: 18 }} />
                         </IconButton>
                     </Tooltip>
 
                     <Button
-                        variant="contained"
+                        variant="outlined"
                         size="small"
                         startIcon={<EditIcon sx={{ fontSize: 16 }} />}
                         onClick={() => onEdit(service)}
                         sx={{
-                            borderRadius: '10px',
+                            borderRadius: theme.shape.borderRadius,
                             textTransform: 'none',
-                            fontWeight: 800,
-                            px: 2.5,
-                            height: 36,
-                            boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
+                            fontWeight: 700,
+                            transition: theme.dashboard.transition,
                         }}
                     >
-                        Edit Service
+                        Manage
                     </Button>
                 </Box>
-            </CardContent>
-
-            {/* Shine Overlay */}
-            <Box
-                className="card-shine"
-                sx={{
-                    position: 'absolute',
-                    inset: 0,
-                    borderRadius: 'inherit',
-                    background: `radial-gradient(600px circle at var(--x) var(--y), ${alpha(theme.palette.primary.main, 0.08)}, transparent 40%)`,
-                    opacity: 0,
-                    transition: 'opacity 0.6s ease',
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                }}
-            />
-        </Card>
+            </Box>
+        </DashboardCard>
     );
 };
 
