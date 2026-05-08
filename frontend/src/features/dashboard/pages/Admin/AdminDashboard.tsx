@@ -40,38 +40,34 @@ const AdminDashboard: React.FC = () => {
     {
       label: "Total Vendors",
       value: metrics.totalVendors?.toLocaleString() || "0",
-      change: "+12%",
+      change: `${(metrics.totalVendorsChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalVendorsChange ?? 0).toFixed(1)}%`,
       icon: BuildingIcon,
       color: theme.palette.primary.main,
-      progress: 75,
-      trend: "up" as const
+      trend: ((metrics.totalVendorsChange ?? 0) >= 0 ? "up" : "down") as const
     },
     {
       label: "Total Revenue",
       value: `₹${((metrics.totalRevenue || 0) / 100000).toFixed(1)}L`,
-      change: "+18%",
+      change: `${(metrics.totalRevenueChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalRevenueChange ?? 0).toFixed(1)}%`,
       icon: DollarIcon,
       color: theme.palette.success.main,
-      progress: 62,
-      trend: "up" as const
+      trend: ((metrics.totalRevenueChange ?? 0) >= 0 ? "up" : "down") as const
     },
     {
-      label: "Active Clients",
+      label: "Active Users",
       value: (metrics.totalUsers || "0").toString(),
-      change: "+23%",
+      change: `${(metrics.totalUsersChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalUsersChange ?? 0).toFixed(1)}%`,
       icon: UsersIcon,
       color: theme.palette.warning.main,
-      progress: 88,
-      trend: "up" as const
+      trend: ((metrics.totalUsersChange ?? 0) >= 0 ? "up" : "down") as const
     },
     {
       label: "Bookings",
       value: (metrics.totalBookings || "0").toString(),
-      change: "+15%",
+      change: `${(metrics.totalBookingsChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalBookingsChange ?? 0).toFixed(1)}%`,
       icon: CalendarIcon,
       color: theme.palette.info.main,
-      progress: 94,
-      trend: "up" as const
+      trend: ((metrics.totalBookingsChange ?? 0) >= 0 ? "up" : "down") as const
     },
   ];
 

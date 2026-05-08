@@ -8,9 +8,11 @@ import {
     useTheme,
     TextField,
     InputAdornment,
-    Tooltip,
     LinearProgress,
-    useMediaQuery
+    Stack,
+    CircularProgress,
+    Menu,
+    MenuItem,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -22,10 +24,16 @@ import {
     FilterList as FilterIcon,
     Category as CategoryIcon,
     Assignment as TaskIcon,
-    ArrowForward as ArrowIcon
+    Delete as DeleteIcon,
+    Edit as EditIcon,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardCard } from '@/features/dashboard';
+import { TASKS_API } from '../api/tasks.api';
+import type { TaskDTO } from '../types/task.types';
+import { useSnackbar } from '@/contexts/snackbarContextValue';
+import { getErrorMessage } from '@/lib/error';
 
 // Task Category Mappings
 const CATEGORIES: { [key: string]: { label: string, icon: any, color: string } } = {
@@ -37,14 +45,54 @@ const CATEGORIES: { [key: string]: { label: string, icon: any, color: string } }
 
 const Tasks = () => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const queryClient = useQueryClient();
+    const { success, error: showError } = useSnackbar();
     const [searchTerm, setSearchTerm] = useState('');
-    const [tasks, setTasks] = useState([
-        { id: 1, text: 'Confirm florist availability for June wedding', priority: 'High', due: 'Today', completed: false, category: 'vendor', points: 10 },
-        { id: 2, text: 'Draft contract for Blue Lagoon Venue', priority: 'Medium', due: 'Tomorrow', completed: true, category: 'venue', points: 25 },
-        { id: 3, text: 'Follow up with catering team on menu changes', priority: 'High', due: 'Feb 26', completed: false, category: 'logistics', points: 15 },
-        { id: 4, text: 'Schedule photography site visit', priority: 'Low', due: 'Mar 02', completed: false, category: 'creative', points: 5 },
-    ]);
+    const [newTaskText, setNewTaskText] = useState('');
+    const [actionMenu, setActionMenu] = useState<{ el: HTMLElement; task: TaskDTO } | null>(null);
+
+    // Fetch Tasks
+    const { data: tasks = [], isLoading, isError } = useQuery<TaskDTO[]>({
+        queryKey: ['tasks'],
+        queryFn: async () => {
+            const response = await TASKS_API.getAll();
+            return response.data || [];
+        },
+    });
+
+    // Mutations
+    const toggleMutation = useMutation({
+        mutationFn: (id: number) => TASKS_API.toggle(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            success('Task status updated');
+        },
+        onError: (err) => showError(getErrorMessage(err)),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => TASKS_API.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            success('Task deleted');
+        },
+        onError: (err) => showError(getErrorMessage(err)),
+    });
+
+    const createMutation = useMutation({
+        mutationFn: (text: string) => TASKS_API.create({
+            text,
+            priority: 'Medium',
+            dueDate: new Date(Date.now() + 86400000).toISOString(), // Default tomorrow
+            category: 'logistics',
+        }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            setNewTaskText('');
+            success('Task created');
+        },
+        onError: (err) => showError(getErrorMessage(err)),
+    });
 
     const stats = useMemo(() => {
         const total = tasks.length;
@@ -59,13 +107,9 @@ const Tasks = () => {
         return tasks.filter(task => 
             task.text.toLowerCase().includes(term) ||
             task.priority.toLowerCase().includes(term) ||
-            CATEGORIES[task.category].label.toLowerCase().includes(term)
+            (CATEGORIES[task.category]?.label || 'General').toLowerCase().includes(term)
         );
     }, [tasks, searchTerm]);
-
-    const toggleTask = (id: number) => {
-        setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-    };
 
     const getPriorityColor = (priority: string) => {
         switch (priority.toLowerCase()) {
@@ -76,37 +120,57 @@ const Tasks = () => {
         }
     };
 
+    const handleActionClick = (event: React.MouseEvent<HTMLElement>, task: TaskDTO) => {
+        event.stopPropagation();
+        setActionMenu({ el: event.currentTarget, task });
+    };
+
+    const handleActionClose = () => setActionMenu(null);
+
+    const handleCreateTask = () => {
+        if (newTaskText.trim()) {
+            createMutation.mutate(newTaskText);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+                <CircularProgress size={40} thickness={4} />
+            </Box>
+        );
+    }
+
+    if (isError) {
+        return (
+            <Box sx={{ textAlign: 'center', py: 10 }}>
+                <Typography color="error" variant="h6">Failed to load tasks</Typography>
+                <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['tasks'] })} sx={{ mt: 2 }}>Retry</Button>
+            </Box>
+        );
+    }
+
     return (
         <Box sx={{ p: 0, maxWidth: 1000, margin: '0 auto' }}>
             {/* Header Section */}
-            <Box sx={{ mb: { xs: 4, md: 6 }, display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'flex-end' }, flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 3, md: 4 } }}>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 2 }}>
                 <Box>
-                    <Typography 
-                        variant="h4" 
-                        sx={{ 
-                            mb: 2, 
-                            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            display: 'inline-block'
-                        }}
-                    >
+                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                         Task Pipeline
                     </Typography>
-                    <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '0.95rem' }}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, mt: 0.5 }}>
                         Manage your wedding preparations with precision.
                     </Typography>
                 </Box>
 
-                {/* Stats Header */}
-                <Box sx={{ display: 'flex', gap: { xs: 2.5, md: 3 }, alignItems: 'center', width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'flex-end' } }}>
+                <Stack direction="row" spacing={3} sx={{ display: { xs: 'none', md: 'flex' } }}>
                     {[
                         { label: 'Completed', value: stats.completed, color: theme.palette.success.main },
                         { label: 'Pending', value: stats.pending, color: theme.palette.warning.main },
                         { label: 'Total', value: stats.total, color: theme.palette.primary.main },
                     ].map((s, idx) => (
                         <Box key={idx} sx={{ textAlign: 'right' }}>
-                            <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                            <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase' }}>
                                 {s.label}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: 900, color: s.color, lineHeight: 1 }}>
@@ -114,26 +178,22 @@ const Tasks = () => {
                             </Typography>
                         </Box>
                     ))}
-                </Box>
+                </Stack>
             </Box>
 
             {/* Progress Bar Container */}
-            <DashboardCard sx={{ mb: 5, p: 3, background: alpha(theme.palette.background.paper, 0.4), backdropFilter: 'blur(20px)', border: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5, alignItems: 'center' }}>
-                    <Typography sx={{ fontWeight: 800, fontSize: '0.85rem', color: 'text.primary' }}>Overall Readiness</Typography>
-                    <Typography sx={{ fontWeight: 900, fontSize: '0.85rem', color: 'primary.main' }}>{Math.round(stats.progress)}%</Typography>
+            <DashboardCard sx={{ mb: 4, p: 2.5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, alignItems: 'center' }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Overall Readiness</Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: 'primary.main' }}>{Math.round(stats.progress)}%</Typography>
                 </Box>
                 <LinearProgress 
                     variant="determinate" 
                     value={stats.progress} 
                     sx={{ 
-                        height: 8, 
-                        borderRadius: 4, 
+                        height: 6, 
+                        borderRadius: 3, 
                         bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        '& .MuiLinearProgress-bar': {
-                            background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                            borderRadius: 4
-                        }
                     }} 
                 />
             </DashboardCard>
@@ -143,25 +203,14 @@ const Tasks = () => {
                 <TextField
                     fullWidth
                     placeholder="Search tasks..."
-                    variant="outlined"
+                    size="small"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    sx={{
-                        flexGrow: 2,
-                        '& .MuiOutlinedInput-root': {
-                            height: '52px',
-                            borderRadius: '16px',
-                            bgcolor: 'background.paper',
-                            fontWeight: 600,
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
-                            '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.5) },
-                            '&.Mui-focused fieldset': { borderWidth: '2px' }
-                        }
-                    }}
+                    sx={{ flexGrow: 1 }}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
-                                <FilterIcon sx={{ color: 'text.disabled' }} />
+                                <FilterIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
                             </InputAdornment>
                         )
                     }}
@@ -169,23 +218,15 @@ const Tasks = () => {
                 <TextField
                     fullWidth
                     placeholder="New requirement..."
-                    variant="outlined"
-                    sx={{
-                        flexGrow: 1,
-                        '& .MuiOutlinedInput-root': {
-                            height: '52px',
-                            borderRadius: '16px',
-                            bgcolor: 'background.paper',
-                            fontWeight: 600,
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
-                            '&:hover fieldset': { borderColor: alpha(theme.palette.primary.main, 0.5) },
-                            '&.Mui-focused fieldset': { borderWidth: '2px' }
-                        }
-                    }}
+                    size="small"
+                    value={newTaskText}
+                    onChange={(e) => setNewTaskText(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleCreateTask()}
+                    sx={{ flexGrow: 1 }}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
-                                <TaskIcon sx={{ color: 'text.disabled' }} />
+                                <TaskIcon sx={{ color: 'text.disabled', fontSize: 20 }} />
                             </InputAdornment>
                         )
                     }}
@@ -193,154 +234,144 @@ const Tasks = () => {
                 <Button 
                     variant="contained" 
                     startIcon={<AddIcon />} 
-                    fullWidth={isMobile}
+                    disabled={createMutation.isPending || !newTaskText.trim()}
+                    onClick={handleCreateTask}
                     sx={{ 
-                        height: '52px', 
-                        px: 4, 
-                        borderRadius: '16px',
-                        fontWeight: 800,
+                        height: '40px', 
+                        px: 3, 
+                        borderRadius: '8px',
+                        fontWeight: 700,
                         textTransform: 'none',
-                        whiteSpace: 'nowrap',
                         minWidth: { xs: '100%', sm: 'max-content' },
-                        boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
-                        '&:hover': { transform: 'translateY(-2px)', transition: '0.2s' }
                     }}
                 >
-                    Add Task
+                    {createMutation.isPending ? 'Adding...' : 'Add Task'}
                 </Button>
             </Box>
 
             {/* Task List */}
             <AnimatePresence mode="popLayout">
-                <Box component={motion.div} layout sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Stack component={motion.div} layout spacing={1.5}>
                     {filteredTasks.length === 0 ? (
-                        <Box
-                            component={motion.div}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            sx={{ textAlign: 'center', py: 8 }}
-                        >
+                        <Box sx={{ textAlign: 'center', py: 8 }}>
                             <Typography sx={{ color: 'text.disabled', fontWeight: 700 }}>
-                                {searchTerm ? `No tasks found for "${searchTerm}"` : "You're all caught up! No tasks left."}
+                                {searchTerm ? `No tasks found for "${searchTerm}"` : "You're all caught up!"}
                             </Typography>
                         </Box>
                     ) : (
                         filteredTasks.map((task) => (
-                        <motion.div
-                            key={task.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ duration: 0.3, ease: 'easeOut' }}
-                        >
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    p: 2.5,
-                                    bgcolor: task.completed ? alpha(theme.palette.background.paper, 0.5) : 'background.paper',
-                                    border: '1px solid',
-                                    borderColor: task.completed ? alpha(theme.palette.divider, 0.1) : alpha(theme.palette.divider, 0.6),
-                                    borderRadius: '20px',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    cursor: 'pointer',
-                                    ...(task.completed && { opacity: 0.7 }),
-                                    '&:hover': { 
-                                        borderColor: theme.palette.primary.main, 
-                                        transform: 'scale(1.01)',
-                                        boxShadow: `0 12px 24px ${alpha(theme.palette.common.black, 0.04)}`
-                                    }
-                                }}
-                                onClick={() => toggleTask(task.id)}
+                            <motion.div
+                                key={task.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.98 }}
                             >
-                                {/* Custom Checkbox */}
-                                <Box sx={{ mr: 2.5, display: 'flex' }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        p: 2,
+                                        bgcolor: 'background.paper',
+                                        border: `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+                                        borderRadius: '12px',
+                                        transition: 'all 0.2s ease',
+                                        cursor: 'pointer',
+                                        ...(task.completed && { opacity: 0.6 }),
+                                        '&:hover': { 
+                                            borderColor: theme.palette.primary.main, 
+                                            bgcolor: alpha(theme.palette.primary.main, 0.01)
+                                        }
+                                    }}
+                                    onClick={() => toggleMutation.mutate(task.id)}
+                                >
                                     <IconButton 
-                                        size="medium" 
+                                        size="small" 
                                         sx={{ 
-                                            p: 0,
+                                            mr: 2,
                                             color: task.completed ? theme.palette.success.main : theme.palette.text.disabled,
-                                            '&:hover': { color: theme.palette.primary.main }
                                         }}
+                                        disabled={toggleMutation.isPending}
                                     >
-                                        {task.completed ? <CheckIcon sx={{ fontSize: 28 }} /> : <UncheckIcon sx={{ fontSize: 28 }} />}
+                                        {task.completed ? <CheckIcon fontSize="medium" /> : <UncheckIcon fontSize="medium" />}
+                                    </IconButton>
+
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Stack direction="row" spacing={1.5} alignItems="center" mb={0.5}>
+                                            <Typography 
+                                                variant="subtitle2" 
+                                                sx={{ 
+                                                    fontWeight: 700, 
+                                                    color: task.completed ? 'text.secondary' : 'text.primary',
+                                                    textDecoration: task.completed ? 'line-through' : 'none',
+                                                }}
+                                            >
+                                                {task.text}
+                                            </Typography>
+                                            <Box sx={{ 
+                                                px: 1, 
+                                                py: 0.25, 
+                                                borderRadius: '4px', 
+                                                bgcolor: alpha(CATEGORIES[task.category]?.color || theme.palette.primary.main, 0.1),
+                                                color: CATEGORIES[task.category]?.color || theme.palette.primary.main,
+                                                fontSize: '10px',
+                                                fontWeight: 800,
+                                                textTransform: 'uppercase'
+                                            }}>
+                                                {CATEGORIES[task.category]?.label || 'General'}
+                                            </Box>
+                                        </Stack>
+
+                                        <Stack direction="row" spacing={3}>
+                                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                                <CalendarIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                                                    {new Date(task.dueDate).toLocaleDateString()}
+                                                </Typography>
+                                            </Stack>
+                                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                                <FlagIcon sx={{ fontSize: 14, color: getPriorityColor(task.priority) }} />
+                                                <Typography variant="caption" sx={{ color: getPriorityColor(task.priority), fontWeight: 700 }}>
+                                                    {task.priority}
+                                                </Typography>
+                                            </Stack>
+                                            <Typography variant="caption" sx={{ color: 'text.disabled', fontWeight: 700 }}>
+                                                +{task.points} pts
+                                            </Typography>
+                                        </Stack>
+                                    </Box>
+
+                                    <IconButton size="small" onClick={(e) => handleActionClick(e, task)}>
+                                        <MoreIcon fontSize="small" />
                                     </IconButton>
                                 </Box>
-
-                                {/* Task Details */}
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
-                                        <Typography 
-                                            variant="subtitle1" 
-                                            sx={{ 
-                                                fontWeight: 800, 
-                                                fontSize: { xs: '0.9rem', md: '1rem' },
-                                                color: task.completed ? 'text.secondary' : 'text.primary',
-                                                textDecoration: task.completed ? 'line-through' : 'none',
-                                                letterSpacing: '-0.01em',
-                                                lineHeight: 1.3
-                                            }}
-                                        >
-                                            {task.text}
-                                        </Typography>
-                                        {/* Category Badge */}
-                                        <Box sx={{ 
-                                            px: 1.2, 
-                                            py: 0.4, 
-                                            borderRadius: '8px', 
-                                            display: 'flex', 
-                                            alignItems: 'center', 
-                                            gap: 0.8,
-                                            bgcolor: alpha(CATEGORIES[task.category].color, 0.1),
-                                            color: CATEGORIES[task.category].color
-                                        }}>
-                                            <Box sx={{ display: 'flex', transform: 'scale(0.8)' }}>
-                                                {CATEGORIES[task.category].icon}
-                                            </Box>
-                                            <Typography variant="caption" sx={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.02em', fontSize: '10px' }}>
-                                                {CATEGORIES[task.category].label}
-                                            </Typography>
-                                        </Box>
-                                    </Box>
-
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2, md: 3.5 }, flexWrap: 'wrap' }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <CalendarIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
-                                            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>Deadline: {task.due}</Typography>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            <FlagIcon sx={{ fontSize: 13, color: getPriorityColor(task.priority) }} />
-                                            <Typography variant="caption" sx={{ fontWeight: 700, color: getPriorityColor(task.priority) }}>{task.priority}</Typography>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <Typography variant="caption" sx={{ color: 'text.disabled', fontWeight: 800 }}>+{task.points} pts</Typography>
-                                        </Box>
-                                    </Box>
-                                </Box>
-
-                                {/* Action Toolbar */}
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Tooltip title="View Details">
-                                        <IconButton size="small" sx={{ bgcolor: alpha(theme.palette.divider, 0.05), '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main' } }}>
-                                            <ArrowIcon fontSize="small" />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <IconButton size="small"><MoreIcon fontSize="small" /></IconButton>
-                                </Box>
-                            </Box>
-                        </motion.div>
-                    )))}
-                </Box>
+                            </motion.div>
+                        ))
+                    )}
+                </Stack>
             </AnimatePresence>
 
-            {/* Footer Tip */}
-            <Box sx={{ mt: 6, textAlign: 'center' }}>
-                <Typography variant="caption" sx={{ color: 'text.disabled', fontWeight: 600 }}>
-                    Pro Tip: High priority tasks contribute more to your Overall Readiness.
-                </Typography>
-            </Box>
+            {/* Action Menu */}
+            <Menu
+                anchorEl={actionMenu?.el}
+                open={!!actionMenu}
+                onClose={handleActionClose}
+            >
+                <MenuItem onClick={handleActionClose}>
+                    <EditIcon fontSize="small" sx={{ mr: 1 }} /> Edit Task
+                </MenuItem>
+                <MenuItem 
+                    onClick={() => {
+                        if (actionMenu) deleteMutation.mutate(actionMenu.task.id);
+                        handleActionClose();
+                    }}
+                    sx={{ color: 'error.main' }}
+                >
+                    <DeleteIcon fontSize="small" sx={{ mr: 1 }} /> Delete Task
+                </MenuItem>
+            </Menu>
         </Box>
     );
 };
 
 export default Tasks;
+

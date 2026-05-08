@@ -30,6 +30,8 @@ const endpoints = {
     DeleteVendorService: "/services",
     UpdateVendorService: "/services",
     CreateVendorService: "/services",
+    Inventory: "/inventory",
+    Bills: "/bills",
 };
 
 export default endpoints;
