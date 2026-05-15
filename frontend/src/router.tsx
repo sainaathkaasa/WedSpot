@@ -32,7 +32,6 @@ const Products = lazy(() => import("@/features/commerce/pages/Products/Products"
 const AddVendor = lazy(() => import("@/features/Manager/pages/Vendors/AddVendor"));
 const AddStaff = lazy(() => import("@/features/Manager/pages/Staff/AddStaff"));
 const Profile = lazy(() => import("@/features/Profile/pages/Profile"));
-const CartPage = lazy(() => import("@/features/commerce/pages/Cart/CartPage"));
 const BillsPage = lazy(() => import("@/features/Bills/pages/Bills"));
 const PremiumVendors = lazy(() => import("@/features/vendors/pages/PremiumVendors"));
 const VendorDetails = lazy(() => import("@/features/vendors/pages/VendorDetails"));
@@ -48,7 +47,7 @@ const withSuspense = (component: React.ReactNode) => (
 export const router = createBrowserRouter([
     {
         path: "/",
-        element: <MainLayout><Home /></MainLayout>,
+        element: <MainLayout>{withSuspense(<Home />)}</MainLayout>,
     },
     {
         path: "bills",
@@ -157,10 +156,6 @@ export const router = createBrowserRouter([
             {
                 path: "chatbot",
                 element: withSuspense(<ChatbotPage />),
-            },
-            {
-                path: "cart",
-                element: withSuspense(<CartPage />),
             },
         ],
     },

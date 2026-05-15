@@ -12,6 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.TextStyle;
 import java.util.*;
 
 @Service
@@ -25,41 +29,64 @@ public class DashboardService implements IDashboardService {
 
     @Override
     public APIResponse<DashboardMetrics> getAdminMetrics() {
-        var allBookings = bookingRepository.findAll();
-        var allUsers = userRepository.findAll();
-        var allServices = vendorServiceRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime firstDayOfCurrentMonth = now.withDayOfMonth(1).with(LocalTime.MIN);
+        LocalDateTime firstDayOfLastMonth = firstDayOfCurrentMonth.minusMonths(1);
 
-        long totalUsers = allUsers.size();
-        long totalBookings = allBookings.size();
-        long totalVendors = allUsers.stream().filter(u -> "VENDOR".equalsIgnoreCase(u.getRole())).count();
-        long totalStaff = allUsers.stream().filter(u -> "STAFF".equalsIgnoreCase(u.getRole())).count();
-        long pendingBookings = allBookings.stream().filter(b -> b.getStatus() == BookingStatus.PENDING).count();
-        long confirmedBookings = allBookings.stream().filter(b -> b.getStatus() == BookingStatus.CONFIRMED).count();
-        long completedBookings = allBookings.stream().filter(b -> b.getStatus() == BookingStatus.COMPLETED).count();
+        // Total Counts (Real-time)
+        long totalUsers = userRepository.count();
+        long totalBookings = bookingRepository.count();
+        
+        // Month-over-Month Comparison
+        long usersThisMonth = userRepository.countByCreatedAtBetween(firstDayOfCurrentMonth, now);
+        long usersLastMonth = userRepository.countByCreatedAtBetween(firstDayOfLastMonth, firstDayOfCurrentMonth);
+        
+        long bookingsThisMonth = bookingRepository.countByCreatedAtBetween(firstDayOfCurrentMonth, now);
+        long bookingsLastMonth = bookingRepository.countByCreatedAtBetween(firstDayOfLastMonth, firstDayOfCurrentMonth);
 
-        BigDecimal totalRevenue = allBookings.stream()
-                .filter(b -> b.getStatus() == BookingStatus.COMPLETED)
-                .map(b -> b.getTotalAmount() != null ? b.getTotalAmount() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        long vendorsThisMonth = userRepository.countByRoleAndCreatedAtBetween("VENDOR", firstDayOfCurrentMonth, now);
+        long vendorsLastMonth = userRepository.countByRoleAndCreatedAtBetween("VENDOR", firstDayOfLastMonth, firstDayOfCurrentMonth);
+
+        BigDecimal revenueThisMonth = bookingRepository.sumTotalAmountByStatusAndCreatedAtBetween(firstDayOfCurrentMonth, now);
+        BigDecimal revenueLastMonth = bookingRepository.sumTotalAmountByStatusAndCreatedAtBetween(firstDayOfLastMonth, firstDayOfCurrentMonth);
+
+        revenueThisMonth = revenueThisMonth != null ? revenueThisMonth : BigDecimal.ZERO;
+        revenueLastMonth = revenueLastMonth != null ? revenueLastMonth : BigDecimal.ZERO;
 
         Map<String, Object> metrics = new LinkedHashMap<>();
         metrics.put("totalUsers", totalUsers);
-        metrics.put("totalBookings", totalBookings);
-        metrics.put("totalVendors", totalVendors);
-        metrics.put("totalStaff", totalStaff);
-        metrics.put("pendingBookings", pendingBookings);
-        metrics.put("confirmedBookings", confirmedBookings);
-        metrics.put("completedBookings", completedBookings);
-        metrics.put("totalRevenue", totalRevenue);
+        metrics.put("totalUsersChange", calculateTrend(usersThisMonth, usersLastMonth));
+        
+        metrics.put("totalVendors", userRepository.countByRole("VENDOR"));
+        metrics.put("totalVendorsChange", calculateTrend(vendorsThisMonth, vendorsLastMonth));
 
-        List<Map<String, Object>> chartData = Arrays.asList(
-                Map.of("name", "Jan", "bookings", 12, "revenue", 45000),
-                Map.of("name", "Feb", "bookings", 19, "revenue", 55000),
-                Map.of("name", "Mar", "bookings", 15, "revenue", 50000),
-                Map.of("name", "Apr", "bookings", 25, "revenue", 75000),
-                Map.of("name", "May", "bookings", 22, "revenue", 65000),
-                Map.of("name", "Jun", "bookings", 30, "revenue", 85000)
-        );
+        metrics.put("totalBookings", totalBookings);
+        metrics.put("totalBookingsChange", calculateTrend(bookingsThisMonth, bookingsLastMonth));
+
+        BigDecimal totalRevenue = bookingRepository.sumTotalAmountByStatusAndCreatedAtBetween(LocalDateTime.of(2000, 1, 1, 0, 0), now);
+        metrics.put("totalRevenue", totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
+        metrics.put("totalRevenueChange", calculateTrend(revenueThisMonth, revenueLastMonth));
+
+        // Other status counts
+        metrics.put("pendingBookings", bookingRepository.countByStatus(BookingStatus.PENDING));
+        metrics.put("confirmedBookings", bookingRepository.countByStatus(BookingStatus.CONFIRMED));
+        metrics.put("completedBookings", bookingRepository.countByStatus(BookingStatus.COMPLETED));
+
+        // Dynamic Chart Data (Last 6 Months)
+        List<Map<String, Object>> chartData = new ArrayList<>();
+        for (int i = 5; i >= 0; i--) {
+            LocalDateTime start = firstDayOfCurrentMonth.minusMonths(i);
+            LocalDateTime end = start.plusMonths(1);
+            long count = bookingRepository.countByCreatedAtBetween(start, end);
+            BigDecimal rev = bookingRepository.sumTotalAmountByStatusAndCreatedAtBetween(start, end);
+            rev = rev != null ? rev : BigDecimal.ZERO;
+            
+            Map<String, Object> dataPoint = new HashMap<>();
+            dataPoint.put("name", start.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
+            dataPoint.put("bookings", count);
+            dataPoint.put("revenue", rev);
+            chartData.add(dataPoint);
+        }
 
         List<Map<String, Object>> activities = Arrays.asList(
                 Map.of("id", "1", "title", "New booking created", "description", "Wedding reception booking", "time", "2 hours ago", "status", "success"),
@@ -78,33 +105,52 @@ public class DashboardService implements IDashboardService {
         return apiResponse;
     }
 
+    private double calculateTrend(long current, long previous) {
+        if (previous == 0) return current > 0 ? 100.0 : 0.0;
+        return ((double) (current - previous) / previous) * 100;
+    }
+
+    private double calculateTrend(BigDecimal current, BigDecimal previous) {
+        if (previous == null || previous.compareTo(BigDecimal.ZERO) == 0) {
+            return (current != null && current.compareTo(BigDecimal.ZERO) > 0) ? 100.0 : 0.0;
+        }
+        return current.subtract(previous)
+                .divide(previous, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .doubleValue();
+    }
+
     @Override
     public APIResponse<DashboardMetrics> getManagerMetrics() {
-        var allBookings = bookingRepository.findAll();
-        var allUsers = userRepository.findAll();
-        var allServices = vendorServiceRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime firstDayOfCurrentMonth = now.withDayOfMonth(1).with(LocalTime.MIN);
+        LocalDateTime firstDayOfLastMonth = firstDayOfCurrentMonth.minusMonths(1);
 
-        long activeBookings = allBookings.stream().filter(b -> b.getStatus() == BookingStatus.CONFIRMED).count();
-        long pendingBookings = allBookings.stream().filter(b -> b.getStatus() == BookingStatus.PENDING).count();
-        long totalVendors = allUsers.stream().filter(u -> "VENDOR".equalsIgnoreCase(u.getRole())).count();
-        long totalStaff = allUsers.stream().filter(u -> "STAFF".equalsIgnoreCase(u.getRole())).count();
+        long totalVendors = userRepository.countByRole("VENDOR");
+        long totalStaff = userRepository.countByRole("STAFF");
+        
+        long activeBookings = bookingRepository.countByStatus(BookingStatus.CONFIRMED);
+        long pendingBookings = bookingRepository.countByStatus(BookingStatus.PENDING);
+
+        long bookingsThisMonth = bookingRepository.countByCreatedAtBetween(firstDayOfCurrentMonth, now);
+        long bookingsLastMonth = bookingRepository.countByCreatedAtBetween(firstDayOfLastMonth, firstDayOfCurrentMonth);
 
         Map<String, Object> metrics = new LinkedHashMap<>();
         metrics.put("activeBookings", activeBookings);
         metrics.put("pendingBookings", pendingBookings);
         metrics.put("totalVendors", totalVendors);
         metrics.put("totalStaff", totalStaff);
-        metrics.put("totalServices", allServices.size());
+        metrics.put("totalServices", vendorServiceRepository.count());
+        metrics.put("bookingsChange", calculateTrend(bookingsThisMonth, bookingsLastMonth));
 
-        List<Map<String, Object>> chartData = Arrays.asList(
-                Map.of("name", "Mon", "bookings", 5),
-                Map.of("name", "Tue", "bookings", 8),
-                Map.of("name", "Wed", "bookings", 6),
-                Map.of("name", "Thu", "bookings", 10),
-                Map.of("name", "Fri", "bookings", 12),
-                Map.of("name", "Sat", "bookings", 15),
-                Map.of("name", "Sun", "bookings", 3)
-        );
+        List<Map<String, Object>> chartData = new ArrayList<>();
+        // Daily chart data for the current week
+        for (int i = 6; i >= 0; i--) {
+            LocalDateTime dayStart = now.minusDays(i).with(LocalTime.MIN);
+            LocalDateTime dayEnd = dayStart.plusDays(1);
+            long count = bookingRepository.countByCreatedAtBetween(dayStart, dayEnd);
+            chartData.add(Map.of("name", dayStart.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH), "bookings", count));
+        }
 
         List<Map<String, Object>> activities = Arrays.asList(
                 Map.of("id", "1", "title", "Vendor coordination meeting", "description", "Scheduled with floral vendor", "time", "1 hour ago", "status", "info"),
@@ -127,15 +173,9 @@ public class DashboardService implements IDashboardService {
     public APIResponse<DashboardMetrics> getStaffMetrics() {
         var allBookings = bookingRepository.findAll();
 
-        long upcomingEvents = allBookings.stream()
-                .filter(b -> b.getStatus() == BookingStatus.CONFIRMED || b.getStatus() == BookingStatus.PENDING)
-                .count();
-        long completedEvents = allBookings.stream()
-                .filter(b -> b.getStatus() == BookingStatus.COMPLETED)
-                .count();
-        long pendingTasks = allBookings.stream()
-                .filter(b -> b.getStatus() == BookingStatus.PENDING)
-                .count();
+        long upcomingEvents = bookingRepository.countByStatus(BookingStatus.CONFIRMED) + bookingRepository.countByStatus(BookingStatus.PENDING);
+        long completedEvents = bookingRepository.countByStatus(BookingStatus.COMPLETED);
+        long pendingTasks = bookingRepository.countByStatus(BookingStatus.PENDING);
 
         Map<String, Object> metrics = new LinkedHashMap<>();
         metrics.put("upcomingEvents", upcomingEvents);
@@ -169,6 +209,10 @@ public class DashboardService implements IDashboardService {
 
     @Override
     public APIResponse<DashboardMetrics> getVendorMetrics(Long vendorId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime firstDayOfCurrentMonth = now.withDayOfMonth(1).with(LocalTime.MIN);
+        LocalDateTime firstDayOfLastMonth = firstDayOfCurrentMonth.minusMonths(1);
+
         var allServices = vendorServiceRepository.findByVendorId(vendorId);
         var allBookings = bookingRepository.findByVendorId(vendorId);
         var allReviews = reviewRepository.findAll().stream()
@@ -183,26 +227,40 @@ public class DashboardService implements IDashboardService {
                 .map(b -> b.getTotalAmount() != null ? b.getTotalAmount() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        long pendingBookings = allBookings.stream().filter(b -> b.getStatus() == BookingStatus.PENDING).count();
-        long confirmedBookings = allBookings.stream().filter(b -> b.getStatus() == BookingStatus.CONFIRMED).count();
+        long bookingsThisMonth = bookingRepository.countByVendorIdAndCreatedAtBetween(vendorId, firstDayOfCurrentMonth, now);
+        long bookingsLastMonth = bookingRepository.countByVendorIdAndCreatedAtBetween(vendorId, firstDayOfLastMonth, firstDayOfCurrentMonth);
+
+        BigDecimal earningsThisMonth = allBookings.stream()
+                .filter(b -> b.getStatus() == BookingStatus.COMPLETED && b.getCreatedAt().isAfter(firstDayOfCurrentMonth))
+                .map(b -> b.getTotalAmount() != null ? b.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal earningsLastMonth = allBookings.stream()
+                .filter(b -> b.getStatus() == BookingStatus.COMPLETED && b.getCreatedAt().isAfter(firstDayOfLastMonth) && b.getCreatedAt().isBefore(firstDayOfCurrentMonth))
+                .map(b -> b.getTotalAmount() != null ? b.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<String, Object> metrics = new LinkedHashMap<>();
         metrics.put("totalServices", allServices.size());
         metrics.put("totalBookings", allBookings.size());
-        metrics.put("pendingBookings", pendingBookings);
-        metrics.put("confirmedBookings", confirmedBookings);
+        metrics.put("totalBookingsChange", calculateTrend(bookingsThisMonth, bookingsLastMonth));
         metrics.put("totalEarnings", totalEarnings);
+        metrics.put("totalEarningsChange", calculateTrend(earningsThisMonth, earningsLastMonth));
         metrics.put("avgRating", avgRating);
         metrics.put("totalReviews", allReviews.size());
 
-        List<Map<String, Object>> chartData = Arrays.asList(
-                Map.of("name", "Jan", "bookings", 3, "earnings", 12000),
-                Map.of("name", "Feb", "bookings", 5, "earnings", 20000),
-                Map.of("name", "Mar", "bookings", 4, "earnings", 16000),
-                Map.of("name", "Apr", "bookings", 7, "earnings", 28000),
-                Map.of("name", "May", "bookings", 6, "earnings", 24000),
-                Map.of("name", "Jun", "bookings", 8, "earnings", 32000)
-        );
+        List<Map<String, Object>> chartData = new ArrayList<>();
+        for (int i = 5; i >= 0; i--) {
+            LocalDateTime start = firstDayOfCurrentMonth.minusMonths(i);
+            LocalDateTime end = start.plusMonths(1);
+            long count = allBookings.stream().filter(b -> b.getCreatedAt().isAfter(start) && b.getCreatedAt().isBefore(end)).count();
+            BigDecimal rev = allBookings.stream()
+                    .filter(b -> b.getStatus() == BookingStatus.COMPLETED && b.getCreatedAt().isAfter(start) && b.getCreatedAt().isBefore(end))
+                    .map(b -> b.getTotalAmount() != null ? b.getTotalAmount() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            chartData.add(Map.of("name", start.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH), "bookings", count, "earnings", rev));
+        }
 
         List<Map<String, Object>> activities = Arrays.asList(
                 Map.of("id", "1", "title", "New booking request", "description", "Wedding photography request", "time", "1 hour ago", "status", "info"),
@@ -223,6 +281,10 @@ public class DashboardService implements IDashboardService {
 
     @Override
     public APIResponse<DashboardMetrics> getClientMetrics(Long clientId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime firstDayOfCurrentMonth = now.withDayOfMonth(1).with(LocalTime.MIN);
+        LocalDateTime firstDayOfLastMonth = firstDayOfCurrentMonth.minusMonths(1);
+
         var clientBookings = bookingRepository.findByClientId(clientId);
 
         long upcomingEvents = clientBookings.stream()
@@ -236,17 +298,28 @@ public class DashboardService implements IDashboardService {
                 .map(b -> b.getTotalAmount() != null ? b.getTotalAmount() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        BigDecimal spendingThisMonth = clientBookings.stream()
+                .filter(b -> b.getCreatedAt().isAfter(firstDayOfCurrentMonth))
+                .map(b -> b.getTotalAmount() != null ? b.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal spendingLastMonth = clientBookings.stream()
+                .filter(b -> b.getCreatedAt().isAfter(firstDayOfLastMonth) && b.getCreatedAt().isBefore(firstDayOfCurrentMonth))
+                .map(b -> b.getTotalAmount() != null ? b.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         Map<String, Object> metrics = new LinkedHashMap<>();
         metrics.put("totalBookings", clientBookings.size());
         metrics.put("upcomingEvents", upcomingEvents);
         metrics.put("completedBookings", completedBookings);
         metrics.put("totalSpending", totalSpending);
+        metrics.put("spendingChange", calculateTrend(spendingThisMonth, spendingLastMonth));
 
         List<Map<String, Object>> chartData = Arrays.asList(
-                Map.of("name", "Planning", "progress", 75),
-                Map.of("name", "Booking", "progress", 60),
-                Map.of("name", "Vendor Selection", "progress", 80),
-                Map.of("name", "Budget", "progress", 45)
+                Map.of("name", "Venue", "progress", clientBookings.stream().anyMatch(b -> b.getServiceBookings().stream().anyMatch(sb -> sb.getService().getCategory().equalsIgnoreCase("venue"))) ? 100 : 25),
+                Map.of("name", "Catering", "progress", clientBookings.stream().anyMatch(b -> b.getServiceBookings().stream().anyMatch(sb -> sb.getService().getCategory().equalsIgnoreCase("catering"))) ? 100 : 40),
+                Map.of("name", "Decor", "progress", clientBookings.stream().anyMatch(b -> b.getServiceBookings().stream().anyMatch(sb -> sb.getService().getCategory().equalsIgnoreCase("decor"))) ? 100 : 15),
+                Map.of("name", "Photography", "progress", clientBookings.stream().anyMatch(b -> b.getServiceBookings().stream().anyMatch(sb -> sb.getService().getCategory().equalsIgnoreCase("photography"))) ? 100 : 10)
         );
 
         List<Map<String, Object>> activities = Arrays.asList(

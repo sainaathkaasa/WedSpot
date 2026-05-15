@@ -16,7 +16,7 @@ import {
     Edit as EditIcon,
     Delete as DeleteIcon,
     Restaurant as FoodIcon,
-    ShoppingCart as CartIcon
+    CalendarMonth as CalendarIcon
 } from '@mui/icons-material';
 import type { VendorService } from '@/entities/vendor-service';
 import { formatCurrency } from '../utils/CurrencyFormatter';
@@ -74,7 +74,7 @@ const ServiceManageCard: React.FC<ServiceManageCardProps> = ({ service, onEdit, 
                     gap: theme.spacing(0.5),
                     zIndex: 1
                 }}>
-                    {isCatering ? <FoodIcon sx={{ fontSize: 12 }} /> : <CartIcon sx={{ fontSize: 12 }} />}
+                    {isCatering ? <FoodIcon sx={{ fontSize: 12 }} /> : <CalendarIcon sx={{ fontSize: 12 }} />}
                     <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', fontSize: theme.typography.caption.fontSize }}>
                         {service.category}
                     </Typography>

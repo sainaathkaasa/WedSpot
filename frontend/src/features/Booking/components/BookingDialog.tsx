@@ -47,10 +47,10 @@ const BookingDialog: React.FC<BookingDialogProps> = ({ open, onClose, onConfirm,
     const isFormValid = details.eventDate && details.eventLocation && details.guestCount > 0;
 
     return (
-        <Dialog 
-            open={open} 
-            onClose={onClose} 
-            maxWidth="sm" 
+        <Dialog
+            open={open}
+            onClose={onClose}
+            maxWidth="sm"
             fullWidth
             PaperProps={{
                 sx: { borderRadius: '24px', p: 1 }
@@ -61,7 +61,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({ open, onClose, onConfirm,
             </DialogTitle>
             <DialogContent>
                 <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, fontWeight: 500 }}>
-                    Please provide the details for your event to help the vendors prepare the best experience for you.
+                    Please provide the details for your event to help the vendor prepare the best experience for you.
                 </Typography>
                 <Grid container spacing={3}>
                     <Grid item xs={12} sm={6}>
@@ -122,20 +122,20 @@ const BookingDialog: React.FC<BookingDialogProps> = ({ open, onClose, onConfirm,
                 </Grid>
             </DialogContent>
             <DialogActions sx={{ p: 3, gap: 1 }}>
-                <Button 
-                    onClick={onClose} 
+                <Button
+                    onClick={onClose}
                     sx={{ borderRadius: '12px', fontWeight: 700, px: 3 }}
                     color="inherit"
                 >
                     Cancel
                 </Button>
-                <Button 
-                    onClick={() => onConfirm(details)} 
-                    variant="contained" 
+                <Button
+                    onClick={() => onConfirm(details)}
+                    variant="contained"
                     disabled={!isFormValid || loading}
-                    sx={{ 
-                        borderRadius: '12px', 
-                        fontWeight: 700, 
+                    sx={{
+                        borderRadius: '12px',
+                        fontWeight: 700,
                         px: 4,
                         boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.2)}`
                     }}

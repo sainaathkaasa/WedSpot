@@ -5,13 +5,10 @@ import {
     IconButton,
     Button,
     alpha,
-    useTheme,
-    useMediaQuery
+    useTheme
 } from '@mui/material';
 import {
     MoreVert as MoreVertIcon,
-    Email as EmailIcon,
-    Phone as PhoneIcon
 } from '@mui/icons-material';
 import { useMaterialReactTable } from 'material-react-table';
 import { useNavigate } from 'react-router-dom';
@@ -24,64 +21,57 @@ import { USER_SERVICE } from '@/features/Users/api/user.api';
 const Staff = () => {
     const theme = useTheme();
     const navigate = useNavigate();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const { data: staffMembers = [], isLoading } = useQuery({
         queryKey: ['staff'],
         queryFn: () => USER_SERVICE.getAllUsers(),
         select: (response) =>
-            response.data?.filter(user => user.role?.toUpperCase() === 'STAFF') ?? []
+            response.data?.filter(user => String(user.role).toUpperCase() === 'STAFF') ?? []
     });
 
     const columns = useMemo(
         () => [
             {
-                accessorKey: 'id',
-                header: 'Staff ID',
-                Cell: ({ cell }: any) => (
-                    <Typography sx={{ fontWeight: 700, fontSize: '12px', color: 'text.secondary' }}>{cell.getValue() as string}</Typography>
-                )
-            },
-            {
                 accessorKey: 'name',
-                header: 'Staff Name',
-                Cell: ({ row }: any) => {
-                    const member = row.original;
-                    return (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Box>
-                                <Typography sx={{ fontWeight: 800, fontSize: '13px', color: 'text.primary' }}>{member.name}</Typography>
-                            </Box>
+                header: 'Member Name',
+                Cell: ({ row }: any) => (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '8px',
+                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                            color: theme.palette.primary.main,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 800,
+                            fontSize: '11px'
+                        }}>
+                            {row.original.name.charAt(0)}
                         </Box>
-                    );
-                }
+                        <Box>
+                            <Typography sx={{ fontWeight: 800, fontSize: '13px', color: 'text.primary' }}>{row.original.name}</Typography>
+                            <Typography sx={{ color: 'text.secondary', fontWeight: 600, fontSize: '11px' }}>{row.original.email}</Typography>
+                        </Box>
+                    </Box>
+                )
             },
             {
                 accessorKey: 'role',
-                header: 'Role',
+                header: 'Department / Role',
                 Cell: ({ cell }: any) => (
-                    <Typography sx={{ fontWeight: 600, fontSize: '12px', color: 'text.primary' }}>{cell.getValue() as string}</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: '11px', color: 'text.secondary', textTransform: 'uppercase' }}>
+                        {cell.getValue() as string}
+                    </Typography>
                 )
             },
             {
-                id: 'contact',
-                header: 'Contact Info',
-                accessorFn: (row: any) => `${row.email} ${row.phoneNumber}`,
-                Cell: ({ row }: any) => {
-                    const member = row.original;
-                    return (
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <EmailIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
-                                <Typography sx={{ fontWeight: 600, fontSize: '11px', color: 'text.secondary' }}>{member.email}</Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <PhoneIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
-                                <Typography sx={{ fontWeight: 600, fontSize: '11px', color: 'text.secondary' }}>{member.phoneNumber || 'N/A'}</Typography>
-                            </Box>
-                        </Box>
-                    );
-                }
+                accessorKey: 'phoneNumber',
+                header: 'Phone Number',
+                Cell: ({ cell }: any) => (
+                    <Typography sx={{ fontWeight: 600, fontSize: '12px', color: 'text.primary' }}>{cell.getValue() as string || '—'}</Typography>
+                )
             },
             {
                 accessorKey: 'enabled',
@@ -89,25 +79,26 @@ const Staff = () => {
                 Cell: ({ cell }: any) => {
                     const enabled = cell.getValue() as boolean;
                     return (
-                        <Typography
-                            sx={{
-                                fontWeight: 900,
-                                color: enabled ? 'success.main' : 'text.disabled',
-                                fontSize: '10px',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.05em'
-                            }}
-                        >
+                        <Box sx={{ 
+                            px: 1, 
+                            py: 0.5, 
+                            borderRadius: '4px', 
+                            bgcolor: alpha(enabled ? theme.palette.success.main : theme.palette.text.disabled, 0.1),
+                            color: enabled ? theme.palette.success.main : theme.palette.text.disabled,
+                            fontSize: '10px',
+                            fontWeight: 900,
+                            display: 'inline-block',
+                            textTransform: 'uppercase'
+                        }}>
                             {enabled ? 'Active' : 'Inactive'}
-                        </Typography>
+                        </Box>
                     );
                 }
             },
             {
                 accessorKey: 'actions',
                 header: 'Actions',
-                muiTableHeadCellProps: { align: 'center' as const },
-                muiTableBodyCellProps: { align: 'center' as const },
+                size: 80,
                 enableColumnFilter: false,
                 enableSorting: false,
                 Cell: () => (
@@ -126,84 +117,41 @@ const Staff = () => {
     const [showGlobalFilter, setShowGlobalFilter] = useState(false);
 
     const table = useMaterialReactTable({
-        muiTopToolbarProps: { sx: { p: '14px' } },
         columns,
         data: staffMembers,
-        enableColumnActions: false,
-        enableColumnFilters: true,
-        enableSorting: true,
-        enablePagination: true,
-        enableRowSelection: true,
-        enableGlobalFilter: true,
+        state: { globalFilter, showGlobalFilter, isLoading },
         onGlobalFilterChange: setGlobalFilter,
         onShowGlobalFilterChange: setShowGlobalFilter,
-        muiTablePaperProps: {
-            elevation: 0,
-            sx: {
-                borderRadius: '0',
-                border: 'none',
-            },
-        },
-        state: {
-            globalFilter,
-            showGlobalFilter,
-            isLoading,
-            columnVisibility: {
-                id: !isMobile,
-                contact: !isMobile,
-            }
-        },
+        enableRowSelection: true,
+        muiTablePaperProps: { elevation: 0 },
     });
 
     return (
         <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>
-            <Typography
-                variant="h4"
-                sx={{
-                    mb: 2,
-                    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    display: 'inline-block'
-                }}
-            >
-                Staff Management
-            </Typography>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+                        Operations Team
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, mt: 0.5 }}>
+                        Manage internal staff roles, permissions, and accessibility.
+                    </Typography>
+                </Box>
+                <Button 
+                    variant="contained" 
+                    onClick={() => navigate('add')}
+                    sx={{ fontWeight: 700, borderRadius: '8px', textTransform: 'none' }}
+                >
+                    Add Member
+                </Button>
+            </Box>
 
-            <DashboardCard sx={{ mt: 1, p: 0, overflow: 'hidden' }}>
-                <Box sx={{
-                    p: '14px',
-                    display: 'flex',
-                    justifyContent: { xs: 'center', sm: 'flex-end' },
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                    borderBottom: `1px solid ${theme.dashboard?.glassBorder || alpha(theme.palette.divider, 0.1)}`
-                }}>
-                    <TableHeaderToolbar
-                        table={table}
-                        isSmall
-                        ExcelData={{
-                            data: staffMembers,
-                            fileName: 'Staff_Export'
-                        }}
-                        actionButton={
-                            <Button
-                                variant="contained"
-                                size="small"
-                                onClick={() => navigate('add')}
-                                sx={{
-                                    borderRadius: '10px',
-                                    bgcolor: theme.palette.primary.main,
-                                    height: '32px',
-                                    textTransform: 'none',
-                                    fontWeight: 700,
-                                    px: 2
-                                }}
-                            >
-                                Add Staff
-                            </Button>
-                        }
+            <DashboardCard noPadding sx={{ overflow: 'hidden' }}>
+                <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end', borderBottom: `1px solid ${theme.palette.divider}` }}>
+                    <TableHeaderToolbar 
+                        table={table} 
+                        isSmall 
+                        ExcelData={{ data: staffMembers, fileName: 'Staff_Export' }}
                     />
                 </Box>
 
@@ -213,5 +161,6 @@ const Staff = () => {
         </Box>
     );
 };
+
 
 export default Staff;

@@ -20,7 +20,7 @@ import {
     EventNote as EventNoteIcon,
     CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     useMaterialReactTable,
     type MRT_ColumnDef,
@@ -152,8 +152,8 @@ const BookingsPage = () => {
             accessorKey: 'client.name',
             header: 'Client',
             Cell: ({ cell }) => (
-                <Typography sx={{ fontSize: '12px', fontWeight: 600, color: 'text.primary' }}>
-                    {cell.getValue<string>() ?? 'N/A'}
+                <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>
+                    {cell.getValue<string>()}
                 </Typography>
             ),
         },
@@ -263,6 +263,26 @@ const BookingsPage = () => {
         },
     });
 
+    const queryClient = useQueryClient();
+
+    const updateStatusMutation = useMutation({
+        mutationFn: ({ id, status }: { id: number; status: string }) => BOOKING_SERVICE.updateStatus(id, status as BookingStatus),
+        onSuccess: (_: any, variables: any) => {
+            queryClient.invalidateQueries({ queryKey: getBookingQueryKey(currentRole, userId) });
+            success(`Booking status updated to ${variables.status}`);
+        },
+        onError: (err: any) => error(getErrorMessage(err)),
+    });
+
+    const cancelMutation = useMutation({
+        mutationFn: (id: number) => BOOKING_SERVICE.cancel(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getBookingQueryKey(currentRole, userId) });
+            success('Booking cancelled');
+        },
+        onError: (err: any) => error(getErrorMessage(err)),
+    });
+
     if (isError) {
         return (
             <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>
@@ -356,12 +376,11 @@ const BookingsPage = () => {
                         {currentRole === 'client' && actionMenu.booking.status === 'PENDING' && (
                             <MenuItem
                                 onClick={() => {
-                                    BOOKING_SERVICE.cancel(actionMenu.booking.id)
-                                        .then(() => success('Booking cancelled'))
-                                        .catch((err) => error(getErrorMessage(err)));
+                                    cancelMutation.mutate(actionMenu.booking.id);
                                     handleActionClose();
                                 }}
                                 sx={{ color: 'error.main' }}
+                                disabled={cancelMutation.isPending}
                             >
                                 <CancelIcon fontSize="small" sx={{ mr: 1 }} />
                                 Cancel Booking
@@ -371,24 +390,22 @@ const BookingsPage = () => {
                             <>
                                 <MenuItem
                                     onClick={() => {
-                                        BOOKING_SERVICE.updateStatus(actionMenu.booking.id, 'CONFIRMED')
-                                            .then(() => success('Booking confirmed'))
-                                            .catch((err) => error(getErrorMessage(err)));
+                                        updateStatusMutation.mutate({ id: actionMenu.booking.id, status: 'CONFIRMED' });
                                         handleActionClose();
                                     }}
                                     sx={{ color: 'success.main' }}
+                                    disabled={updateStatusMutation.isPending}
                                 >
                                     <CheckCircleIcon fontSize="small" sx={{ mr: 1 }} />
                                     Confirm
                                 </MenuItem>
                                 <MenuItem
                                     onClick={() => {
-                                        BOOKING_SERVICE.updateStatus(actionMenu.booking.id, 'CANCELLED')
-                                            .then(() => success('Booking rejected'))
-                                            .catch((err) => error(getErrorMessage(err)));
+                                        updateStatusMutation.mutate({ id: actionMenu.booking.id, status: 'CANCELLED' });
                                         handleActionClose();
                                     }}
                                     sx={{ color: 'error.main' }}
+                                    disabled={updateStatusMutation.isPending}
                                 >
                                     <CancelIcon fontSize="small" sx={{ mr: 1 }} />
                                     Reject
@@ -398,11 +415,10 @@ const BookingsPage = () => {
                         {currentRole === 'vendor' && actionMenu.booking.status === 'CONFIRMED' && (
                             <MenuItem
                                 onClick={() => {
-                                    BOOKING_SERVICE.updateStatus(actionMenu.booking.id, 'COMPLETED')
-                                        .then(() => success('Booking marked complete'))
-                                        .catch((err) => error(getErrorMessage(err)));
+                                    updateStatusMutation.mutate({ id: actionMenu.booking.id, status: 'COMPLETED' });
                                     handleActionClose();
                                 }}
+                                disabled={updateStatusMutation.isPending}
                             >
                                 <CheckCircleIcon fontSize="small" sx={{ mr: 1 }} />
                                 Mark Complete

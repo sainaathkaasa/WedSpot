@@ -68,28 +68,6 @@ const floatSlow = keyframes`
 
 const Services = (): JSX.Element => {
   const rootRef = useRef<HTMLElement | null>(null);
-  // const dispatch = useDispatch();
-  // const { success, info } = useSnackbar();
-  // const cartItems = useSelector((state: RootState) => state.cart.items);
-
-  // const handleAddToCart = (service: Service) => {
-  //   const isAlreadyInCart = cartItems.some(item => item.id === service.id);
-  //   if (isAlreadyInCart) {
-  //     info(`${service.title} is already in your booking cart!`);
-  //     return;
-  //   }
-  //   dispatch(addItem({
-  //     id: service.id,
-  //     name: service.title,
-  //     price: `₹${service.numericPrice.toLocaleString()}`,
-  //     numericPrice: service.numericPrice,
-  //     image: service.image,
-  //     type: 'service',
-  //     category: 'Wedding Service'
-  //   }));
-  //   success(`${service.title} added to your booking cart!`);
-  // };
-
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;

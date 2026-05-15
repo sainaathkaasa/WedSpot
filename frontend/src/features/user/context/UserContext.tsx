@@ -2,8 +2,8 @@ import { createContext } from "react";
 import type { User } from "@/features/auth";
 
 export type UserContextType = {
-    user: User;
-    setUser: (user: User) => void;
+    user: User | null;
+    setUser: (user: User | null) => void;
     clearUser: () => void;
 };
 

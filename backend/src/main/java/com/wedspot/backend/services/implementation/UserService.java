@@ -46,7 +46,8 @@ public class UserService implements IUserService {
         apiResponse.setData(userDTOs);
         apiResponse.setTotalElements(userDTOs.size());
         apiResponse.setPageNumber(0);
-        apiResponse.setTotalPages(userDTOs.size());
+        apiResponse.setPageSize(userDTOs.size());
+        apiResponse.setTotalPages(1);
         apiResponse.setMessage("Users fetched successfully");
         return apiResponse;
     }
@@ -73,7 +74,7 @@ public class UserService implements IUserService {
         User fetchedUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (!fetchedUser.getPassword().equals(passwordEncoder.encode(request.getOldPassword()))) {
+        if (!passwordEncoder.matches(request.getOldPassword(), fetchedUser.getPassword())) {
             throw new InvalidCredentialsException("Old password does not match");
         }
 

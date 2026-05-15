@@ -5,6 +5,7 @@ import com.wedspot.backend.Model.UpdatePasswordRequest;
 import com.wedspot.backend.Model.UpdateUserRequest;
 import com.wedspot.backend.Model.UserDTO;
 import com.wedspot.backend.services.IUserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class UserController {
 
     @PutMapping("/profile/{id}")
     public ResponseEntity<APIResponse<UserDTO>> UpdateProfile(@PathVariable long id,
-            @RequestBody UpdateUserRequest request) {
+            @Valid @RequestBody UpdateUserRequest request) {
         APIResponse<UserDTO> response = userService.UpdateUser(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -47,7 +48,7 @@ public class UserController {
 
     @PutMapping("/password/{id}")
     public ResponseEntity<APIResponse<Void>> UpdatePassword(@PathVariable long id,
-            @RequestBody UpdatePasswordRequest request) {
+            @Valid @RequestBody UpdatePasswordRequest request) {
         APIResponse<Void> response = userService.UpdatePassword(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

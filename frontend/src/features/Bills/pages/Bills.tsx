@@ -4,173 +4,185 @@ import {
     Typography,
     IconButton,
     useTheme,
-    useMediaQuery,
+    alpha,
+    Stack,
+    Tooltip,
 } from '@mui/material';
 import {
-    MoreVert as MoreIcon,
-    ReceiptLong as BillIcon
+    CloudDownload as DownloadIcon,
+    Delete as DeleteIcon
 } from '@mui/icons-material';
 import { useMaterialReactTable } from 'material-react-table';
 import { DashboardCard } from '@/features/dashboard';
 import { TableComponent, TableBottomToolbar, TableHeaderToolbar } from '@/components/UI/Table';
-import { StatusBadge } from '@/shared/ui/StatusBadge';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { BILLS_API } from '../api/bills.api';
+import { useSnackbar } from '@/contexts/snackbarContextValue';
+import { getErrorMessage } from '@/lib/error';
 
 interface Bill {
-    id: string;
+    id: number;
     invoiceNumber: string;
-    client: string;
+    client: { name: string; email: string };
     amount: number;
+    status: 'PAID' | 'PENDING' | 'OVERDUE' | string;
     date: string;
-    status: 'paid' | 'pending' | 'overdue';
 }
-
-const mockBills: Bill[] = [
-    { id: '1', invoiceNumber: 'INV-2024-001', client: 'Arjun & Sneha', amount: 450000, date: '2024-03-15', status: 'paid' },
-    { id: '2', invoiceNumber: 'INV-2024-002', client: 'Meera & Rohan', amount: 250000, date: '2024-03-18', status: 'pending' },
-    { id: '3', invoiceNumber: 'INV-2024-003', client: 'Priya & Vikram', amount: 680000, date: '2024-03-20', status: 'overdue' },
-    { id: '4', invoiceNumber: 'INV-2024-004', client: 'Amit & Ritu', amount: 125000, date: '2024-03-22', status: 'pending' },
-    { id: '5', invoiceNumber: 'INV-2024-001', client: 'Arjun & Sneha', amount: 450000, date: '2024-03-15', status: 'paid' },
-    { id: '6', invoiceNumber: 'INV-2024-002', client: 'Meera & Rohan', amount: 250000, date: '2024-03-18', status: 'pending' },
-    { id: '7', invoiceNumber: 'INV-2024-003', client: 'Priya & Vikram', amount: 680000, date: '2024-03-20', status: 'overdue' },
-    { id: '8', invoiceNumber: 'INV-2024-004', client: 'Amit & Ritu', amount: 125000, date: '2024-03-22', status: 'pending' },
-    { id: '9', invoiceNumber: 'INV-2024-001', client: 'Arjun & Sneha', amount: 450000, date: '2024-03-15', status: 'paid' },
-    { id: '10', invoiceNumber: 'INV-2024-002', client: 'Meera & Rohan', amount: 250000, date: '2024-03-18', status: 'pending' },
-    { id: '11', invoiceNumber: 'INV-2024-003', client: 'Priya & Vikram', amount: 680000, date: '2024-03-20', status: 'overdue' },
-    { id: '12', invoiceNumber: 'INV-2024-004', client: 'Amit & Ritu', amount: 125000, date: '2024-03-22', status: 'pending' },
-];
 
 const BillsPage = () => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const queryClient = useQueryClient();
+    const { success, error: showError } = useSnackbar();
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            maximumFractionDigits: 0
-        }).format(amount);
-    };
+    // Fetch Bills
+    const { data: bills = [], isLoading } = useQuery<Bill[]>({
+        queryKey: ['bills'],
+        queryFn: async () => {
+            const response = await BILLS_API.getAll();
+            return response.data || [];
+        }
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: BILLS_API.delete,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['bills'] });
+            success('Bill deleted');
+        },
+        onError: (err) => showError(getErrorMessage(err))
+    });
 
     const columns = useMemo(
         () => [
             {
                 accessorKey: 'invoiceNumber',
                 header: 'Invoice #',
-                Cell: ({ row }: any) => (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-                        <BillIcon sx={{ color: 'text.disabled', fontSize: 14 }} />
-                        <Typography sx={{ fontWeight: 700, fontSize: theme.typography.caption.fontSize, color: 'text.secondary' }}>{row.original.invoiceNumber}</Typography>
-                    </Box>
-                ),
+                Cell: ({ cell }: any) => (
+                    <Typography variant="body2" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                        {cell.getValue() as string}
+                    </Typography>
+                )
             },
             {
-                accessorKey: 'client',
-                header: 'Client / Event',
-                Cell: ({ cell }: any) => (
-                    <Typography sx={{ fontWeight: 600, fontSize: theme.typography.body2.fontSize, color: 'text.primary' }}>{cell.getValue() as string}</Typography>
-                ),
+                accessorKey: 'client.name',
+                header: 'Client',
+                Cell: ({ row }: any) => (
+                    <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>{row.original.client?.name}</Typography>
+                        <Typography variant="caption" sx={{ color: 'text.secondary' }}>{row.original.client?.email}</Typography>
+                    </Box>
+                )
             },
             {
                 accessorKey: 'amount',
                 header: 'Amount',
                 Cell: ({ cell }: any) => (
-                    <Typography sx={{ fontWeight: 800, color: 'text.primary', fontSize: theme.typography.body2.fontSize }}>
-                        {formatCurrency(cell.getValue() as number)}
+                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                        ₹{(cell.getValue() as number).toLocaleString()}
                     </Typography>
-                ),
+                )
             },
             {
                 accessorKey: 'date',
-                header: 'Due Date',
+                header: 'Date',
                 Cell: ({ cell }: any) => (
-                    <Typography sx={{ color: 'text.secondary', fontWeight: 600, fontSize: theme.typography.caption.fontSize }}>{cell.getValue() as string}</Typography>
-                ),
+                    <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                        {new Date(cell.getValue() as string).toLocaleDateString()}
+                    </Typography>
+                )
             },
             {
                 accessorKey: 'status',
                 header: 'Status',
-                Cell: ({ cell }: any) => (
-                    <StatusBadge status={cell.getValue() as string} variant="bill" />
-                ),
+                Cell: ({ cell }: any) => {
+                    const status = (cell.getValue() as string).toUpperCase();
+                    const colors: any = {
+                        PAID: 'success',
+                        PENDING: 'warning',
+                        OVERDUE: 'error'
+                    };
+                    const colorKey = (colors[status] || 'info') as 'success' | 'warning' | 'error' | 'info';
+                    return (
+                        <Box sx={{ 
+                            px: 1, 
+                            py: 0.5, 
+                            borderRadius: '4px', 
+                            bgcolor: alpha(theme.palette[colorKey].main, 0.1),
+                            color: theme.palette[colorKey].main,
+                            fontSize: '10px',
+                            fontWeight: 900,
+                            display: 'inline-block',
+                            textTransform: 'uppercase'
+                        }}>
+                            {status}
+                        </Box>
+                    );
+                }
             },
             {
                 accessorKey: 'actions',
                 header: 'Actions',
-                muiTableHeadCellProps: { align: 'center' as const },
-                muiTableBodyCellProps: { align: 'center' as const },
+                size: 100,
                 enableColumnFilter: false,
                 enableSorting: false,
-                Cell: () => (
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                        <IconButton size="small">
-                            <MoreIcon fontSize="small" />
-                        </IconButton>
-                    </Box>
-                ),
-            },
+                Cell: ({ row }: any) => (
+                    <Stack direction="row" spacing={1}>
+                        <Tooltip title="Download PDF">
+                            <IconButton size="small" color="primary">
+                                <DownloadIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                            <IconButton 
+                                size="small" 
+                                color="error"
+                                onClick={() => {
+                                    if (window.confirm('Delete this bill?')) {
+                                        deleteMutation.mutate(row.original.id);
+                                    }
+                                }}
+                            >
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
+                )
+            }
         ],
-        [theme]
+        [theme, deleteMutation]
     );
 
     const [globalFilter, setGlobalFilter] = useState('');
     const [showGlobalFilter, setShowGlobalFilter] = useState(false);
 
     const table = useMaterialReactTable({
-        muiTopToolbarProps: { sx: { p: theme.spacing(1.75) } },
         columns,
-        data: mockBills,
-        enableColumnActions: false,
-        enableColumnFilters: true,
-        enableSorting: true,
-        enablePagination: true,
-        enableRowSelection: true,
-        enableGlobalFilter: true,
+        data: bills,
+        state: { globalFilter, showGlobalFilter, isLoading },
         onGlobalFilterChange: setGlobalFilter,
         onShowGlobalFilterChange: setShowGlobalFilter,
-        initialState: {
-            pagination: { pageSize: 10, pageIndex: 0 },
-        },
-        muiTablePaperProps: {
-            elevation: 0,
-            sx: {
-                borderRadius: 0,
-                border: 'none',
-            },
-        },
-        state: {
-            globalFilter,
-            showGlobalFilter,
-            columnVisibility: {
-                invoiceNumber: !isMobile,
-                date: !isMobile,
-            }
-        },
+        enableRowSelection: true,
+        muiTablePaperProps: { elevation: 0 },
     });
 
     return (
-        <Box sx={{ p: 0, maxWidth: theme.dashboard.contentMaxWidth, margin: '0 auto' }}>
-            <Typography
-                variant="h4"
-                sx={{
-                    mb: 2,
-                    color: 'text.primary'
-                }}
-            >
-                Bills Management
-            </Typography>
-            <DashboardCard sx={{ mt: 1, p: 0, overflow: 'hidden' }}>
-                <Box sx={{ p: theme.spacing(1.75), display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${theme.palette.divider}`, flexWrap: 'wrap', gap: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Invoices</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <TableHeaderToolbar
-                            table={table}
-                            isSmall
-                            ExcelData={{
-                                data: mockBills,
-                                fileName: 'Bills_Export'
-                            }}
-                        />
-                    </Box>
+        <Box sx={{ p: 0, maxWidth: 1600, margin: '0 auto' }}>
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+                    Billing & Invoices
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, mt: 0.5 }}>
+                    Monitor payments, issue invoices, and track financial records.
+                </Typography>
+            </Box>
+
+            <DashboardCard noPadding sx={{ overflow: 'hidden' }}>
+                <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end', borderBottom: `1px solid ${theme.palette.divider}` }}>
+                    <TableHeaderToolbar 
+                        table={table} 
+                        isSmall 
+                        ExcelData={{ data: bills, fileName: 'Bills_Export' }}
+                    />
                 </Box>
 
                 <TableComponent table={table} />

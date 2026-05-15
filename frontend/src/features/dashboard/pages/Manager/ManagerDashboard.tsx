@@ -2,7 +2,6 @@ import React from 'react';
 import {
   People as UsersIcon,
   CalendarMonth as CalendarIcon,
-  AttachMoney as DollarIcon,
   TrackChanges as TargetIcon,
 } from '@mui/icons-material';
 import { Box, Grid, useTheme, CircularProgress } from '@mui/material';
@@ -29,10 +28,10 @@ const ManagerDashboard: React.FC = () => {
   const metrics = dashboardData?.data?.metrics || {};
 
   const stats = [
-    { label: 'Team Members', value: (metrics.totalStaff || '0').toString(), change: '+3 new', icon: UsersIcon, color: theme.palette.secondary.main, progress: 80 },
-    { label: 'Active Events', value: (metrics.activeBookings || '0').toString(), change: `${metrics.pendingBookings || 0} pending`, icon: CalendarIcon, color: theme.palette.warning.main, progress: 65 },
-    { label: 'Op. Budget', value: '₹32L', change: '+15%', icon: DollarIcon, color: theme.palette.success.main, progress: 92 },
-    { label: 'Efficiency', value: '94%', change: '+2%', icon: TargetIcon, color: theme.palette.info.main, progress: 94 },
+    { label: 'Team Members', value: (metrics.totalStaff || '0').toString(), change: 'Operational staff', icon: UsersIcon, color: theme.palette.secondary.main, trend: 'up' as const },
+    { label: 'Active Events', value: (metrics.activeBookings || '0').toString(), change: `${metrics.pendingBookings || 0} pending requests`, icon: CalendarIcon, color: theme.palette.warning.main, trend: 'up' as const },
+    { label: 'Monthly Growth', value: `${(metrics.bookingsChange ?? 0) >= 0 ? '+' : ''}${(metrics.bookingsChange ?? 0).toFixed(1)}%`, change: 'In bookings count', icon: TargetIcon, color: theme.palette.info.main, trend: ((metrics.bookingsChange ?? 0) >= 0 ? 'up' : 'down') as 'up' | 'down' },
+    { label: 'Service Catalog', value: (metrics.totalServices || '0').toString(), change: 'Total vendor services', icon: TargetIcon, color: theme.palette.success.main, trend: 'up' as const },
   ];
 
 

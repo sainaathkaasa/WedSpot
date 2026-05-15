@@ -11,13 +11,11 @@ import { DashboardCard } from '@/features/dashboard';
 import {
     LocationOn as LocationIcon,
     Stars as StarsIcon,
-    CheckCircle as CheckIcon,
-    ShoppingCart as CartIcon,
+    CalendarMonth as CalendarIcon,
     Restaurant as FoodIcon
 } from '@mui/icons-material';
 import type { VendorService } from '../types/vendor';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '@/contexts/cartContextValue';
 
 
 interface VendorCardProps {
@@ -28,10 +26,8 @@ interface VendorCardProps {
 const VendorCard: React.FC<VendorCardProps> = ({ service, actions }) => {
     const theme = useTheme();
     const navigate = useNavigate();
-    const { isItemInCart } = useCart();
 
     const isCatering = (service.category || '').toLowerCase() === 'catering';
-    const isInCart = isItemInCart(String(service.id));
 
     const handleNavigate = () => {
         const currentPath = window.location.pathname;
@@ -90,7 +86,7 @@ const VendorCard: React.FC<VendorCardProps> = ({ service, actions }) => {
                     gap: 0.5,
                     zIndex: 1
                 }}>
-                    {isCatering ? <FoodIcon sx={{ fontSize: 12 }} /> : <CartIcon sx={{ fontSize: 12 }} />}
+                    {isCatering ? <FoodIcon sx={{ fontSize: 12 }} /> : <CalendarIcon sx={{ fontSize: 12 }} />}
                     <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', fontSize: '0.625rem' }}>
                         {service.category}
                     </Typography>
@@ -166,11 +162,11 @@ const VendorCard: React.FC<VendorCardProps> = ({ service, actions }) => {
                     </Box>
 
                     <Button
-                        variant={(isInCart && !isCatering) ? "outlined" : "contained"}
+                        variant="contained"
                         color={isCatering ? "secondary" : "primary"}
                         size="small"
                         onClick={handleBooking}
-                        startIcon={(isInCart && !isCatering) ? <CheckIcon /> : (isCatering ? <FoodIcon sx={{ fontSize: 14 }} /> : <CartIcon sx={{ fontSize: 14 }} />)}
+                        startIcon={isCatering ? <FoodIcon sx={{ fontSize: 14 }} /> : <CalendarIcon sx={{ fontSize: 14 }} />}
                         sx={{
                             textTransform: 'none',
                             fontWeight: 700,
@@ -178,7 +174,7 @@ const VendorCard: React.FC<VendorCardProps> = ({ service, actions }) => {
                             px: 2,
                         }}
                     >
-                        {isCatering ? 'Reserve' : (isInCart ? 'View' : 'Book Now')}
+                        {isCatering ? 'Reserve' : 'Book Now'}
                     </Button>
                 </Box>
             </Box>

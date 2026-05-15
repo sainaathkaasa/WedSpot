@@ -87,72 +87,72 @@ const getHeaderOuterSx = (theme: Theme): SxProps<Theme> => ({
     pb: 0,
 });
 
-const getHeaderContentSx = (theme: Theme) => ({
+const getHeaderContentSx = (theme: Theme): SxProps<Theme> => ({
     display: 'flex',
-    flexDirection: { xs: 'column', md: 'row' },
-    alignItems: { xs: 'stretch', md: 'center' },
+    flexDirection: { xs: 'column', md: 'row' } as const,
+    alignItems: { xs: 'stretch', md: 'center' } as const,
     justifyContent: 'space-between',
     gap: { xs: theme.spacing(2), md: theme.spacing(3) },
     py: { xs: theme.spacing(1.5), md: theme.spacing(2) },
     borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
 });
 
-const getHeaderIntroSx = () => ({
+const headerIntroSx: SxProps<Theme> = {
     minWidth: 0,
-});
+};
 
-const getHeaderEyebrowSx = (theme: Theme) => ({
+const getHeaderEyebrowSx = (theme: Theme): SxProps<Theme> => ({
     mb: theme.spacing(0.75),
     color: 'primary.main',
     ...theme.typography.caption,
     fontWeight: 800,
     letterSpacing: '0.12em',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
 });
 
-const getHeaderTitleSx = () => ({
+const headerTitleSx: SxProps<Theme> = {
     color: 'text.primary',
     fontSize: { xs: '1.45rem', md: '1.9rem' },
     fontWeight: 850,
     letterSpacing: '-0.03em',
     lineHeight: 1.15,
-});
+};
 
-const getHeaderSubtitleSx = (theme: Theme) => ({
+const getHeaderSubtitleSx = (theme: Theme): SxProps<Theme> => ({
     mt: theme.spacing(1),
     color: 'text.secondary',
     fontWeight: 600,
 });
 
-const getHeaderActionsSx = (theme: Theme) => ({
+const getHeaderActionsSx = (theme: Theme): SxProps<Theme> => ({
     display: 'flex',
-    flexDirection: { xs: 'column', sm: 'row' },
-    alignItems: { xs: 'stretch', sm: 'center' },
+    flexDirection: { xs: 'column', sm: 'row' } as const,
+    alignItems: { xs: 'stretch', sm: 'center' } as const,
     gap: theme.spacing(1.5),
-    width: { xs: '100%', md: 'auto' },
+    width: { xs: '100%', md: 'auto' } as const,
 });
 
-const getPageContentSx = (theme: Theme) => ({
+const getPageContentSx = (theme: Theme): SxProps<Theme> => ({
     mt: 0,
     bgcolor: 'background.default',
     pt: 0,
     pb: theme.spacing(1),
 });
 
-const getTitleRowSx = (theme: Theme) => ({
+const getTitleRowSx = (theme: Theme): SxProps<Theme> => ({
     mb: theme.spacing(3),
     display: 'flex',
-    flexDirection: { xs: 'column', sm: 'row' },
+    flexDirection: { xs: 'column', sm: 'row' } as const,
     gap: theme.spacing(2),
     justifyContent: 'space-between',
-    alignItems: { xs: 'stretch', sm: 'center' },
+    alignItems: { xs: 'stretch', sm: 'center' } as const,
 });
 
-const getPageTitleSx = () => ({
+const pageTitleSx: SxProps<Theme> = {
     fontWeight: 800,
     color: 'text.primary',
     letterSpacing: '-0.02em',
-});
+};
 
 const getContentContainerSx = (): SxProps<Theme> => ({
     mt: 0,
@@ -189,7 +189,7 @@ const drawerHeaderSx = (theme: Theme): SxProps<Theme> => ({
 const drawerSectionTitleSx = (theme: Theme): SxProps<Theme> => ({
     fontWeight: 800,
     mb: theme.spacing(1),
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     letterSpacing: '0.08em',
     ...theme.typography.caption,
     color: 'text.secondary',
@@ -199,16 +199,16 @@ const drawerBodySx = (theme: Theme): SxProps<Theme> => ({
     px: theme.spacing(2.5),
     py: theme.spacing(2),
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column' as const,
     gap: theme.spacing(2),
     overflowY: 'auto',
     flex: 1,
 });
 
-const drawerSectionSx = (): SxProps<Theme> => ({
+const drawerSectionSx: SxProps<Theme> = {
     display: 'flex',
-    flexDirection: 'column',
-});
+    flexDirection: 'column' as const,
+};
 
 const drawerActionsSx = (theme: Theme): SxProps<Theme> => ({
     display: 'flex',
@@ -358,20 +358,20 @@ const FilterDrawer = React.memo(({ open, filters, onClose, onApply, onReset }: F
             anchor="right"
             open={open}
             onClose={onClose}
-            PaperProps={{ sx: getDrawerPaperSx(theme) }}
+            PaperProps={{ sx: drawerPaperSx(theme) }}
         >
-                    <Box sx={getDrawerHeaderSx(theme)}>
+                    <Box sx={drawerHeaderSx(theme)}>
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>Sort & Filter</Typography>
-                        <IconButton onClick={onClose} sx={closeDrawerButtonSx(theme)}>
+                        <IconButton onClick={onClose} sx={closeDrawerButtonSx}>
                     <CloseIcon fontSize="small" />
                 </IconButton>
             </Box>
 
             <Divider />
 
-            <Box sx={getDrawerBodySx(theme)}>
+            <Box sx={drawerBodySx(theme)}>
                 <Box sx={drawerSectionSx}>
-                    <Typography variant="subtitle2" sx={drawerSectionTitleSx}>
+                    <Typography variant="subtitle2" sx={drawerSectionTitleSx(theme)}>
                         Sort By
                     </Typography>
                     <RadioGroup value={draftFilters.sort} onChange={handleSortChange}>
@@ -394,7 +394,7 @@ const FilterDrawer = React.memo(({ open, filters, onClose, onApply, onReset }: F
                 <Divider />
 
                 <Box sx={drawerSectionSx}>
-                    <Typography variant="subtitle2" sx={drawerSectionTitleSx}>
+                    <Typography variant="subtitle2" sx={drawerSectionTitleSx(theme)}>
                         Price Range
                     </Typography>
                     <Box sx={{ px: 1 }}>
@@ -422,7 +422,7 @@ const FilterDrawer = React.memo(({ open, filters, onClose, onApply, onReset }: F
                 <Divider />
 
                 <Box sx={drawerSectionSx}>
-                    <Typography variant="subtitle2" sx={drawerSectionTitleSx}>
+                    <Typography variant="subtitle2" sx={drawerSectionTitleSx(theme)}>
                         Location
                     </Typography>
                     <TextField
@@ -436,11 +436,11 @@ const FilterDrawer = React.memo(({ open, filters, onClose, onApply, onReset }: F
                 </Box>
             </Box>
 
-            <Box sx={getDrawerActionsSx(theme)}>
-                <Button fullWidth variant="outlined" onClick={handleReset} sx={resetButtonSx(theme)}>
+            <Box sx={drawerActionsSx(theme)}>
+                <Button fullWidth variant="outlined" onClick={handleReset} sx={resetButtonSx}>
                     Reset
                 </Button>
-                <Button fullWidth variant="contained" onClick={handleApply} sx={getApplyButtonSx(theme)}>
+                <Button fullWidth variant="contained" onClick={handleApply} sx={applyButtonSx(theme)}>
                     Apply Filters
                 </Button>
             </Box>
@@ -691,13 +691,13 @@ const VendorServicesPage = () => {
     }), [searchEndAdornment, searchStartAdornment]);
 
     return (
-        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', pb: theme.spacing(10) }}>
-            <Box sx={getHeaderOuterSx(theme)}>
+        <Box sx={getHeaderOuterSx(theme)}>
+            <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', pb: theme.spacing(10) }}>
                 <Container maxWidth={false} disableGutters>
                     <Box sx={getHeaderContentSx(theme)}>
-                        <Box sx={getHeaderIntroSx()}>
+                        <Box sx={headerIntroSx}>
                             <Typography sx={getHeaderEyebrowSx(theme)}>Vendor Workspace</Typography>
-                            <Typography variant="h4" sx={getHeaderTitleSx()}>
+                            <Typography variant="h4" sx={headerTitleSx}>
                                 Manage your services
                             </Typography>
                             <Typography variant="body2" sx={getHeaderSubtitleSx(theme)}>
@@ -737,7 +737,7 @@ const VendorServicesPage = () => {
                 <Container maxWidth={false} disableGutters sx={getContentContainerSx()}>
                     <Box sx={getTitleRowSx(theme)}>
                         <Box>
-                            <Typography variant="h5" sx={getPageTitleSx()}>
+                            <Typography variant="h5" sx={pageTitleSx}>
                                 {activeCategory === 'all' ? 'My Services' : `Services in ${activeCategoryName}`}
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600, mt: theme.spacing(0.5) }}>
@@ -780,7 +780,7 @@ const VendorServicesPage = () => {
                             ))
                         ) : (
                             <Box sx={getEmptyStateSx(theme)}>
-                                    <Typography variant="subtitle1" sx={getEmptyStateTextSx()}>
+                                    <Typography variant="subtitle1" sx={emptyStateTextSx()}>
                                     No services found matching your current filters.
                                 </Typography>
                             </Box>
@@ -788,7 +788,7 @@ const VendorServicesPage = () => {
                     </Grid>
 
                     {totalPages > 1 && (
-                        <Box sx={getPaginationWrapperSx(theme)}>
+                        <Box sx={paginationWrapperSx}>
                             <Pagination
                                 count={totalPages}
                                 page={page}

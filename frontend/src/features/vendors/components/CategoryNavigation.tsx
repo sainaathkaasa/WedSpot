@@ -65,7 +65,6 @@ const CategoryNavigation: React.FC<CategoryNavigationProps> = ({ categories, act
                     },
                 }}
             >
-                <Tab label="All Categories" value="all" />
                 {categories.map((category) => (
                     <Tab
                         key={category.id}

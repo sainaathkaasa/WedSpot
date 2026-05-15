@@ -87,9 +87,7 @@ public class ReviewService implements IReviewService {
 
     @Override
     public APIResponse<List<ReviewDTO>> getReviewsByServiceId(Long serviceId) {
-        List<Review> reviews = reviewRepository.findAll().stream()
-                .filter(r -> r.getService().getId().equals(serviceId))
-                .toList();
+        List<Review> reviews = reviewRepository.findByServiceId(serviceId);
 
         if (reviews.isEmpty()) {
             APIResponse<List<ReviewDTO>> apiResponse = new APIResponse<>();
