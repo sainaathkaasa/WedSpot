@@ -43,7 +43,7 @@ public class AuthService implements IAuthService {
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setUser(fetchedUserDTO);
         loginResponse.setAccessToken(token);
-        loginResponse.setRefreshToken(token);
+        loginResponse.setRefreshToken(jwtUtils.generateRefreshToken(fetchedUser));
 
         APIResponse<LoginResponse> apiResponse = new APIResponse<>();
         apiResponse.setData(loginResponse);
@@ -57,6 +57,9 @@ public class AuthService implements IAuthService {
         if (existingUser.isPresent()) {
             throw new ResourceAlreadyExistsException("Email already exists");
         }
+        if (request.getRole() != null) {
+            request.setRole(request.getRole().toUpperCase());
+        }
         User user = IUserMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = authRepository.save(user);
@@ -66,7 +69,7 @@ public class AuthService implements IAuthService {
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setUser(savedUserDTO);
         loginResponse.setAccessToken(token);
-        loginResponse.setRefreshToken(token);
+        loginResponse.setRefreshToken(jwtUtils.generateRefreshToken(savedUser));
 
         APIResponse<LoginResponse> apiResponse = new APIResponse<>();
         apiResponse.setData(loginResponse);

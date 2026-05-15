@@ -19,13 +19,10 @@ import {
 } from "@mui/material";
 import {
   Menu as MenuIcon,
-  Notifications as BellIcon,
-  ShoppingCart as CartIcon
+  Notifications as BellIcon
 } from "@mui/icons-material";
 import { Logo } from "@/components/UI/Logo";
 import NotificationCenter from "@/components/Notifications/NotificationCenter";
-import { useCart } from "@/contexts/cartContextValue";
-import { UserRole } from "@/features/auth";
 
 export const SIDEBAR_WIDTH_FULL = 230;
 export const SIDEBAR_WIDTH_COLLAPSED = 64;
@@ -37,15 +34,11 @@ const DashboardLayout = (): JSX.Element => {
   const { sidebarOpen, toggleSidebar } = useDashboard();
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const navigate = useNavigate();
-  const { items } = useCart();
 
   const role = user?.role;
   const userName = user?.name;
-  const cartCount = items.length;
-  const isClient = role === UserRole.CLIENT;
 
   const handleProfileClick = useCallback(() => navigate("/profile"), [navigate]);
-  const handleCartClick = useCallback(() => navigate("/cart"), [navigate]);
   const handleNotificationsToggle = useCallback(
     () => setIsNotificationsOpen((prev) => !prev),
     []
@@ -101,7 +94,7 @@ const DashboardLayout = (): JSX.Element => {
             </Box>
           </Box>
 
-          {/* Right — Notifications, Cart, Profile */}
+          {/* Right — Notifications, Profile */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: theme.spacing(2.5) } }}>
 
             <Tooltip title="Notifications">
@@ -123,26 +116,6 @@ const DashboardLayout = (): JSX.Element => {
                 </Badge>
               </IconButton>
             </Tooltip>
-
-            {isClient && (
-              <Tooltip title="View Cart">
-                <IconButton
-                  size="medium"
-                  aria-label="view cart"
-                  onClick={handleCartClick}
-                  sx={{
-                    borderRadius: theme.shape.borderRadius,
-                    bgcolor: alpha(theme.palette.text.primary, 0.03),
-                    color: 'text.secondary',
-                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.1) }
-                  }}
-                >
-                  <Badge badgeContent={cartCount} color="primary">
-                    <CartIcon fontSize="small" />
-                  </Badge>
-                </IconButton>
-              </Tooltip>
-            )}
 
             <Divider orientation="vertical" flexItem sx={{ height: 24, alignSelf: 'center', mx: theme.spacing(0.5) }} />
 

@@ -3,6 +3,8 @@ package com.wedspot.backend.controller;
 import com.wedspot.backend.Model.*;
 import com.wedspot.backend.Model.Entity.BookingStatus;
 import com.wedspot.backend.services.implementation.BookingService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,7 +47,7 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<APIResponse<BookingDTO>> createBooking(@RequestBody BookingRequest request) {
+    public ResponseEntity<APIResponse<BookingDTO>> createBooking(@Valid @RequestBody BookingRequest request) {
         APIResponse<BookingDTO> apiResponse = bookingService.createBooking(request);
         return ResponseEntity.status(201).body(apiResponse);
     }

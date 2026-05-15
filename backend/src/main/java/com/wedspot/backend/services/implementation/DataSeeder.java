@@ -49,13 +49,13 @@ public class DataSeeder implements CommandLineRunner {
         String defaultPassword = passwordEncoder.encode("1234567890");
         String defaultPhone = "1234567890";
 
-        seedIfNotExists(createUser("Admin Kumar", "admin@gmail.com", defaultPassword, "Admin", defaultPhone));
+        seedIfNotExists(createUser("Admin Kumar", "admin@gmail.com", defaultPassword, "ADMIN", defaultPhone));
 
         List<String[]> roles = Arrays.asList(
-                new String[] { "Manager", "manager" },
-                new String[] { "Staff", "staff" },
-                new String[] { "Vendor", "vendor" },
-                new String[] { "Client", "client" });
+                new String[] { "MANAGER", "manager" },
+                new String[] { "STAFF", "staff" },
+                new String[] { "VENDOR", "vendor" },
+                new String[] { "CLIENT", "client" });
 
         for (String[] roleEntry : roles) {
             String roleName = roleEntry[0];

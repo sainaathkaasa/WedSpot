@@ -16,6 +16,7 @@ import {
     Avatar,
     useTheme
 } from '@mui/material';
+import type { ButtonProps } from '@mui/material';
 import {
     ArrowBack as BackIcon,
     LocationOn as LocationIcon,
@@ -24,14 +25,15 @@ import {
     Favorite as FavoriteIcon,
     Share as ShareIcon,
     CalendarMonth as CalendarIcon,
-    ShoppingCart as CartIcon,
     CheckCircle as CheckIcon,
     Restaurant as FoodIcon
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart } from '@/contexts/cartContextValue';
-import CateringDialog from '@/features/vendors/components/CateringDialog';
+import { useSnackbar } from '@/contexts/snackbarContextValue';
+import BookingDialog, { type BookingDetails } from '@/features/Booking/components/BookingDialog';
+import { BOOKING_SERVICE } from '@/features/Booking/api/bookings.api';
 import { useVendorDetails } from '../hooks';
+import type { Review } from '../types/vendor';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -56,9 +58,10 @@ const VendorDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { addToCart, isItemInCart } = useCart();
+    const { success, error } = useSnackbar();
     const [activeTab, setActiveTab] = useState(0);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
+    const [isBooking, setIsBooking] = useState(false);
 
     const { data: response, isLoading, isError } = useVendorDetails(id as string);
 
@@ -89,36 +92,65 @@ const VendorDetails: React.FC = () => {
     }
 
     const isCatering = (vendor.category || '').toLowerCase() === 'catering';
-    const isInCart = isItemInCart(String(vendor.id));
 
     const handleBookingAction = () => {
-        if (isCatering) {
-            setIsDialogOpen(true);
-        } else {
-            addToCart({ ...vendor, type: 'general' }, 1);
+        setIsBookingDialogOpen(true);
+    };
+
+    const handleConfirmBooking = async (details: BookingDetails) => {
+        const serviceId = Number(vendor.id);
+
+        if (!serviceId || Number.isNaN(serviceId)) {
+            error('Unable to book this service right now');
+            return;
+        }
+
+        setIsBooking(true);
+        try {
+            const response = await BOOKING_SERVICE.createBooking({
+                ...details,
+                serviceIds: [serviceId],
+            });
+
+            if (response.ok) {
+                success('Booking request submitted successfully!');
+                setIsBookingDialogOpen(false);
+                navigate('/client/bookings');
+                return;
+            }
+
+            error(response.message || 'Failed to create booking');
+        } catch (err: unknown) {
+            const message = err && typeof err === 'object' && 'response' in err
+                ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+                : undefined;
+            error(message || 'An error occurred during booking');
+        } finally {
+            setIsBooking(false);
         }
     };
 
-    const BookingButton = ({ fullWidth = false, size = "medium" as any }) => (
+    const BookingButton = ({ fullWidth = false, size = "medium" as ButtonProps['size'] }) => (
         <Button
-            variant={(isInCart && !isCatering) ? "outlined" : "contained"}
+            variant="contained"
             color={isCatering ? "secondary" : "primary"}
             size={size}
             fullWidth={fullWidth}
             onClick={handleBookingAction}
-            startIcon={(isInCart && !isCatering) ? <CheckIcon /> : (isCatering ? <FoodIcon /> : <CartIcon />)}
+            startIcon={isCatering ? <FoodIcon /> : <CalendarIcon />}
+            disabled={isBooking}
             sx={{
                 borderRadius: '16px',
                 textTransform: 'none',
                 fontWeight: 800,
                 px: 3,
                 height: size === "medium" ? 48 : 40,
-                boxShadow: (isInCart && !isCatering) ? 'none' : `0 8px 20px ${alpha(isCatering ? theme.palette.secondary.main : theme.palette.primary.main, 0.2)}`,
+                boxShadow: `0 8px 20px ${alpha(isCatering ? theme.palette.secondary.main : theme.palette.primary.main, 0.2)}`,
                 borderWidth: 2,
                 '&:hover': { borderWidth: 2 }
             }}
         >
-            {isCatering ? 'Reserve' : (isInCart ? 'Already Booked' : 'Book Now')}
+            {isCatering ? 'Reserve' : 'Book Now'}
         </Button>
     );
 
@@ -306,34 +338,40 @@ const VendorDetails: React.FC = () => {
                                         <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>Provided Services</Typography>
                                         <Grid container spacing={3}>
                                             {vendor.tags && vendor.tags.length > 0 ? (
-                                                vendor.tags.map((service: any) => (
-                                                    <Grid item xs={12} sm={6} key={String(service.id)}>
-                                                        <Box sx={{
-                                                            p: 3,
-                                                            bgcolor: 'background.paper',
-                                                            borderRadius: '20px',
-                                                            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: 2.5
-                                                        }}>
+                                                vendor.tags.map((service: ServiceTag) => {
+                                                    const serviceLabel = typeof service === 'string'
+                                                        ? service
+                                                        : service.name || String(service.id || 'Service');
+
+                                                    return (
+                                                        <Grid item xs={12} sm={6} key={serviceLabel}>
                                                             <Box sx={{
-                                                                width: 48, height: 48,
-                                                                bgcolor: alpha(theme.palette.primary.main, 0.08),
-                                                                borderRadius: '14px',
-                                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                                p: 3,
+                                                                bgcolor: 'background.paper',
+                                                                borderRadius: '20px',
+                                                                border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: 2.5
                                                             }}>
-                                                                <VerifiedIcon sx={{ color: 'primary.main', fontSize: 24 }} />
+                                                                <Box sx={{
+                                                                    width: 48, height: 48,
+                                                                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                                                    borderRadius: '14px',
+                                                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                                }}>
+                                                                    <VerifiedIcon sx={{ color: 'primary.main', fontSize: 24 }} />
+                                                                </Box>
+                                                                <Box>
+                                                                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.3 }}>{serviceLabel}</Typography>
+                                                                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                                                                        Professional tier service
+                                                                    </Typography>
+                                                                </Box>
                                                             </Box>
-                                                            <Box>
-                                                                <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.3 }}>{service.name || service}</Typography>
-                                                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                                                                    Professional tier service
-                                                                </Typography>
-                                                            </Box>
-                                                        </Box>
-                                                    </Grid>
-                                                ))
+                                                        </Grid>
+                                                    );
+                                                })
                                             ) : (
                                                 <Grid item xs={12}>
                                                     <Typography variant="body1" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
@@ -362,7 +400,7 @@ const VendorDetails: React.FC = () => {
 
                                         {vendor.reviews && vendor.reviews.length > 0 ? (
                                             <Stack spacing={3}>
-                                                {vendor.reviews.map((review: any) => (
+                                                {vendor.reviews.map((review: Review) => (
                                                     <Box
                                                         key={review.id}
                                                         sx={{
@@ -498,14 +536,19 @@ const VendorDetails: React.FC = () => {
                 </Container>
             </Box>
 
-            <CateringDialog
-                open={isDialogOpen}
-                onClose={() => setIsDialogOpen(false)}
-                onAdd={(q) => addToCart({ ...vendor, type: 'catering' }, q)}
-                service={{ ...vendor, type: 'catering' }}
+            <BookingDialog
+                open={isBookingDialogOpen}
+                onClose={() => setIsBookingDialogOpen(false)}
+                onConfirm={handleConfirmBooking}
+                loading={isBooking}
             />
         </Box>
     );
+};
+
+type ServiceTag = string | {
+    id?: string | number;
+    name?: string;
 };
 
 export default VendorDetails;

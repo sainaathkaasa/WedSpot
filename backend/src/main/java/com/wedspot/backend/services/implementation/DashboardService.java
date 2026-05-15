@@ -68,9 +68,9 @@ public class DashboardService implements IDashboardService {
         metrics.put("totalRevenueChange", calculateTrend(revenueThisMonth, revenueLastMonth));
 
         // Other status counts
-        metrics.put("pendingBookings", bookingRepository.findAll().stream().filter(b -> b.getStatus() == BookingStatus.PENDING).count());
-        metrics.put("confirmedBookings", bookingRepository.findAll().stream().filter(b -> b.getStatus() == BookingStatus.CONFIRMED).count());
-        metrics.put("completedBookings", bookingRepository.findAll().stream().filter(b -> b.getStatus() == BookingStatus.COMPLETED).count());
+        metrics.put("pendingBookings", bookingRepository.countByStatus(BookingStatus.PENDING));
+        metrics.put("confirmedBookings", bookingRepository.countByStatus(BookingStatus.CONFIRMED));
+        metrics.put("completedBookings", bookingRepository.countByStatus(BookingStatus.COMPLETED));
 
         // Dynamic Chart Data (Last 6 Months)
         List<Map<String, Object>> chartData = new ArrayList<>();
@@ -126,11 +126,11 @@ public class DashboardService implements IDashboardService {
         LocalDateTime firstDayOfCurrentMonth = now.withDayOfMonth(1).with(LocalTime.MIN);
         LocalDateTime firstDayOfLastMonth = firstDayOfCurrentMonth.minusMonths(1);
 
-        long totalVendors = userRepository.findAll().stream().filter(u -> "VENDOR".equalsIgnoreCase(u.getRole())).count();
-        long totalStaff = userRepository.findAll().stream().filter(u -> "STAFF".equalsIgnoreCase(u.getRole())).count();
+        long totalVendors = userRepository.countByRole("VENDOR");
+        long totalStaff = userRepository.countByRole("STAFF");
         
-        long activeBookings = bookingRepository.findAll().stream().filter(b -> b.getStatus() == BookingStatus.CONFIRMED).count();
-        long pendingBookings = bookingRepository.findAll().stream().filter(b -> b.getStatus() == BookingStatus.PENDING).count();
+        long activeBookings = bookingRepository.countByStatus(BookingStatus.CONFIRMED);
+        long pendingBookings = bookingRepository.countByStatus(BookingStatus.PENDING);
 
         long bookingsThisMonth = bookingRepository.countByCreatedAtBetween(firstDayOfCurrentMonth, now);
         long bookingsLastMonth = bookingRepository.countByCreatedAtBetween(firstDayOfLastMonth, firstDayOfCurrentMonth);
@@ -173,15 +173,9 @@ public class DashboardService implements IDashboardService {
     public APIResponse<DashboardMetrics> getStaffMetrics() {
         var allBookings = bookingRepository.findAll();
 
-        long upcomingEvents = allBookings.stream()
-                .filter(b -> b.getStatus() == BookingStatus.CONFIRMED || b.getStatus() == BookingStatus.PENDING)
-                .count();
-        long completedEvents = allBookings.stream()
-                .filter(b -> b.getStatus() == BookingStatus.COMPLETED)
-                .count();
-        long pendingTasks = allBookings.stream()
-                .filter(b -> b.getStatus() == BookingStatus.PENDING)
-                .count();
+        long upcomingEvents = bookingRepository.countByStatus(BookingStatus.CONFIRMED) + bookingRepository.countByStatus(BookingStatus.PENDING);
+        long completedEvents = bookingRepository.countByStatus(BookingStatus.COMPLETED);
+        long pendingTasks = bookingRepository.countByStatus(BookingStatus.PENDING);
 
         Map<String, Object> metrics = new LinkedHashMap<>();
         metrics.put("upcomingEvents", upcomingEvents);
@@ -233,8 +227,8 @@ public class DashboardService implements IDashboardService {
                 .map(b -> b.getTotalAmount() != null ? b.getTotalAmount() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        long bookingsThisMonth = allBookings.stream().filter(b -> b.getCreatedAt().isAfter(firstDayOfCurrentMonth)).count();
-        long bookingsLastMonth = allBookings.stream().filter(b -> b.getCreatedAt().isAfter(firstDayOfLastMonth) && b.getCreatedAt().isBefore(firstDayOfCurrentMonth)).count();
+        long bookingsThisMonth = bookingRepository.countByVendorIdAndCreatedAtBetween(vendorId, firstDayOfCurrentMonth, now);
+        long bookingsLastMonth = bookingRepository.countByVendorIdAndCreatedAtBetween(vendorId, firstDayOfLastMonth, firstDayOfCurrentMonth);
 
         BigDecimal earningsThisMonth = allBookings.stream()
                 .filter(b -> b.getStatus() == BookingStatus.COMPLETED && b.getCreatedAt().isAfter(firstDayOfCurrentMonth))

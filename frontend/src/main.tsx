@@ -11,7 +11,6 @@ import { router } from '@/router';
 import { Provider } from 'react-redux';
 import { store } from '@/store';
 
-import { CartProvider } from '@/contexts/CartContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { OfflineBanner } from '@/shared/ui/OfflineBanner';
@@ -36,9 +35,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             <UserProvider>
               <AuthProvider>
                 <SnackbarProvider>
-                  <CartProvider>
-                    <RouterProvider router={router} />
-                  </CartProvider>
+                  <RouterProvider router={router} />
                 </SnackbarProvider>
               </AuthProvider>
             </UserProvider>

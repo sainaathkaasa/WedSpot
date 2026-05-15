@@ -40,6 +40,8 @@ public class VendorService {
 
     private String category;
 
+    private Integer quantity = 1;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendor_id", nullable = false)

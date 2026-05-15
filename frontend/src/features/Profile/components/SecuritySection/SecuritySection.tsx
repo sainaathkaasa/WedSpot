@@ -55,6 +55,10 @@ const SecuritySection: React.FC = () => {
 
         setLoading(true);
         try {
+            if (!user?.id) {
+                setError("User session expired. Please log in again.");
+                return;
+            }
             const response = await USER_SERVICE.changePassword(Number(user.id), currentPassword, newPassword);
             if (response.ok) {
                 setSuccess(true);

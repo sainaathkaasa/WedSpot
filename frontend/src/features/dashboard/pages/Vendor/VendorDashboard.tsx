@@ -35,8 +35,8 @@ const VendorDashboard: React.FC = () => {
   const chartData = dashboardData?.data?.chartData || [];
 
   const stats = [
-    { label: 'Total Bookings', value: (metrics.totalBookings || '0').toString(), change: `${(metrics.totalBookingsChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalBookingsChange ?? 0).toFixed(1)}%`, icon: CalendarIcon, color: theme.palette.secondary.main, trend: ((metrics.totalBookingsChange ?? 0) >= 0 ? 'up' : 'down') as const },
-    { label: 'Total Earnings', value: `₹${((metrics.totalEarnings || 0) / 100000).toFixed(1)}L`, change: `${(metrics.totalEarningsChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalEarningsChange ?? 0).toFixed(1)}%`, icon: DollarIcon, color: theme.palette.success.main, trend: ((metrics.totalEarningsChange ?? 0) >= 0 ? 'up' : 'down') as const },
+    { label: 'Total Bookings', value: (metrics.totalBookings || '0').toString(), change: `${(metrics.totalBookingsChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalBookingsChange ?? 0).toFixed(1)}%`, icon: CalendarIcon, color: theme.palette.secondary.main, trend: ((metrics.totalBookingsChange ?? 0) >= 0 ? 'up' : 'down') as 'up' | 'down' },
+    { label: 'Total Earnings', value: `₹${((metrics.totalEarnings || 0) / 100000).toFixed(1)}L`, change: `${(metrics.totalEarningsChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalEarningsChange ?? 0).toFixed(1)}%`, icon: DollarIcon, color: theme.palette.success.main, trend: ((metrics.totalEarningsChange ?? 0) >= 0 ? 'up' : 'down') as 'up' | 'down' },
     { label: 'Client Rating', value: Number(metrics.avgRating || '0').toFixed(1), change: metrics.totalReviews ? `${metrics.totalReviews} reviews` : 'No reviews', icon: StarIcon, color: theme.palette.warning.main, trend: 'up' as const },
     { label: 'Active Services', value: (metrics.totalServices || '0').toString(), change: 'Available services', icon: TrendingUpIcon, color: theme.palette.info.main, trend: 'up' as const },
   ];

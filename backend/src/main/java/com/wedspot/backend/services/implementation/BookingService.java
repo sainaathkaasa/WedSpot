@@ -142,7 +142,7 @@ public class BookingService implements IBookingService {
     public APIResponse<BookingDTO> createBooking(BookingRequest request) {
         String userEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
         User client = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
         Booking booking = new Booking();
         booking.setClient(client);
@@ -160,7 +160,7 @@ public class BookingService implements IBookingService {
                 if (serviceId == null) continue; // Skip invalid IDs
                 
                 VendorService vendorService = vendorServiceRepository.findById(serviceId)
-                        .orElseThrow(() -> new RuntimeException("Service not found with ID: " + serviceId));
+                        .orElseThrow(() -> new ResourceNotFoundException("Service not found with ID: " + serviceId));
 
                 ServiceBooking bs = new ServiceBooking();
                 bs.setBooking(booking);
@@ -182,7 +182,7 @@ public class BookingService implements IBookingService {
 
         APIResponse<BookingDTO> apiResponse = new APIResponse<>();
         apiResponse.setMessage("Booking created successfully");
-        apiResponse.setData(bookingMapper.toDTO(savedBooking));
+        apiResponse.setData(enrichBookingDTO(savedBooking));
         apiResponse.setOk(true);
         return apiResponse;
     }

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,11 +19,11 @@ public class VendorServiceRequest {
 
     private String imageUrl;
 
-    private double price;
+    private BigDecimal price;
 
     private String location;
 
     private String category;
 
-    private double quantity = 1;
+    private Integer quantity = 1;
 }

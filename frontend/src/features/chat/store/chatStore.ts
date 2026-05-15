@@ -9,7 +9,7 @@ interface ChatState {
     connection: HubConnection | null;
     connectionStatus: 'connected' | 'disconnected' | 'connecting';
     typingUsers: Set<string>;
-    
+
     // Actions
     setConnection: (connection: HubConnection | null) => void;
     setConnectionStatus: (status: 'connected' | 'disconnected' | 'connecting') => void;
@@ -39,13 +39,13 @@ const MOCK_DATA: Record<string, { conversations: Conversation[], messages: ChatM
             { id: 'sa3', conversationId: '1', userEmail: 'system@weddingcraft.com', message: 'Migration scheduled for 2 AM tonight.', createdAt: new Date(Date.now() - 34000000).toISOString(), status: 'read', isOwn: false },
             { id: 'sa4', conversationId: '1', userEmail: 'admin@weddingcraft.com', message: 'Perfect. Keep me posted.', createdAt: new Date(Date.now() - 33000000).toISOString(), status: 'read', isOwn: true },
             { id: 'sa5', conversationId: '1', userEmail: 'system@weddingcraft.com', message: 'Will do. All monitoring alerts are set.', createdAt: new Date(Date.now() - 32000000).toISOString(), status: 'read', isOwn: false },
-            
+
             { id: 'sa6', conversationId: '2', userEmail: 'sarah@weddingcraft.com', message: 'Hi Admin, I have finalized the staff assignments for the upcoming gala.', createdAt: new Date(Date.now() - 26000000).toISOString(), status: 'read', isOwn: false },
             { id: 'sa7', conversationId: '2', userEmail: 'admin@weddingcraft.com', message: 'Great, can you send the PDF?', createdAt: new Date(Date.now() - 25000000).toISOString(), status: 'read', isOwn: true },
             { id: 'sa8', conversationId: '2', userEmail: 'sarah@weddingcraft.com', message: 'Uploading it now.', createdAt: new Date(Date.now() - 24000000).toISOString(), status: 'read', isOwn: false },
             { id: 'sa9', conversationId: '2', userEmail: 'admin@weddingcraft.com', message: 'Received. Please also check regarding the temporary staff.', createdAt: new Date(Date.now() - 23000000).toISOString(), status: 'read', isOwn: true },
             { id: 'sa10', conversationId: '2', userEmail: 'sarah@weddingcraft.com', message: 'Will do! Monthly reports are ready as well.', createdAt: new Date(Date.now() - 22000000).toISOString(), status: 'read', isOwn: false },
-            
+
             { id: 'sa11', conversationId: '5', userEmail: 'john@weddingcraft.com', message: 'Staff shirts have arrived at the warehouse.', createdAt: new Date(Date.now() - 10000000).toISOString(), status: 'read', isOwn: false },
             { id: 'sa12', conversationId: '5', userEmail: 'admin@weddingcraft.com', message: 'Excellent. Please coordinate the distribution.', createdAt: new Date(Date.now() - 9000000).toISOString(), status: 'read', isOwn: true },
             { id: 'sa13', conversationId: '5', userEmail: 'john@weddingcraft.com', message: 'The gala team has already received theirs.', createdAt: new Date(Date.now() - 8000000).toISOString(), status: 'read', isOwn: false },
@@ -68,7 +68,7 @@ const MOCK_DATA: Record<string, { conversations: Conversation[], messages: ChatM
             { id: 'm3', conversationId: '1', userEmail: 'admin@weddingcraft.com', message: 'Let\'s address that in our Monday meeting.', createdAt: new Date(Date.now() - 8000000).toISOString(), status: 'read', isOwn: false },
             { id: 'm4', conversationId: '1', userEmail: 'sarah@weddingcraft.com', message: 'Agreed. I\'m also reviewing the new staff list.', createdAt: new Date(Date.now() - 7000000).toISOString(), status: 'read', isOwn: true },
             { id: 'm5', conversationId: '1', userEmail: 'admin@weddingcraft.com', message: 'Excellent. Looking forward to the results.', createdAt: new Date(Date.now() - 6000000).toISOString(), status: 'read', isOwn: false },
-            
+
             { id: 'm11', conversationId: '4', userEmail: 'priya@gmail.com', message: 'Hi Sarah, are we still meeting tomorrow for the final walkthrough?', createdAt: new Date(Date.now() - 15000000).toISOString(), status: 'read', isOwn: false },
             { id: 'm12', conversationId: '4', userEmail: 'sarah@weddingcraft.com', message: 'Yes! 2 PM at the Royal Hall.', createdAt: new Date(Date.now() - 14000000).toISOString(), status: 'read', isOwn: true },
             { id: 'm13', conversationId: '4', userEmail: 'priya@gmail.com', message: 'Should I bring my planner?', createdAt: new Date(Date.now() - 13000000).toISOString(), status: 'read', isOwn: false },
@@ -91,7 +91,7 @@ const MOCK_DATA: Record<string, { conversations: Conversation[], messages: ChatM
             { id: 'v3', conversationId: '1', userEmail: 'support@weddingcraft.com', message: 'It should hit your account within 24 hours.', createdAt: new Date(Date.now() - 38000000).toISOString(), status: 'read', isOwn: false },
             { id: 'v4', conversationId: '1', userEmail: 'vendor@royal.com', message: 'Greatly appreciated.', createdAt: new Date(Date.now() - 37000000).toISOString(), status: 'read', isOwn: true },
             { id: 'v5', conversationId: '1', userEmail: 'support@weddingcraft.com', message: 'Your payout has been processed.', createdAt: new Date(Date.now() - 36000000).toISOString(), status: 'read', isOwn: false },
-            
+
             { id: 'v11', conversationId: '4', userEmail: 'anita@gmail.com', message: 'Hello! We want to update the appetizer menu.', createdAt: new Date(Date.now() - 5000000).toISOString(), status: 'read', isOwn: false },
             { id: 'v12', conversationId: '4', userEmail: 'vendor@royal.com', message: 'Sure, we have three new options available.', createdAt: new Date(Date.now() - 4000000).toISOString(), status: 'read', isOwn: true },
             { id: 'v13', conversationId: '4', userEmail: 'anita@gmail.com', message: 'Can you send the pricing for the seafood platter?', createdAt: new Date(Date.now() - 3000000).toISOString(), status: 'read', isOwn: false },
@@ -114,7 +114,7 @@ const MOCK_DATA: Record<string, { conversations: Conversation[], messages: ChatM
             { id: 's3', conversationId: '1', userEmail: 'sarah@weddingcraft.com', message: 'Be there by 10 AM sharp.', createdAt: new Date(Date.now() - 18000000).toISOString(), status: 'read', isOwn: false },
             { id: 's4', conversationId: '1', userEmail: 'staff@weddingcraft.com', message: 'Copy that. I\'ll bring the uniforms.', createdAt: new Date(Date.now() - 17000000).toISOString(), status: 'read', isOwn: true },
             { id: 's5', conversationId: '1', userEmail: 'sarah@weddingcraft.com', message: 'Hi lead, you are assigned to the Royal Banquet event.', createdAt: new Date(Date.now() - 16000000).toISOString(), status: 'read', isOwn: false },
-            
+
             { id: 's11', conversationId: '5', userEmail: 'staff@weddingcraft.com', message: 'Hi David, can I swap my Friday shift?', createdAt: new Date(Date.now() - 25000000).toISOString(), status: 'read', isOwn: true },
             { id: 's12', conversationId: '5', userEmail: 'david@weddingcraft.com', message: 'Which day are you looking for?', createdAt: new Date(Date.now() - 24000000).toISOString(), status: 'read', isOwn: false },
             { id: 's13', conversationId: '5', userEmail: 'staff@weddingcraft.com', message: 'Saturday morning would be better.', createdAt: new Date(Date.now() - 23000000).toISOString(), status: 'read', isOwn: true },
@@ -137,7 +137,7 @@ const MOCK_DATA: Record<string, { conversations: Conversation[], messages: ChatM
             { id: 'c3', conversationId: '1', userEmail: 'sarah@weddingcraft.com', message: 'Gourmet Delights is available for May 15th.', createdAt: new Date(Date.now() - 8000000).toISOString(), status: 'read', isOwn: false },
             { id: 'c4', conversationId: '1', userEmail: 'priya@gmail.com', message: 'That\'s fantastic, they were my top choice.', createdAt: new Date(Date.now() - 7000000).toISOString(), status: 'read', isOwn: true },
             { id: 'c5', conversationId: '1', userEmail: 'sarah@weddingcraft.com', message: 'We booked the caterer! Checking contract now.', createdAt: new Date(Date.now() - 6000000).toISOString(), status: 'read', isOwn: false },
-            
+
             { id: 'c11', conversationId: '4', userEmail: 'flowers@dreams.com', message: 'Hi Priya, I have some ideas for the orchids.', createdAt: new Date(Date.now() - 5000000).toISOString(), status: 'read', isOwn: false },
             { id: 'c12', conversationId: '4', userEmail: 'priya@gmail.com', message: 'Can we mix them with white roses?', createdAt: new Date(Date.now() - 4000000).toISOString(), status: 'read', isOwn: true },
             { id: 'c13', conversationId: '4', userEmail: 'flowers@dreams.com', message: 'Absolutely, that would look very elegant.', createdAt: new Date(Date.now() - 3000000).toISOString(), status: 'read', isOwn: false },
@@ -157,21 +157,21 @@ export const useChatStore = create<ChatState>((set) => ({
 
     setConnection: (connection) => set({ connection }),
     setConnectionStatus: (status) => set({ connectionStatus: status }),
-    
-    addMessage: (message) => set((state) => ({ 
-        messages: [...state.messages, message] 
+
+    addMessage: (message) => set((state) => ({
+        messages: [...state.messages, message]
     })),
-    
+
     setMessages: (messages) => set({ messages }),
     setConversations: (conversations) => set({ conversations }),
     setActiveConversation: (id) => set({ activeConversationId: id }),
-    
+
     addTypingUser: (userEmail) => set((state) => {
         const newSet = new Set(state.typingUsers);
         newSet.add(userEmail);
         return { typingUsers: newSet };
     }),
-    
+
     removeTypingUser: (userEmail) => set((state) => {
         const newSet = new Set(state.typingUsers);
         newSet.delete(userEmail);
@@ -179,7 +179,7 @@ export const useChatStore = create<ChatState>((set) => ({
     }),
 
     updatePresence: (userEmail, isOnline) => set((state) => ({
-        conversations: state.conversations.map(c => 
+        conversations: state.conversations.map(c =>
             c.name === userEmail ? { ...c, isOnline } : c
         )
     })),

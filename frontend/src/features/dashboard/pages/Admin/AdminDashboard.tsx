@@ -43,7 +43,7 @@ const AdminDashboard: React.FC = () => {
       change: `${(metrics.totalVendorsChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalVendorsChange ?? 0).toFixed(1)}%`,
       icon: BuildingIcon,
       color: theme.palette.primary.main,
-      trend: ((metrics.totalVendorsChange ?? 0) >= 0 ? "up" : "down") as const
+      trend: ((metrics.totalVendorsChange ?? 0) >= 0 ? "up" : "down") as "up" | "down"
     },
     {
       label: "Total Revenue",
@@ -51,7 +51,7 @@ const AdminDashboard: React.FC = () => {
       change: `${(metrics.totalRevenueChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalRevenueChange ?? 0).toFixed(1)}%`,
       icon: DollarIcon,
       color: theme.palette.success.main,
-      trend: ((metrics.totalRevenueChange ?? 0) >= 0 ? "up" : "down") as const
+      trend: ((metrics.totalRevenueChange ?? 0) >= 0 ? "up" : "down") as "up" | "down"
     },
     {
       label: "Active Users",
@@ -59,7 +59,7 @@ const AdminDashboard: React.FC = () => {
       change: `${(metrics.totalUsersChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalUsersChange ?? 0).toFixed(1)}%`,
       icon: UsersIcon,
       color: theme.palette.warning.main,
-      trend: ((metrics.totalUsersChange ?? 0) >= 0 ? "up" : "down") as const
+      trend: ((metrics.totalUsersChange ?? 0) >= 0 ? "up" : "down") as "up" | "down"
     },
     {
       label: "Bookings",
@@ -67,7 +67,7 @@ const AdminDashboard: React.FC = () => {
       change: `${(metrics.totalBookingsChange ?? 0) >= 0 ? '+' : ''}${(metrics.totalBookingsChange ?? 0).toFixed(1)}%`,
       icon: CalendarIcon,
       color: theme.palette.info.main,
-      trend: ((metrics.totalBookingsChange ?? 0) >= 0 ? "up" : "down") as const
+      trend: ((metrics.totalBookingsChange ?? 0) >= 0 ? "up" : "down") as "up" | "down"
     },
   ];
 
